@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include angel *.css
+recursive-include angel *.csv
+recursive-include angel *.html
+recursive-include angel *.ico
+recursive-include angel *.js
+recursive-include angel *.json
+recursive-include angel *.md
+recursive-include angel *.png
+recursive-include angel *.py
+recursive-include angel *.svg
+recursive-include angel *.txt
+recursive-exclude angel *.pyc
