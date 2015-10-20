@@ -20,7 +20,7 @@ def after_install():
         system("cp " + path.join(FBENCH, "sites/assets/erpnext/images/erp-icon.svg") + " " + path.join(FBENCH, "sites/assets/erpnext/images/erp-icon-bk.svg"))
         system("cp " + path.join(FBENCH, "sites/assets/erpnext/images/favicon.png ") + " " + path.join(FBENCH, "sites/assets/erpnext/images/favicon-bk.png"))
         system("cp " + path.join(FBENCH, "sites/assets/erpnext/images/splash.png  ") + " " + path.join(FBENCH, "sites/assets/erpnext/images/splash-bk.png"))
-        system("cp " + path.join(FBENCH, "sites/assets/angel/images/angel_logo.svg ") + " " + path.join(FBENCH, "sites/assets/erpnext/images/erp-icon.svg"))
+        system("cp " + path.join(FBENCH, "sites/assets/angel/images/ocf.svg ") + " " + path.join(FBENCH, "sites/assets/erpnext/images/erp-icon.svg"))
         system("cp " + path.join(FBENCH, "sites/assets/angel/images/favicon-16x16.png ") + " " + path.join(FBENCH, "sites/assets/erpnext/images/favicon.png"))
         system("cp " + path.join(FBENCH, "sites/assets/angel/images/ms-icon-310x310.png ") + " " + path.join(FBENCH, "sites/assets/erpnext/images/splash.png"))
 
@@ -30,8 +30,10 @@ def after_install():
         
         system("cp " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/navbar.html") + " " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/navbar.html-bk") )
         system("cp " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/offcanvas_left_sidebar.html") + " " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/offcanvas_left_sidebar.html-bk"))
+        system("cp " + path.join(APPS, "frappe/frappe/templates/pages/desk.html") + " " + path.join(APPS, "frappe/frappe/templates/pages/desk.html-bk") )
         system("cp " + path.join(APPS, "angel/angel/public/html/navbar.html") + " " + path.join(APPS,"frappe/frappe/public/js/frappe/ui/toolbar/navbar.html"))
         system("cp " + path.join(APPS, "angel/angel/public/html/offcanvas_left_sidebar.html") + " " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/offcanvas_left_sidebar.html"))
+        system("cp " + path.join(APPS, "angel/angel/templates/pages/desk.html") + " " + path.join(APPS, "frappe/frappe/templates/pages/desk.html"))
         #system("cp " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/about.js") + " " + path.join(APPS,"frappe/frappe/public/js/frappe/ui/toolbar/about.js-bk"))
         #system("cp " + path.join(APPS, "angel/angel/public/js/about.js") + " " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/about.js"))
         # overright ../../erpnext/erpnext/public/js/conf.js ../../angel/angel/public/js/conf.js
