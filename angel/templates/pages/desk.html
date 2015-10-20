@@ -9,7 +9,7 @@
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="white">
 	<meta name="mobile-web-app-capable" content="yes">
-	<title>OCF Desktop</title>
+	<title>OCF Desk</title>
 	<link rel="shortcut icon"
 		href="{{ favicon or "/assets/frappe/images/favicon.png" }}" type="image/x-icon">
 	<link rel="icon"
@@ -19,11 +19,9 @@
 	{%- endfor -%}
 </head>
 <body>
-	<!-- added by chetan 
-    <div class="centered splash">
+	<div class="centered splash" style="max-width: 360px;">
         <img src="{{ splash_image or "/assets/frappe/images/splash.png" }}">
     </div>
-       -->
 	<div class="offcanvas-container">
 		<div class="offcanvas">
 			<div class="offcanvas-main-section">
@@ -40,7 +38,9 @@
 	</div>
 
 	<!-- hack! load background image asap, before desktop is rendered -->
+	{% if background_image %}
 	<img src="{{ background_image }}" style="height: 1px; width: 1px; margin-bottom: -1px;">
+	{% endif %}
 
 	<script type="text/javascript" src="/assets/frappe/js/lib/jquery/jquery.min.js"></script>
 
@@ -52,6 +52,8 @@
 	if(!window.frappe) window.frappe = {};
 
 	frappe.boot = {{ boot }};
+
+	frappe.csrf_token = "{{ csrf_token }}";
 
 	</script>
 
