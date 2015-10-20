@@ -14,7 +14,7 @@ def after_install():
         # overright templates/includes/footer/footer_extension.html
         print "===========================Chetan after install===================="
         print getcwd() 
-        system("cp " + path.join(APPS, "erpnext/erpnext/templates/includes/footer/footer_extension.html") + " " +  path.join(.APPS, "erpnext/erpnext/templates/includes/footer/footer_extension.html-bk"))
+        system("cp " + path.join(APPS, "erpnext/erpnext/templates/includes/footer/footer_extension.html") + " " +  path.join(APPS, "erpnext/erpnext/templates/includes/footer/footer_extension.html-bk"))
         system("cp " + path.join(APPS, "angel/angel/templates/includes/footer/footer_extension.html") + " " + path.join(APPS, "erpnext/erpnext/templates/includes/footer/footer_extension.html"))
         #return 
         system("cp " + path.join(FBENCH, "sites/assets/erpnext/images/erp-icon.svg") + " " + path.join(FBENCH, "sites/assets/erpnext/images/erp-icon-bk.svg"))
