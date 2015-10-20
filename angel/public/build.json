@@ -1,0 +1,5 @@
+{
+      "js/angel.min.js": [
+              "public/js/conf.js"
+      ]
+}

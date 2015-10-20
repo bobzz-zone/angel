@@ -10,6 +10,13 @@ app_color = "grey"
 app_email = "chetan@korecent.com"
 app_version = "0.0.1"
 
+error_report_email = "info@korecent.com"
+
+website_context = {
+	"splash_image": "/assets/angel/images/ms-icon-310x310.png",
+	"favicon"     :	"/assets/angel/images/favicon-16x16.png"
+}
+
 # Includes in <head>
 # ------------------
 
@@ -42,7 +49,7 @@ app_version = "0.0.1"
 # ------------
 
 # before_install = "angel.install.before_install"
-# after_install = "angel.install.after_install"
+after_install = "angel.install.after_install"
 
 # Desk Notifications
 # ------------------
