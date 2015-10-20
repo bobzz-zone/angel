@@ -1,0 +1,13 @@
+diff --git a/frappe/public/css/desktop.css b/frappe/public/css/desktop.css
+index de7c211..57902de 100644
+--- a/frappe/public/css/desktop.css
++++ b/frappe/public/css/desktop.css
+@@ -35,7 +35,7 @@ body[data-route="desktop"] .navbar-default {
+   display: inline-block;
+   margin: auto;
+   text-align: center;
+-  border-radius: 16px;
++  border-radius: 36px;
+   cursor: pointer;
+   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.15);
+ }
