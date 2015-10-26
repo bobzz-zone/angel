@@ -40,6 +40,15 @@ def after_install():
         #system("cp " + path.join(APPS, "angel/angel/public/js/about.js") + " " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/about.js"))
         # overright ../../erpnext/erpnext/public/js/conf.js ../../angel/angel/public/js/conf.js
         #system("cp " + path.join(APPS, "angel/angel/public/js/conf.js") + " " + path.join(APPS, "erpnext/erpnext/public/js/conf.js"))
+        install_required_docs()
+        
+def install_required_docs():
+        doc = frappe.new_doc("Item Group")
+        doc.is_group="Yes"
+        doc.item_group_name = "All Item Groups"
+        doc.save()
+        frappe.db.commit()
+        
 	
 def def_content_overright(hooks):
         for key in ['default_mail_footer', 'error_report_email', 'website_context']:
