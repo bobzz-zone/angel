@@ -1,0 +1,7 @@
+{% extends "templates/pages/blog.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block script %}
+window.category = "{{ docname }}";
+{% endblock %}
