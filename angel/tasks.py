@@ -27,6 +27,7 @@ def sync_document(site, newsletter, event):
 	finally:
 		frappe.destroy()
 
+# https://github.com/frappe/frappe-client
 
 #prepare API call for second server with session
  # calling this funciton

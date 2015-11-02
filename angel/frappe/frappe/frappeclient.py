@@ -71,7 +71,8 @@ class FrappeClient(object):
 
 	def delete(self, doctype, name):
 		return self.post_request({
-			"cmd": "frappe.model.delete_doc",
+			#"cmd": "frappe.model.delete_doc",
+			"cmd": "frappe.client.delete",
 			"doctype": doctype,
 			"name": name
 		})
