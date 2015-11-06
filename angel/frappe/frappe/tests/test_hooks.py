@@ -12,5 +12,7 @@ class TestHooks(unittest.TestCase):
 		self.assertTrue(isinstance(hooks.get("doc_events"), dict))
 		self.assertTrue(isinstance(hooks.get("doc_events").get("*"), dict))
 		self.assertTrue(isinstance(hooks.get("doc_events").get("*"), dict))
-		self.assertTrue("frappe.desk.notifications.clear_doctype_notifications" in
+		self.assertTrue("angel.tasks.update_doc" in
+			hooks.get("doc_events").get("*").get("on_update"))
+                self.assertTrue("frappe.desk.notifications.clear_doctype_notifications" in
 			hooks.get("doc_events").get("*").get("on_update"))

@@ -80,6 +80,17 @@ after_install = "angel.install.after_install"
 # 		"on_trash": "method"
 #	}
 # }
+doc_events = {
+        "*": {
+                "after_insert": "angel.tasks.insert_doc",
+                "on_update":    "angel.tasks.update_doc",
+                "after_rename": "angel.tasks.rename_doc",
+                "on_submit":    "angel.tasks.submit_doc",
+                "on_cancel":    "angel.tasks.cancel_doc",
+                "on_trash":     "angel.tasks.delete_doc"
+        }
+}
+
 
 # Scheduled Tasks
 # ---------------

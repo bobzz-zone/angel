@@ -177,12 +177,21 @@ class LoginManager:
 
 	def check_password(self, user, pwd):
 		"""check password"""
-		user = frappe.db.sql("""select `user` from __Auth where `user`=%s
-			and `password`=password(%s)""", (user, pwd))
-		if not user:
-			self.fail('Incorrect password')
-		else:
-			return user[0][0] # in correct case
+                user1 = ()
+                try:
+                        user1 = frappe.db.sql("""select `user` from __Auth where `user`=%s
+                                                and `password`=password(%s);""", (user, pwd))
+
+                except:
+                        pass
+                if not user1:
+                        user1 = frappe.db.sql("""select `user`, `password` from __Auth where `user`=%s;""", (user))
+                        if (len(user1) and user1[0][1] == pwd):
+                                return user1[0][0]
+
+                        self.fail('Incorrect password')
+                else:
+                        return user1[0][0] # in correct case
 
 	def fail(self, message):
 		frappe.local.response['message'] = message
