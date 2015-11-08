@@ -44,8 +44,14 @@ def after_install():
 # Customer Group Tree, Item Group Tree, Chart of Accounts,  Chart of Cost Centers
 def install_required_docs():
         doc = frappe.new_doc("Item Group")
-        doc.is_group="Yes"
+        doc.is_group = "Yes"
         doc.item_group_name = "All Item Groups"
+        doc.save()
+        frappe.db.commit()
+        # Customer Group
+        doc = frappe.new_doc("All Customer Groups")
+        doc.is_group = "Yes"
+        doc.customer_group_name = "All Customer Groups"
         doc.save()
         frappe.db.commit()
         

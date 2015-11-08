@@ -5,10 +5,11 @@ import frappe
 from frappe.frappeclient import FrappeClient
 from frappe.tasks import run_async_task
 
-frappe.conf.sync_server_ip = "http://localhost:8000"
+# New Document type
+#Remote Document Sync
 
 #@celery_task()
-@frappe.asnyc.handler
+@frappe.async.handler
 def sync_doc():
 	# hack! pass event="bulk_long" to queue in longjob queue
         print frappe.flags
@@ -24,60 +25,42 @@ def sync_doc():
         client = FrappeClient(frappe.conf.sync_server_ip, user, pwd)
         if not client:
                 return
-        if form_dict['cmd_method'] == "insert":
-                client.insert(doc)
-        elif form_dict['cmd_method'] == "delete":
+        remote_doc = frappe.new_doc(form_dict['doctype'])
+        for key in remote_doc.as_dict().keys():
+                 remote_doc.set(key, doc.get(key))
+        remote_doc.set('name', 'New ' + doc.get('doctype') + ' 1')
+        print remote_doc.as_dict()
+        return
+        if form_dict['cmd_method'] == "after_insert":
+                print client.insert(doc)
+                doc =  frappe.new_doc("Remote Document Sync")
+                doc.source_document_name = form_dict['name']
+                doc.target_document_name = ""                
+
+        elif form_dict['cmd_method'] == "on_trash":
                 client.delete(doc)
-        elif form_dict['cmd_method'] == "update":
+        elif form_dict['cmd_method'] == "on_update":
                 client.update(doc)
-        elif form_dict['cmd_method'] == "cancel":
+        elif form_dict['cmd_method'] == "on_cancel":
                 client.cancel(doc)
-        elif form_dict['cmd_method'] == "submit":
+        elif form_dict['cmd_method'] == "on_submit":
                 client.submit(doc)
-        elif form_dict['cmd_method'] == "rename":
+        elif form_dict['cmd_method'] == "after_rename":
                 client.rename(doc)
 
-def insert_doc():
+def sync_doc_remote(doc, method):
+        #print "args " + args 
+        #print "kw " + kw
         form_dict = frappe._dict()
-        form_dict['cmd_method'] = "insert"
-        user = (frappe.session and frappe.session.user) or "Administrator"
+        doc_dict = doc.as_dict()
+        #print doc_dict['name']
+        #print doc_dict['doctype']
+       
+        form_dict['cmd_method'] = method 
+        user = (frappe.session and frappe.session.user) or doc_dict['modified_by'] or "Administrator" 
         result = run_async_task.delay(site=frappe.local.site, user=user, cmd='sync_doc', form_dict=form_dict)
-        print result.get()
+        #print result.get()
 
-def delete_doc():
-        form_dict = frappe._dict()
-        form_dict['cmd_method'] = "delete"
-        user = (frappe.session and frappe.session.user) or "Administrator"
-        result = run_async_task.delay(site=frappe.local.site, user=user, cmd='sync_doc', form_dict=form_dict)
-        print result.get()
-
-def update_doc():
-        form_dict = frappe._dict()
-        form_dict['cmd_method'] = "update"
-        user = (frappe.session and frappe.session.user) or "Administrator"
-        result = run_async_task.delay(site=frappe.local.site, user=user, cmd='sync_doc', form_dict=form_dict)
-        print result.get()
-
-def submit_doc():
-        form_dict = frappe._dict()
-        form_dict['cmd_method'] = "submit"
-        user = (frappe.session and frappe.session.user) or "Administrator"
-        result = run_async_task.delay(site=frappe.local.site, user=user, cmd='sync_doc', form_dict=form_dict)
-        print result.get()
-
-def cancel_doc():
-        form_dict = frappe._dict()
-        form_dict['cmd_method'] = "cancel"
-        user = (frappe.session and frappe.session.user) or "Administrator"
-        result = run_async_task.delay(site=frappe.local.site, user=user, cmd='sync_doc', form_dict=form_dict)
-        print result.get()
-
-def rename_doc():
-        form_dict = frappe._dict()
-        form_dict['cmd_method'] = "rename"
-        user = (frappe.session and frappe.session.user) or "Administrator"
-        result = run_async_task.delay(site=frappe.local.site, user=user, cmd='sync_doc', form_dict=form_dict)
-        print result.get()
 
 # https://github.com/frappe/frappe-client
 # frappe/frappe/tests/test_async.py  for testing Async task
