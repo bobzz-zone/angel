@@ -41,6 +41,8 @@ def handler(f):
 			"task_id": task_id
 		}
 
+        print f
+        print cmd
 	queue.async = True
 	queue.queue = f
 	queue.run = run
@@ -58,6 +60,7 @@ def get_pending_tasks_for_doc(doctype, docname):
 def ping():
 	from time import sleep
 	sleep(1)
+        print "pin pong handler inside async"
 	return "pong"
 
 @frappe.whitelist()

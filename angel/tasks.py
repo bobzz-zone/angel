@@ -1,19 +1,84 @@
 
 from __future__ import unicode_literals
 import frappe
-#from frappe.celery_app import celery_task, task_logger
+from frappe.celery_app import celery_task, task_logger
 from frappe.frappeclient import FrappeClient
 from frappe.tasks import run_async_task
+
+def preprocess(self, params):
+        """convert dicts, lists to json"""
+        for key, value in params.iteritems():
+                if isinstance(value, (dict, list)):
+                        params[key] = json.dumps(value)
+
+        return params
+
+def post_process(self, response):
+        try:
+                rjson = response.json()
+        except ValueError:
+                print response.text
+                raise
+
+        if rjson and ("exc" in rjson) and rjson["exc"]:
+                raise FrappeException(rjson["exc"])
+        if 'message' in rjson:
+                return rjson['message']
+        elif 'data' in rjson:
+                return rjson['data']
+        else:
+                return None
+
+        ret = {}
+        frappe.init(site)
+        frappe.connect()
+
+        frappe.local.task_id = self.request.id
+
+        if hijack_std:
+                original_stdout, original_stderr = sys.stdout, sys.stderr
+                sys.stdout, sys.stderr = get_std_streams(self.request.id)
+                frappe.local.stdout, frappe.local.stderr = sys.stdout, sys.stderr
+
+        try:
+                set_task_status(self.request.id, "Running")
+                frappe.db.commit()
+                frappe.set_user(user)
+                # sleep(60)
+                frappe.local.form_dict = frappe._dict(form_dict)
+                execute_cmd(cmd, from_async=True)
+                ret = frappe.local.response
+
+        except Exception, e:
+                frappe.db.rollback()
+                ret = frappe.local.response
+                http_status_code = getattr(e, "http_status_code", 500)
+                ret['status_code'] = http_status_code
+                frappe.errprint(frappe.get_traceback())
+                frappe.utils.response.make_logs()
+                set_task_status(self.request.id, "Error", response=ret)
+                task_logger.error('Exception in running {}: {}'.format(cmd, ret['exc']))
+        else:
+                set_task_status(self.request.id, "Success", response=ret)
+                if not frappe.flags.in_test:
+                        frappe.db.commit()
+        finally:
+                if not frappe.flags.in_test:
+                        frappe.destroy()
+                if hijack_std:
+                        sys.stdout.write('\n' + END_LINE)
+                        sys.stderr.write('\n' + END_LINE)
+                        sys.stdout.close()
 
 # New Document type
 #Remote Document Sync
 
-#@celery_task()
-@frappe.async.handler
+@celery_task()
+#@frappe.async.handler
 def sync_doc():
 	# hack! pass event="bulk_long" to queue in longjob queue
         print frappe.flags
-        print doc 
+        #print doc 
         print frappe.local
         print frappe.__dict(args)
         form_dict = frappe._dict()
