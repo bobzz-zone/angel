@@ -395,12 +395,12 @@ setup_bench() {
 	echo /home/$FRAPPE_USER/frappe-bench > /etc/frappe_bench_dir
 	run_cmd sudo su $FRAPPE_USER -c "cd /home/$FRAPPE_USER/frappe-bench && bench new-site site1.local --mariadb-root-password $MSQ_PASS --admin-password $ADMIN_PASS"
         run_cmd sudo su $FRAPPE_USER -c "mv  /home/$FRAPPE_USER/erpnext /home/$FRAPPE_USER/frappe-bench/apps"
-	run_cmd sudo $PIP install -e /home/$FRAPPE_USER/frappe-bench/apps/erpnext
+	#run_cmd sudo $PIP install -e /home/$FRAPPE_USER/frappe-bench/apps/erpnext
 	#run_cmd sudo su $FRAPPE_USER -c "cd /home/$FRAPPE_USER/frappe-bench && bench install-app erpnext"
 
         # installing angel app 
         run_cmd sudo su $FRAPPE_USER -c "mv  /home/$FRAPPE_USER/angel /home/$FRAPPE_USER/frappe-bench/apps"
-	run_cmd sudo $PIP install -e /home/$FRAPPE_USER/frappe-bench/apps/angel
+	#run_cmd sudo $PIP install -e /home/$FRAPPE_USER/frappe-bench/apps/angel
 	#run_cmd sudo su $FRAPPE_USER -c "cd /home/$FRAPPE_USER/frappe-bench && bench install-app angel"
 
         # seting configurations
