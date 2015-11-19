@@ -6,12 +6,12 @@
  "docstatus": 0, 
  "doctype": "Report", 
  "is_standard": "Yes", 
- "modified": "2015-11-14 14:32:54.962410", 
+ "modified": "2015-11-14 17:45:10.970683", 
  "modified_by": "Administrator", 
  "module": "Angel", 
  "name": "TT Report", 
  "owner": "Administrator", 
- "ref_doctype": "Account", 
+ "ref_doctype": "Sales Invoice", 
  "report_name": "TT Report", 
  "report_type": "Script Report"
 }
