@@ -91,6 +91,9 @@ class RsyncTaskRouter(object):
 @celery_task()
 #@frappe.async.handler
 def sync_doc(site, doc, event, method, retry=0):
+        if not frappe.conf.has_key('sync_server_ip') or frappe.conf.sync_server_ip == "":
+                return 
+
         form_dict = doc.as_dict()
         user = (frappe.session and frappe.session.user) or doc_dict['modified_by'] or "Administrator" 
         pwd = frappe.db.sql("""select password from __Auth where user=%s;""",(user))
