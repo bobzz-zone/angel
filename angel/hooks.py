@@ -121,8 +121,8 @@ doc_events = {
 # Overriding Whitelisted Methods
 # ------------------------------
 #
-override_whitelisted_methods = {
+#override_whitelisted_methods = {
 # 	"frappe.desk.doctype.event.event.get_events": "angel.event.get_events"
-       'sync_doc': 'angel.tasks.sync_doc'
-}
+#       'sync_doc': 'angel.tasks.sync_doc'
+#}
 
