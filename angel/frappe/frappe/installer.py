@@ -265,7 +265,7 @@ def get_conf_params(db_name=None, db_password=None):
 		from frappe.utils import random_string
 		db_password = random_string(16)
 
-	return {"db_name": db_name, "db_password": db_password}
+	return {"db_name": db_name, "db_password": db_password, "developer_mode":  1}
 
 def make_site_dirs():
 	site_public_path = os.path.join(frappe.local.site_path, 'public')
