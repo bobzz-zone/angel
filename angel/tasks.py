@@ -120,6 +120,7 @@ def sync_doc(site, doc, event, method, retry=0):
                 #frappe.msgprint(frappe._("{0}".format(remote_doc_dict)))
                 if remote_doc_dict:
                 	rm_doc_sync =  frappe.new_doc("Remote Document Sync")
+                        rm_doc_sync.name = form_dict['name']
                		rm_doc_sync.source_document_name = form_dict['name']
                 	rm_doc_sync.target_document_name = remote_doc_dict['name']
                 	rm_doc_sync.doctype_name = remote_doc_dict['doctype']
@@ -136,9 +137,9 @@ def sync_doc(site, doc, event, method, retry=0):
                 try:
                         #frappe.msgprint(frappe._("try2 {0} {1}".format(form_dict['name'], form_dict['doctype'])))
                         remote_doc_dict = client.get_doc(form_dict['doctype'], rm_doc_name)
-			remote_doc = frappe.new_doc(form_dict['doctype'])
-                        import json
-                        remote_doc.update(json.loads(remote_doc_dict))
+			remote_doc = remote_doc_dict #frappe.new_doc(form_dict['doctype'])
+                        #import json
+                        #remote_doc.update(json.loads(remote_doc_dict))
                 except:
                         #frappe.msgprint(frappe._("try2 except {0}".format(form_dict['name'])))
                         if not retry:
@@ -148,6 +149,7 @@ def sync_doc(site, doc, event, method, retry=0):
                                 #frappe.msgprint(frappe._("try2 except else {0}".format(form_dict['name'])))
 				remote_doc = frappe.new_doc(form_dict['doctype'])
 				rm_doc_sync =  frappe.new_doc("Remote Document Sync")
+                                rm_doc_sync.name = form_dict['name']
 				rm_doc_sync.source_document_name = form_dict['name']
 				rm_doc_sync.target_document_name = ""                
         else:            
@@ -155,6 +157,7 @@ def sync_doc(site, doc, event, method, retry=0):
                 require_insert = 1
                 remote_doc = frappe.new_doc(form_dict['doctype'])
                 rm_doc_sync =  frappe.new_doc("Remote Document Sync")
+                rm_doc_sync.name = form_dict['name']
                 rm_doc_sync.source_document_name = form_dict['name']
                 rm_doc_sync.target_document_name = ""                
 
@@ -217,6 +220,7 @@ def sync_doc(site, doc, event, method, retry=0):
                
         except:
                 print "Error while syncing it to ERP2 Server Trying Again once" 
+                raise
 
                 if not retry:
                         #sync_doc(site, doc, event, method, 1) 
