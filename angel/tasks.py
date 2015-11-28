@@ -95,63 +95,97 @@ def sync_doc(site, doc, event, method, retry=0):
                 return 
 
         form_dict = doc.as_dict()
+        if form_dict['doctype'] == 'DocShare':
+ 		return 
+        
         user = (frappe.session and frappe.session.user) or doc_dict['modified_by'] or "Administrator" 
         pwd = frappe.db.sql("""select password from __Auth where user=%s;""",(user))
         if not pwd:
                 return False
+
         pwd = pwd[0][0]
         client = FrappeClient(frappe.conf.sync_server_ip, user, pwd)
         if not client:
                 return
-        rm_doc_name = frappe.get_value("Remote Document Sync", 
-                                  filters={'source_document_name': form_dict['name']}, 
-                                  fieldname='target_document_name')
+
+        rm_doc_name = ''
         remote_doc = ''
         rm_doc_sync = ''
         # check if Document exist in remote machine else create new doc and make entry in DB
         require_insert = 0
         remote_doc_dict = {}
+
+        try:
+		remote_doc_dict = client.get_doc(form_dict['doctype'], form_dict['name'])
+                #frappe.msgprint(frappe._("{0}".format(remote_doc_dict)))
+                if remote_doc_dict:
+                	rm_doc_sync =  frappe.new_doc("Remote Document Sync")
+                        rm_doc_sync.name = form_dict['name']
+               		rm_doc_sync.source_document_name = form_dict['name']
+                	rm_doc_sync.target_document_name = remote_doc_dict['name']
+                	rm_doc_sync.doctype_name = remote_doc_dict['doctype']
+                        rm_doc_sync.save()
+                        frappe.db.commit()                
+        except:
+        	frappe.msgprint(("Error"))
+			
+        rm_doc_name = frappe.get_value("Remote Document Sync", 
+                                  filters={'source_document_name': form_dict['name']}, 
+                                  fieldname='target_document_name')
+        
         if rm_doc_name:
                 try:
+                        #frappe.msgprint(frappe._("try2 {0} {1}".format(form_dict['name'], form_dict['doctype'])))
                         remote_doc_dict = client.get_doc(form_dict['doctype'], rm_doc_name)
-			remote_doc = frappe.new_doc(form_dict['doctype'])
-                        import json
-                        remote_doc.update(json.loads(remote_doc_dict))
+			remote_doc = remote_doc_dict #frappe.new_doc(form_dict['doctype'])
+                        #import json
+                        #remote_doc.update(json.loads(remote_doc_dict))
                 except:
+                        #frappe.msgprint(frappe._("try2 except {0}".format(form_dict['name'])))
                         if not retry:
                                 sync_doc(site, doc, event, method, 1) 
                         else:
                                 require_insert = 1
+                                #frappe.msgprint(frappe._("try2 except else {0}".format(form_dict['name'])))
 				remote_doc = frappe.new_doc(form_dict['doctype'])
 				rm_doc_sync =  frappe.new_doc("Remote Document Sync")
+                                rm_doc_sync.name = form_dict['name']
 				rm_doc_sync.source_document_name = form_dict['name']
 				rm_doc_sync.target_document_name = ""                
         else:            
+                #frappe.msgprint(frappe._("rm_doc_name else"))
                 require_insert = 1
                 remote_doc = frappe.new_doc(form_dict['doctype'])
                 rm_doc_sync =  frappe.new_doc("Remote Document Sync")
+                rm_doc_sync.name = form_dict['name']
                 rm_doc_sync.source_document_name = form_dict['name']
                 rm_doc_sync.target_document_name = ""                
 
+        rm_doc_sync.doctype_name = form_dict['doctype']
         try:
 		if method == "after_insert":
-			for key in remote_doc.as_dict().keys():
-				if key in ["name", "creation", "modified", "modified_by", "owner", "docstatus", "parent", "parentfield", "parenttype", "idx", "rgt", "lft"]:
-					continue
-				remote_doc.set(key, doc.get(key))
-			remote_dict = client.insert(remote_doc)
-			rm_doc_sync.target_document_name = remote_dict['name']                
-
-		elif method == "on_update":
+			#frappe.msgprint(("after_insert chetan "))
 			for key in remote_doc.as_dict().keys():
 				 if key in ["name", "creation", "modified", "modified_by", "owner", "docstatus", "parent", "parentfield", "parenttype", "idx", "rgt", "lft"]:
 					 continue
 				 remote_doc.set(key, doc.get(key))
                         remote_dict = {}
-                        if require_insert:
-			        remote_dict = client.insert(remote_doc)
-                        else:
-			        remote_dict = client.update(remote_doc)
+			remote_dict = client.insert(remote_doc)
+			rm_doc_sync.target_document_name = remote_dict['name']                
+			rm_doc_sync.save()
+			frappe.db.commit() 
+
+		if method == "on_update":
+			for key in remote_doc.as_dict().keys():
+				 if key in ["name", "creation", "modified", "modified_by", "owner", "docstatus", "parent", "parentfield", "parenttype", "idx", "rgt", "lft"]:
+					 continue
+				 remote_doc.set(key, doc.get(key))
+                        remote_dict = {}
+                        #if require_insert:
+			#        remote_dict = client.insert(remote_doc)
+                        #else:
+			#frappe.msgprint(("chetan {0}".format(remote_doc)))
+			remote_dict = client.update(remote_doc)
 			rm_doc_sync.target_document_name = remote_dict['name']                
 			rm_doc_sync.save()
 			frappe.db.commit() 
@@ -186,8 +220,11 @@ def sync_doc(site, doc, event, method, retry=0):
                
         except:
                 print "Error while syncing it to ERP2 Server Trying Again once" 
+                raise
+
                 if not retry:
-                        sync_doc(site, doc, event, method, 1) 
+                        #sync_doc(site, doc, event, method, 1) 
+                        return
         # save sync infor to DB for further reference
 
 def sync_doc_remote(doc, method):
