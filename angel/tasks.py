@@ -62,7 +62,11 @@ def sync_doc(site, doc, event, method, retry=0):
                 return False
         print "4"
         pwd = pwd[0][0]
-        client = FrappeClient(frappe.conf.sync_server_ip, user, pwd)
+        try:
+        	client = FrappeClient(frappe.conf.sync_server_ip, user, pwd)
+        except:
+                frappe.msgprint(("Auth Error"))
+                return
         if not client:
                 return
         print "5"
