@@ -55,6 +55,14 @@ def install_required_docs():
         doc.save()
         frappe.db.commit()
 
+        # Territory
+        doc = frappe.new_doc("Territory")
+        doc.is_group = "Yes"
+        doc.territory_name = "All Territories"
+        doc.save()
+        frappe.db.commit()
+
+
         if not frappe.local.site:
                 return
         site = frappe.local.site
