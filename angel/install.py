@@ -54,7 +54,20 @@ def install_required_docs():
         doc.customer_group_name = "All Customer Groups"
         doc.save()
         frappe.db.commit()
-        
+
+        if not frappe.local.site:
+                return
+        site = frappe.local.site
+        try:
+                frappe.init(site=site)
+                frappe.connect()
+                frappe.utils.scheduler.enable_scheduler()
+                frappe.db.commit()
+                print "Enabled for", site
+        finally:
+                frappe.destroy()
+ 
+      
 	
 def def_content_overright(hooks):
         for key in ['default_mail_footer', 'error_report_email', 'website_context']:
