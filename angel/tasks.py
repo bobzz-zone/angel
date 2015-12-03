@@ -146,7 +146,7 @@ def sync_doc(site, doc, event, method, retry=0):
                         remote_dict = {}
                         print remote_doc
 			remote_dict = client.insert(remote_doc)
-			rm_doc_sync.target_document_name = remote_dict['name']
+			rm_doc_sync.target_document_name = remote_dict['name'] if remote_dict.has_key('name') else None
 			rm_doc_sync.save()
 
 		if method == "on_update":
@@ -158,7 +158,7 @@ def sync_doc(site, doc, event, method, retry=0):
                         print "16"
                         remote_dict = {}
 			remote_dict = client.update(remote_doc)
-			rm_doc_sync.target_document_name = remote_dict['name']
+			rm_doc_sync.target_document_name = remote_dict['name'] if remote_dict.has_key('name') else None
 			rm_doc_sync.save()
 
 		elif method == "on_trash":
@@ -182,7 +182,7 @@ def sync_doc(site, doc, event, method, retry=0):
 					 continue
 				 remote_doc.set(key, doc.get(key))
 			remote_dict = client.submit(remote_doc)
-			rm_doc_sync.target_document_name = remote_dict['name']
+			rm_doc_sync.target_document_name = remote_dict['name'] if remote_dict.has_key('name') else None
 			rm_doc_sync.save()
 
 		elif method == "after_rename":
