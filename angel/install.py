@@ -49,7 +49,7 @@ def install_required_docs():
         doc.save()
         frappe.db.commit()
         # Customer Group
-        doc = frappe.new_doc("All Customer Groups")
+        doc = frappe.new_doc("Customer Group")
         doc.is_group = "Yes"
         doc.customer_group_name = "All Customer Groups"
         doc.save()
@@ -64,6 +64,9 @@ def install_required_docs():
 
 
         if not frappe.local.site:
+                return
+        # return if scheduler is already enabled
+        if not frappe.utils.scheduler.is_scheduler_disabled():
                 return
         site = frappe.local.site
         try:

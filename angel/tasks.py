@@ -31,6 +31,7 @@ def add_rm_sync_doc(name, doctype, source_name , target_name=''):
 	rm_doc_sync.target_document_name = target_name
         return rm_doc_sync
 	
+
 debug = 0
 @celery_task()
 #@frappe.async.handler
@@ -42,7 +43,7 @@ def sync_doc(site, doc, event, method, retry=0):
         form_dict = doc.as_dict()
         if not form_dict.has_key('doctype') or (form_dict['doctype'] in ['DocShare', 'Feed']):
  		return
-        
+        # Journal Entry, Sales Invoice, Purchase Invoice, Company
         print "2"
         import json
         if not frappe.form_dict.doc:
@@ -146,7 +147,7 @@ def sync_doc(site, doc, event, method, retry=0):
                         remote_dict = {}
                         print remote_doc
 			remote_dict = client.insert(remote_doc)
-			rm_doc_sync.target_document_name = remote_dict['name'] if remote_dict.has_key('name') else None
+			rm_doc_sync.target_document_name = remote_dict['name'] if remote_dict and remote_dict.has_key('name') else doc.get('name')
 			rm_doc_sync.save()
 
 		if method == "on_update":
@@ -158,7 +159,7 @@ def sync_doc(site, doc, event, method, retry=0):
                         print "16"
                         remote_dict = {}
 			remote_dict = client.update(remote_doc)
-			rm_doc_sync.target_document_name = remote_dict['name'] if remote_dict.has_key('name') else None
+			rm_doc_sync.target_document_name = remote_dict['name'] if remote_dict and remote_dict.has_key('name') else doc.get('name')
 			rm_doc_sync.save()
 
 		elif method == "on_trash":
@@ -182,7 +183,7 @@ def sync_doc(site, doc, event, method, retry=0):
 					 continue
 				 remote_doc.set(key, doc.get(key))
 			remote_dict = client.submit(remote_doc)
-			rm_doc_sync.target_document_name = remote_dict['name'] if remote_dict.has_key('name') else None
+			rm_doc_sync.target_document_name = remote_dict['name'] if remote_dict and remote_dict.has_key('name') else doc.get('name')
 			rm_doc_sync.save()
 
 		elif method == "after_rename":
