@@ -121,7 +121,9 @@ data-fieldname="{{ df.fieldname }}" data-fieldtype="{{ df.fieldtype }}"
 		<h2>{{ doc.select_print_heading or (doc.print_heading if doc.print_heading != None
 			else _(doc.doctype)) }}<br>
 			<small>{{ doc.sub_heading if doc.sub_heading != None
-				else doc.name }}</small>
+				else doc.name }}</small><br>
+			<small>{{ doc.print_counter if doc.print_counter != None
+				else "" }}</small>
         </h2>
     </div>
     {% endif %}

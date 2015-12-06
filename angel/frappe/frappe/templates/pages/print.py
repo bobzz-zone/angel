@@ -113,6 +113,8 @@ def get_html(doc, name=None, print_format=None, meta=None,
 	if template == "standard":
 		template = jenv.get_template(standard_format)
 
+        doc.print_counter = "Print Copy No - " + str(frappe.db.get_value("Print Document Setting", {'docname_name': doc.name}, "current_value") + 1) if frappe.db.get_value("Print Document Setting", {'docname_name': doc.name}, "current_value") else ""
+
 	args = {
 		"doc": doc,
 		"meta": frappe.get_meta(doc.doctype),
