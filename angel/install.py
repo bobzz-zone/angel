@@ -49,12 +49,36 @@ def install_required_docs():
         doc.save()
         frappe.db.commit()
         # Customer Group
-        doc = frappe.new_doc("All Customer Groups")
+        doc = frappe.new_doc("Customer Group")
         doc.is_group = "Yes"
         doc.customer_group_name = "All Customer Groups"
         doc.save()
         frappe.db.commit()
-        
+
+        # Territory
+        doc = frappe.new_doc("Territory")
+        doc.is_group = "Yes"
+        doc.territory_name = "All Territories"
+        doc.save()
+        frappe.db.commit()
+
+
+        if not frappe.local.site:
+                return
+        # return if scheduler is already enabled
+        if not frappe.utils.scheduler.is_scheduler_disabled():
+                return
+        site = frappe.local.site
+        try:
+                frappe.init(site=site)
+                frappe.connect()
+                frappe.utils.scheduler.enable_scheduler()
+                frappe.db.commit()
+                print "Enabled for", site
+        finally:
+                frappe.destroy()
+ 
+      
 	
 def def_content_overright(hooks):
         for key in ['default_mail_footer', 'error_report_email', 'website_context']:

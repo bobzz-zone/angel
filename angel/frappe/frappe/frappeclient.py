@@ -219,14 +219,16 @@ class FrappeClient(object):
 		return params
 
 	def post_process(self, response):
+                rjson = {}
 		try:
 			rjson = response.json()
 		except ValueError:
 			print response.text
-			raise
+			#raise
 
 		if rjson and ("exc" in rjson) and rjson["exc"]:
-			raise FrappeException(rjson["exc"])
+			#raise FrappeException(rjson["exc"])
+                        pass
 		if 'message' in rjson:
 			return rjson['message']
 		elif 'data' in rjson:

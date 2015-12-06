@@ -594,18 +594,34 @@ _f.Frm.prototype.reload_doc = function() {
 
 var validated;
 _f.Frm.prototype.save = function(save_action, callback, btn, on_error) {
-	btn && $(btn).prop("disabled", true);
-	$(document.activeElement).blur();
-
-	frappe.ui.form.close_grid_form();
-
-	// let any pending js process finish
+        /* addede by chetan ERP2 sync */
 	var me = this;
-	setTimeout(function() { me._save(save_action, callback, btn, on_error) }, 100);
+        frappe.confirm("Do you wan to sync this Document to ERP2", function() {
+                me.doc['sync_document_erp2'] = 1;
+		btn && $(btn).prop("disabled", true);
+		$(document.activeElement).blur();
+
+		frappe.ui.form.close_grid_form();
+
+		// let any pending js process finish
+		setTimeout(function() { me._save(save_action, callback, btn, on_error) }, 100);
+        }, function() {
+                me.doc['sync_document_erp2'] = 0;
+		btn && $(btn).prop("disabled", true);
+		$(document.activeElement).blur();
+
+		frappe.ui.form.close_grid_form();
+
+		// let any pending js process finish
+		setTimeout(function() { me._save(save_action, callback, btn, on_error) }, 100);
+        })
+
 }
 
 _f.Frm.prototype._save = function(save_action, callback, btn, on_error) {
 	var me = this;
+        //me.sync_erp2();
+        //frappe.msgprint("chetan sync_document_erp2 " + me.doc.sync_document_erp2);
 	if(!save_action) save_action = "Save";
 	this.validate_form_action(save_action);
 
@@ -655,10 +671,19 @@ _f.Frm.prototype._save = function(save_action, callback, btn, on_error) {
 	}
 }
 
+_f.Frm.prototype.sync_erp2 = function() {
+          /* addede by chetan ERP2 sync */
+          frappe.confirm("Do you wan to sync this Document to ERP2", function() {
+                this.doc['sync_document_erp2'] = 1;
+                }, function() {
+                this.doc['sync_document_erp2'] = 0;
+                })
+}
 
 _f.Frm.prototype.savesubmit = function(btn, callback, on_error) {
 	var me = this;
 	this.validate_form_action("Submit");
+        //me.sync_erp2();
 	frappe.confirm(__("Permanently Submit {0}?", [this.docname]), function() {
 		validated = true;
 		me.script_manager.trigger("before_submit").done(function() {
@@ -681,6 +706,7 @@ _f.Frm.prototype.savesubmit = function(btn, callback, on_error) {
 _f.Frm.prototype.savecancel = function(btn, callback, on_error) {
 	var me = this;
 	this.validate_form_action('Cancel');
+        //me.sync_erp2();
 	frappe.confirm(__("Permanently Cancel {0}?", [this.docname]), function() {
 		validated = true;
 		me.script_manager.trigger("before_cancel").done(function() {
@@ -719,6 +745,7 @@ _f.Frm.prototype.amend_doc = function() {
 	}
 	this.validate_form_action("Amend");
 	var me = this;
+        //me.sync_erp2();
     var fn = function(newdoc) {
       newdoc.amended_from = me.docname;
       if(me.fields_dict && me.fields_dict['amendment_date'])
