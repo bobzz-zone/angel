@@ -1,132 +1,176 @@
-# Copyright (c) 2013, Korecent Solutions Pvt Ltd and contributors
-# For license information, please see license.txt
+# Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import frappe
+from frappe.utils import flt
 from frappe import msgprint, _
-from erpnext.accounts.utils import get_account_currency
-import json
 
 def execute(filters=None):
-	columns, data = [], []
-        ret_data = get_outstanding_vouchers(filters)
-        print ret_data
+	if not filters: filters = {}
+
+	invoice_list = get_invoices(filters)
+	columns, income_accounts, tax_accounts = get_columns(invoice_list)
+
+	if not invoice_list:
+		msgprint(_("No record found"))
+		return columns, invoice_list
+
+	invoice_income_map = get_invoice_income_map(invoice_list)
+	invoice_income_map, invoice_tax_map = get_invoice_tax_map(invoice_list,
+		invoice_income_map, income_accounts)
+
+	invoice_so_dn_map = get_invoice_so_dn_map(invoice_list)
+	customer_map = get_customer_deatils(invoice_list)
+
+	data = []
+	for inv in invoice_list:
+		# invoice details
+		sales_order = list(set(invoice_so_dn_map.get(inv.name, {}).get("sales_order", [])))
+		delivery_note = list(set(invoice_so_dn_map.get(inv.name, {}).get("delivery_note", [])))
+
+		row = [inv.name, inv.posting_date, inv.customer, inv.customer_name,
+		customer_map.get(inv.customer, {}).get("customer_group"), 
+		customer_map.get(inv.customer, {}).get("territory"),
+		inv.debit_to, inv.project_name, inv.remarks, ", ".join(sales_order), ", ".join(delivery_note)]
+
+		# map income values
+		base_net_total = 0
+		for income_acc in income_accounts:
+			income_amount = flt(invoice_income_map.get(inv.name, {}).get(income_acc))
+			base_net_total += income_amount
+			row.append(income_amount)
+
+		# net total
+		row.append(base_net_total or inv.base_net_total)
+
+		# tax account
+		total_tax = 0
+		for tax_acc in tax_accounts:
+			if tax_acc not in income_accounts:
+				tax_amount = flt(invoice_tax_map.get(inv.name, {}).get(tax_acc))
+				total_tax += tax_amount
+				row.append(tax_amount)
+
+		# total tax, grand total, outstanding amount & rounded total
+		row += [total_tax, inv.base_grand_total, inv.base_rounded_total, inv.outstanding_amount]
+
+		data.append(row)
 	return columns, data
 
-def get_columns(filters):
-        if not filters.get("party") and filters.get("party_account"):
-                msgprint(_("Please select party and party account"), raise_exception=1)
 
+def get_columns(invoice_list):
+	"""return columns based on filters"""
+	columns = [
+		_("Invoice") + ":Link/Sales Invoice:120", _("Posting Date") + ":Date:80", _("Customer Id") + "::120",
+		_("Customer Name") + "::120", _("Customer Group") + ":Link/Customer Group:120", _("Territory") + ":Link/Territory:80",
+		_("Receivable Account") + ":Link/Account:120", _("Project") +":Link/Project:80", _("Remarks") + "::150",
+		_("Sales Order") + ":Link/Sales Order:100", _("Delivery Note") + ":Link/Delivery Note:100",
+                _("Sales Person") + ":Link/Sales Person:100"
+	]
 
-        return [_("Sales Invoice No") + ":Link/Sales Invoice:140",
-                _("Date") + ":Date:100",
-                _("Amount") + ":Currency:140"
-               ]
+	income_accounts = tax_accounts = income_columns = tax_columns = []
 
+	if invoice_list:
+		income_accounts = frappe.db.sql_list("""select distinct income_account
+			from `tabSales Invoice Item` where docstatus = 1 and parent in (%s)
+			order by income_account""" %
+			', '.join(['%s']*len(invoice_list)), tuple([inv.name for inv in invoice_list]))
 
-def get_orders_to_be_billed(party_type, party, party_account_currency, company_currency):
-        voucher_type = 'Sales Order' if party_type == "Customer" else 'Purchase Order'
+		tax_accounts = 	frappe.db.sql_list("""select distinct account_head
+			from `tabSales Taxes and Charges` where parenttype = 'Sales Invoice'
+			and docstatus = 1 and ifnull(base_tax_amount_after_discount_amount, 0) != 0
+			and parent in (%s) order by account_head""" %
+			', '.join(['%s']*len(invoice_list)), tuple([inv.name for inv in invoice_list]))
 
-        ref_field = "base_grand_total" if party_account_currency == company_currency else "grand_total"
+	income_columns = [(account + ":Currency:120") for account in income_accounts]
+	for account in tax_accounts:
+		if account not in income_accounts:
+			tax_columns.append(account + ":Currency:120")
 
-        orders = frappe.db.sql("""
-                select
-                        name as voucher_no,
-                        ifnull({ref_field}, 0) as invoice_amount,
-                        (ifnull({ref_field}, 0) - ifnull(advance_paid, 0)) as outstanding_amount,
-                        transaction_date as posting_date
-                from
-                        `tab{voucher_type}`
-                where
-                        {party_type} = %s
-                        and docstatus = 1
-                        and ifnull(status, "") != "Stopped"
-                        and ifnull({ref_field}, 0) > ifnull(advance_paid, 0)
-                        and abs(100 - ifnull(per_billed, 0)) > 0.01
-                """.format(**{
-                        "ref_field": ref_field,
-                        "voucher_type": voucher_type,
-                        "party_type": scrub(party_type)
-                }), party, as_dict = True)
+	columns = columns + income_columns + [_("Net Total") + ":Currency:120"] + tax_columns + \
+		[_("Total Tax") + ":Currency:120", _("Grand Total") + ":Currency:120",
+		_("Rounded Total") + ":Currency:120", _("Outstanding Amount") + ":Currency:120"]
 
-        order_list = []
-        for d in orders:
-                d["voucher_type"] = voucher_type
-                order_list.append(d)
+	return columns, income_accounts, tax_accounts
 
-        return order_list
+def get_conditions(filters):
+	conditions = ""
 
-def get_outstanding_vouchers(filters):
-        from erpnext.accounts.utils import get_outstanding_invoices
-        
-        amount_query = ""
-        args = filters
-        amt_date = ""
-        party_account_currency = get_account_currency(args.get("party_account"))
-        company_currency = frappe.db.get_value("Company", args.get("company"), "default_currency")
-        if not args.get("start_sales_invoice"):
-                amt_date += "posting_date >= '" + str(args.get("start_sales_invoice")) + "' and "
-        if not args.get("end_sales_invoice"):
-                amt_date += "posting_date <= '" +  str(args.get("end_sales_invoice")) + "' and" 
+	if filters.get("company"): conditions += " and company=%(company)s"
+	if filters.get("customer"):conditions += " and customer =%(customer)s"
+	if filters.get("from_date"): conditions += " and posting_date >= %(from_date)s"
+	if filters.get("to_date"): conditions += " and posting_date <= %(to_date)s"
+	return conditions
 
-        if args.get("party_type") == "Customer":
-                amount_query += "ifnull(debit_in_account_currency, 0) - ifnull(credit_in_account_currency, 0)"
-        elif args.get("party_type") == "Supplier":
-                amount_query += "ifnull(credit_in_account_currency, 0) - ifnull(debit_in_account_currency, 0)"
-        else:
-                frappe.throw(_("Please enter the Against Vouchers manually"))
+def get_invoices(filters):
+	conditions = get_conditions(filters)
+	return frappe.db.sql("""select name, posting_date, debit_to, project_name, customer,
+		customer_name, remarks, base_net_total, base_grand_total, base_rounded_total, outstanding_amount,sales_person
+		from `tabSales Invoice`
+		where docstatus = 1 %s order by posting_date desc, name desc""" %
+		conditions, filters, as_dict=1)
 
-        # Get all outstanding sales /purchase invoices
-        all_outstanding_vouchers = []
-        outstanding_voucher_list = frappe.db.sql("""
-                select
-                        voucher_no, voucher_type, posting_date,
-                        ifnull(sum({amount_query}), 0) as invoice_amount
-                from
-                        `tabGL Entry`
-                where
-                        %s account = %s and party_type=%s and party=%s and {amount_query} > 0
-                        and (CASE
-                                        WHEN voucher_type = 'Journal Entry'
-                                        THEN ifnull(against_voucher, '') = ''
-                                        ELSE 1=1
-                                END)
-                group by voucher_type, voucher_no
-                """.format(amount_query = amount_query), (amt_date, args.get("party_account"),
-                args.get("party_type"), args.get("party")), as_dict = True)
+def get_invoice_income_map(invoice_list):
+	income_details = frappe.db.sql("""select parent, income_account, sum(base_net_amount) as amount
+		from `tabSales Invoice Item` where parent in (%s) group by parent, income_account""" %
+		', '.join(['%s']*len(invoice_list)), tuple([inv.name for inv in invoice_list]), as_dict=1)
 
-        for d in outstanding_voucher_list:
-                payment_amount = frappe.db.sql("""
-                        select ifnull(sum({amount_query}), 0)
-                        from
-                                `tabGL Entry`
-                        where
-                                %s account = %s and party_type=%s and party=%s and {amount_query} < 0
-                                and against_voucher_type = %s and ifnull(against_voucher, '') = %s
-                        """.format(**{
-                        "amount_query": amount_query
-                        }), (amt_date, account, party_type, party, d.voucher_type, d.voucher_no))
-                payment_amount = -1*payment_amount[0][0] if payment_amount else 0
-                precision = frappe.get_precision("Sales Invoice", "outstanding_amount")
+	invoice_income_map = {}
+	for d in income_details:
+		invoice_income_map.setdefault(d.parent, frappe._dict()).setdefault(d.income_account, [])
+		invoice_income_map[d.parent][d.income_account] = flt(d.amount)
 
-                if d.invoice_amount > payment_amount:
+	return invoice_income_map
 
-                        all_outstanding_vouchers.append({
-                                'voucher_no': d.voucher_no,
-                                'voucher_type': d.voucher_type,
-                                'posting_date': d.posting_date,
-                                'invoice_amount': flt(d.invoice_amount, precision),
-                                'outstanding_amount': flt(d.invoice_amount - payment_amount, precision)
-                        })
+def get_invoice_tax_map(invoice_list, invoice_income_map, income_accounts):
+	tax_details = frappe.db.sql("""select parent, account_head,
+		sum(base_tax_amount_after_discount_amount) as tax_amount
+		from `tabSales Taxes and Charges` where parent in (%s) group by parent, account_head""" %
+		', '.join(['%s']*len(invoice_list)), tuple([inv.name for inv in invoice_list]), as_dict=1)
 
+	invoice_tax_map = {}
+	for d in tax_details:
+		if d.account_head in income_accounts:
+			if invoice_income_map[d.parent].has_key(d.account_head):
+				invoice_income_map[d.parent][d.account_head] += flt(d.tax_amount)
+			else:
+				invoice_income_map[d.parent][d.account_head] = flt(d.tax_amount)
+		else:
+			invoice_tax_map.setdefault(d.parent, frappe._dict()).setdefault(d.account_head, [])
+			invoice_tax_map[d.parent][d.account_head] = flt(d.tax_amount)
 
+	return invoice_income_map, invoice_tax_map
 
+def get_invoice_so_dn_map(invoice_list):
+	si_items = frappe.db.sql("""select parent, sales_order, delivery_note, so_detail
+		from `tabSales Invoice Item` where parent in (%s)
+		and (ifnull(sales_order, '') != '' or ifnull(delivery_note, '') != '')""" %
+		', '.join(['%s']*len(invoice_list)), tuple([inv.name for inv in invoice_list]), as_dict=1)
 
-        #outstanding_invoices = get_outstanding_invoices(amount_query, args.get("party_account"),
-        #        args.get("party_type"), args.get("party"))
+	invoice_so_dn_map = {}
+	for d in si_items:
+		if d.sales_order:
+			invoice_so_dn_map.setdefault(d.parent, frappe._dict()).setdefault(
+				"sales_order", []).append(d.sales_order)
 
-        # Get all SO / PO which are not fully billed or aginst which full advance not paid
-        orders_to_be_billed = get_orders_to_be_billed(args.get("party_type"), args.get("party"),
-                party_account_currency, company_currency)
-        return all_outstanding_vouchers + orders_to_be_billed
+		delivery_note_list = None
+		if d.delivery_note:
+			delivery_note_list = [d.delivery_note]
+		elif d.sales_order:
+			delivery_note_list = frappe.db.sql_list("""select distinct parent from `tabDelivery Note Item`
+				where docstatus=1 and so_detail=%s""", d.so_detail)
 
+		if delivery_note_list:
+			invoice_so_dn_map.setdefault(d.parent, frappe._dict()).setdefault("delivery_note", delivery_note_list)
+
+	return invoice_so_dn_map
+
+def get_customer_deatils(invoice_list):
+	customer_map = {}
+	customers = list(set([inv.customer for inv in invoice_list]))
+	for cust in frappe.db.sql("""select name, territory, customer_group from `tabCustomer`
+		where name in (%s)""" % ", ".join(["%s"]*len(customers)), tuple(customers), as_dict=1):
+			customer_map.setdefault(cust.name, cust)
+
+	return customer_map
