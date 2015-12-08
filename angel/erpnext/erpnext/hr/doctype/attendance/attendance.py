@@ -53,3 +53,6 @@ class Attendance(Document):
 		# while uploading employee attendance
 		employee_name = frappe.db.get_value("Employee", self.employee, "employee_name")
 		frappe.db.set(self, 'employee_name', employee_name)
+		# fingerprint_id is updated from employee value of Employee doctype, whenever employee is selected, fingerprint_id gets updated
+                fingerprint_id = frappe.db.get_value("Employee", self.employee, "fingerprint_id")
+                frappe.db.set(self, 'fingerprint_id', fingerprint_id)
