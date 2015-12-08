@@ -11,3 +11,8 @@ class PrintDoctypeSetting(Document):
 	def validate(self):
 		doctype = self.get("doctype_name")
 		self.set("name", doctype)
+
+@frappe.whitelist()
+def update_print_counter(frm, doc):
+	pass
+	

@@ -51,6 +51,35 @@ frappe.ui.form.PrintPreview = Class.extend({
 			} else {
 				me.printit();
 			}
+                 
+                        //debugger;
+			frappe.call({
+				method: "frappe.client.get_value",
+				async: true,
+				args: {
+				    doctype:   "Print Doctype Setting",
+				    fieldname: "max_value",
+				    filters:   {"doctype_name": me.frm.doc.doctype}
+				},
+				callback: function(r) {
+				    if (!r.exc && r.message.max_value) {
+					   frappe.call({
+					      type: "POST",
+					      method: "angel.angel.doctype.print_document_setting.print_document_setting.update_print_counter",
+					      args: { dtype: me.frm.doc.doctype, name: me.frm.doc.name
+					      },
+					      callback: function(r){
+						    if (!r.exc && r.message) {
+
+						      console.error(r.message);
+						    }
+					      }
+					   });
+
+				    }
+                               }
+			});
+
 		});
 
 		this.wrapper.find(".btn-print-preview").click(function() {

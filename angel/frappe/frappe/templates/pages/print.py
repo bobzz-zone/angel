@@ -112,8 +112,11 @@ def get_html(doc, name=None, print_format=None, meta=None,
 
 	if template == "standard":
 		template = jenv.get_template(standard_format)
-
-        doc.print_counter = "Print Copy No - " + str(frappe.db.get_value("Print Document Setting", {'docname_name': doc.name}, "current_value") + 1) if frappe.db.get_value("Print Document Setting", {'docname_name': doc.name}, "current_value") else ""
+        val = frappe.db.get_value("Print Document Setting", {'docname_name': doc.name}, "current_value")
+        doc.print_counter = "Print Copy No - " + str(val + 1) if val else ""
+        max_val = frappe.db.get_value("Print Document Setting", {'docname_name': doc.name}, "max_value")
+        if max_val and doc.print_counter and  int(val) > int(max_val):
+                frappe.msgprint("Print copies for this Document is exceeded Max Value please administrator to increase Max Print Document ",raise_exception=1)	
 
 	args = {
 		"doc": doc,
