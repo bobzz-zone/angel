@@ -193,7 +193,7 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 	},
 
 	source_mandatory: ["Material Issue", "Material Transfer", "Subcontract", "Material Transfer for Manufacture"],
-	target_mandatory: ["Material Receipt", "Material Transfer", "Subcontract", "Material Transfer for Manufacture"],
+	target_mandatory: ["Material Receipt", "Material Return", "Material Transfer", "Subcontract", "Material Transfer for Manufacture,Material Return"],
 
 	from_warehouse: function(doc) {
 		var me = this;
@@ -235,10 +235,10 @@ cur_frm.script_manager.make(erpnext.stock.StockEntry);
 cur_frm.cscript.toggle_related_fields = function(doc) {
 	cur_frm.toggle_enable("from_warehouse", doc.purpose!='Material Receipt');
 	cur_frm.toggle_enable("to_warehouse", doc.purpose!='Material Issue');
-
+        cur_frm.toggle_enable("from_warehouse", doc.purpose!='Material Return');
 	cur_frm.fields_dict["items"].grid.set_column_disp("s_warehouse", doc.purpose!='Material Receipt');
 	cur_frm.fields_dict["items"].grid.set_column_disp("t_warehouse", doc.purpose!='Material Issue');
-
+        cur_frm.fields_dict["items"].grid.set_column_disp("s_warehouse", doc.purpose!='Material Return');
 	cur_frm.cscript.toggle_enable_bom();
 
 	if (doc.purpose == 'Subcontract') {
@@ -252,6 +252,10 @@ cur_frm.cscript.toggle_related_fields = function(doc) {
 	if(doc.purpose == "Material Receipt") {
 		cur_frm.set_value("from_bom", 0);
 	}
+        if(doc.purpose == "Material Return") {
+                cur_frm.set_value("from_bom", 0);
+        }
+
 	
 	// Addition costs based on purpose
 	cur_frm.toggle_display(["additional_costs", "total_additional_costs", "additional_costs_section"], 
