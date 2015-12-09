@@ -68,7 +68,7 @@ class StockEntry(StockController):
 		self.make_gl_entries_on_cancel()
 
 	def validate_purpose(self):
-		valid_purposes = ["Material Issue", "Material Receipt", "Material Transfer", "Material Transfer for Manufacture",
+		valid_purposes = ["Material Issue", "Material Receipt", "Material Return", "Material Transfer", "Material Transfer for Manufacture",
 			"Manufacture", "Repack", "Subcontract"]
 		if self.purpose not in valid_purposes:
 			frappe.throw(_("Purpose must be one of {0}").format(comma_or(valid_purposes)))
@@ -115,7 +115,7 @@ class StockEntry(StockController):
 		"""perform various (sometimes conditional) validations on warehouse"""
 
 		source_mandatory = ["Material Issue", "Material Transfer", "Subcontract", "Material Transfer for Manufacture"]
-		target_mandatory = ["Material Receipt", "Material Transfer", "Subcontract", "Material Transfer for Manufacture"]
+		target_mandatory = ["Material Receipt", "Material Return", "Material Transfer", "Subcontract", "Material Transfer for Manufacture"]
 
 		validate_for_manufacture_repack = any([d.bom_no for d in self.get("items")])
 
@@ -532,7 +532,7 @@ class StockEntry(StockController):
 				self.production_order = None
 
 		if self.bom_no:
-			if self.purpose in ["Material Issue", "Material Transfer", "Manufacture", "Repack",
+			if self.purpose in ["Material Issue", "Material Return", "Material Transfer", "Manufacture", "Repack",
 					"Subcontract", "Material Transfer for Manufacture"]:
 				if self.production_order and self.purpose == "Material Transfer for Manufacture":
 					item_dict = self.get_pending_raw_materials()
