@@ -213,10 +213,12 @@ class BOM(Document):
 				validate_bom_no(m.item_code, m.bom_no)
 			if flt(m.qty) <= 0:
 				frappe.throw(_("Quantity required for Item {0} in row {1}").format(m.item_code, m.idx))
-			check_list.append(cstr(m.item_code))
+			#allowing multiple item entries and later applying validation for item+workstation combination being unique, instead of just Item: 10 Dec'15 Angel
+			check_list.append(cstr(m.item_code+" "+m.item_workstation))
 		unique_chk_list = set(check_list)
 		if len(unique_chk_list)	!= len(check_list):
-			frappe.throw(_("Same item has been entered multiple times."))
+			#frappe.throw(_("Same item has been entered multiple times."))
+			frappe.throw(_("Same item and/or with workstation has been entered multiple times."))
 
 	def check_recursion(self):
 		""" Check whether recursion occurs in any bom"""
