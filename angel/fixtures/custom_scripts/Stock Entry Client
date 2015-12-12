@@ -1,0 +1,17 @@
+toggle_purpose = function(frm)
+{
+frm.toggle_display("co_products_and_by_products",frm.doc.purpose == "Manufacture");
+}
+
+
+frappe.ui.form.on("Stock Entry", "purpose", function(frm){
+       
+   toggle_purpose(frm);
+});
+
+
+frappe.ui.form.on("Stock Entry",{"onload":function(frm){
+
+toggle_purpose(frm);
+
+}});
