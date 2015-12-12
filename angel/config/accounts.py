@@ -3,6 +3,22 @@ from frappe import _
 
 def get_data():
 	return [
+                {
+                        "label": _("Documents"),
+                        "icon": "icon-star",
+                        "items": [
+                                {   
+                                        "type": "doctype",
+                                        "name": "Petty Cash",
+                                        "description": _("Petty Cash")
+                                },  
+                                {   
+                                        "type": "doctype",
+                                        "name": "TT Document",
+                                        "description": _("TT Document")
+                                },  
+                        ]
+                },
 		{
 			"label": _("Setup"),
 			"icon": "icon-cog",

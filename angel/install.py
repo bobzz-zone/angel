@@ -62,6 +62,12 @@ def install_required_docs():
         doc.save()
         frappe.db.commit()
 
+        # Sales Person
+        doc = frappe.new_doc("Sales Person")
+        doc.is_group = "Yes"
+        doc.sales_person_name = "Sales Team"
+        doc.save()
+        frappe.db.commit()
 
         if not frappe.local.site:
                 return
