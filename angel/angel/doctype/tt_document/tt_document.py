@@ -1,209 +1,25 @@
-{
- "allow_copy": 0, 
- "allow_import": 0, 
- "allow_rename": 0, 
- "autoname": "naming_series:", 
- "creation": "2015-11-28 16:14:22.170000", 
- "custom": 0, 
- "docstatus": 0, 
- "doctype": "DocType", 
- "document_type": "Document", 
- "fields": [
-  {
-   "allow_on_submit": 0, 
-   "bold": 1, 
-   "collapsible": 0, 
-   "fieldname": "naming_series", 
-   "fieldtype": "Select", 
-   "hidden": 0, 
-   "ignore_user_permissions": 0, 
-   "in_filter": 0, 
-   "in_list_view": 0, 
-   "label": "TT Number", 
-   "no_copy": 0, 
-   "options": "TT-", 
-   "permlevel": 0, 
-   "precision": "", 
-   "print_hide": 0, 
-   "read_only": 0, 
-   "report_hide": 0, 
-   "reqd": 0, 
-   "search_index": 0, 
-   "set_only_once": 0, 
-   "unique": 0
-  }, 
-  {
-   "allow_on_submit": 0, 
-   "bold": 0, 
-   "collapsible": 0, 
-   "fieldname": "column_break_2", 
-   "fieldtype": "Column Break", 
-   "hidden": 0, 
-   "ignore_user_permissions": 0, 
-   "in_filter": 0, 
-   "in_list_view": 0, 
-   "no_copy": 0, 
-   "permlevel": 0, 
-   "precision": "", 
-   "print_hide": 0, 
-   "read_only": 0, 
-   "report_hide": 0, 
-   "reqd": 0, 
-   "search_index": 0, 
-   "set_only_once": 0, 
-   "unique": 0
-  }, 
-  {
-   "allow_on_submit": 0, 
-   "bold": 0, 
-   "collapsible": 0, 
-   "default": "0", 
-   "fieldname": "total_amount", 
-   "fieldtype": "Data", 
-   "hidden": 0, 
-   "ignore_user_permissions": 0, 
-   "in_filter": 0, 
-   "in_list_view": 0, 
-   "label": "Total  Outstanding Amount", 
-   "no_copy": 0, 
-   "permlevel": 0, 
-   "precision": "", 
-   "print_hide": 0, 
-   "read_only": 1, 
-   "report_hide": 0, 
-   "reqd": 0, 
-   "search_index": 0, 
-   "set_only_once": 0, 
-   "unique": 0
-  }, 
-  {
-   "allow_on_submit": 0, 
-   "bold": 0, 
-   "collapsible": 0, 
-   "default": "0", 
-   "fieldname": "grand_total", 
-   "fieldtype": "Currency", 
-   "hidden": 0, 
-   "ignore_user_permissions": 0, 
-   "in_filter": 0, 
-   "in_list_view": 0, 
-   "label": "Grand Total", 
-   "no_copy": 0, 
-   "permlevel": 0, 
-   "precision": "", 
-   "print_hide": 0, 
-   "read_only": 1, 
-   "report_hide": 0, 
-   "reqd": 0, 
-   "search_index": 0, 
-   "set_only_once": 0, 
-   "unique": 0
-  }, 
-  {
-   "allow_on_submit": 0, 
-   "bold": 0, 
-   "collapsible": 0, 
-   "fieldname": "section_break_4", 
-   "fieldtype": "Section Break", 
-   "hidden": 0, 
-   "ignore_user_permissions": 0, 
-   "in_filter": 0, 
-   "in_list_view": 0, 
-   "no_copy": 0, 
-   "permlevel": 0, 
-   "precision": "", 
-   "print_hide": 0, 
-   "read_only": 0, 
-   "report_hide": 0, 
-   "reqd": 0, 
-   "search_index": 0, 
-   "set_only_once": 0, 
-   "unique": 0
-  }, 
-  {
-   "allow_on_submit": 0, 
-   "bold": 1, 
-   "collapsible": 0, 
-   "fieldname": "outstanding_invoices", 
-   "fieldtype": "Table", 
-   "hidden": 0, 
-   "ignore_user_permissions": 0, 
-   "in_filter": 0, 
-   "in_list_view": 0, 
-   "label": "Outstanding Invoices", 
-   "no_copy": 0, 
-   "options": "Sales Invoice Item", 
-   "permlevel": 0, 
-   "precision": "", 
-   "print_hide": 0, 
-   "read_only": 0, 
-   "report_hide": 0, 
-   "reqd": 0, 
-   "search_index": 0, 
-   "set_only_once": 0, 
-   "unique": 0
-  }, 
-  {
-   "allow_on_submit": 0, 
-   "bold": 0, 
-   "collapsible": 0, 
-   "fieldname": "amended_from", 
-   "fieldtype": "Link", 
-   "hidden": 0, 
-   "ignore_user_permissions": 0, 
-   "in_filter": 0, 
-   "in_list_view": 0, 
-   "label": "Amended From", 
-   "no_copy": 1, 
-   "options": "TT Document", 
-   "permlevel": 0, 
-   "print_hide": 1, 
-   "read_only": 1, 
-   "report_hide": 0, 
-   "reqd": 0, 
-   "search_index": 0, 
-   "set_only_once": 0, 
-   "unique": 0
-  }
- ], 
- "hide_heading": 0, 
- "hide_toolbar": 0, 
- "icon": "icon-building", 
- "in_create": 0, 
- "in_dialog": 0, 
- "is_submittable": 1, 
- "issingle": 0, 
- "istable": 0, 
- "modified": "2015-12-11 10:34:21.340059", 
- "modified_by": "Administrator", 
- "module": "Angel", 
- "name": "TT Document", 
- "name_case": "", 
- "owner": "Administrator", 
- "permissions": [
-  {
-   "amend": 1, 
-   "apply_user_permissions": 0, 
-   "cancel": 1, 
-   "create": 1, 
-   "delete": 1, 
-   "email": 1, 
-   "export": 1, 
-   "if_owner": 0, 
-   "import": 0, 
-   "permlevel": 0, 
-   "print": 1, 
-   "read": 1, 
-   "report": 1, 
-   "role": "Administrator", 
-   "set_user_permissions": 0, 
-   "share": 1, 
-   "submit": 1, 
-   "write": 1
-  }
- ], 
- "read_only": 0, 
- "read_only_onload": 0, 
- "sort_field": "modified", 
- "sort_order": "DESC"
-}
+# -*- coding: utf-8 -*-
+# Copyright (c) 2015, Korecent Solutions Pvt Ltd and contributors
+# For license information, please see license.txt
+
+from __future__ import unicode_literals
+import frappe
+from frappe.model.document import Document
+
+class TTDocument(Document):
+
+	def onload(self):
+		lst = []
+		grand_total = 0
+		tbl = self.get("outstanding_invoices")
+                dest = []
+		for arr in tbl:
+			against_v = arr.against_voucher_no
+			val = frappe.db.get_value("Sales Invoice",{"name":against_v},"outstanding_amount")
+                        grand_total += arr.total_amount
+		        frappe.msgprint(arr.total_amount)
+			arr.outstanding_amount = val
+                        dest.append(arr)
+	        self.set("outstanding_invoices", dest)
+		self.set("grand_total", grand_total)
+			
