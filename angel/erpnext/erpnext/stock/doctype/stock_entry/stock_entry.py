@@ -114,7 +114,7 @@ class StockEntry(StockController):
 	def validate_warehouse(self):
 		"""perform various (sometimes conditional) validations on warehouse"""
 
-		source_mandatory = ["Material Issue", "Material Transfer", "Subcontract", "Material Transfer for Manufacture"]
+		source_mandatory = ["Material Issue", "Subcontract", "Material Transfer for Manufacture"]
 		target_mandatory = ["Material Receipt", "Material Return", "Material Transfer", "Subcontract", "Material Transfer for Manufacture"]
 
 		validate_for_manufacture_repack = any([d.bom_no for d in self.get("items")])

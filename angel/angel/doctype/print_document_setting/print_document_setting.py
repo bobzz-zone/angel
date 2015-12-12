@@ -20,7 +20,6 @@ def new_print_document_setting(dtype, dname, cur_val, max_val):
         
 @frappe.whitelist()
 def update_print_counter(dtype, name):
-        frappe.msgprint(("chetan inside update_print_counter"))
         if not frappe.db.get_value("Print Doctype Setting", {'doctype_name': dtype}, "max_value"):
                 frappe.throw(("This Doctype is not present in print Doctype Setting"))
                 return

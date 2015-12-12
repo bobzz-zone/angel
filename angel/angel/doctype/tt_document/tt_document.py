@@ -7,4 +7,15 @@ import frappe
 from frappe.model.document import Document
 
 class TTDocument(Document):
-	pass
+
+        def onload(self):
+                lst = []
+                count = 0
+                tbl = self.get("outstanding_invoices")
+                dest = []
+                for arr in tbl:
+                        against_v = arr.against_voucher_no
+                        val = frappe.db.get_value("Sales Invoice",{"name":against_v},"outstanding_amount")
+                        arr.outstanding_amount = val
+                        dest.append(arr)
+                self.set("outstanding_invoices", dest)

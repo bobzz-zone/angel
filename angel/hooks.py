@@ -16,7 +16,7 @@ website_context = {
 	"splash_image": "/assets/angel/images/ms-icon-310x310.png",
 	"favicon"     :	"/assets/angel/images/favicon-16x16.png"
 }
-fixtures = ["Custom Field", "Customize Form Field", "DocField"]
+fixtures = ["Custom Field"]
 
 # Includes in <head>
 # ------------------
@@ -83,12 +83,12 @@ after_install = "angel.install.after_install"
 # }
 doc_events = {
         "*": {
-                "after_insert": "angel.tasks.sync_doc_remote",
-                "on_update":    "angel.tasks.sync_doc_remote",
-                "after_rename": "angel.tasks.sync_doc_remote",
-                "on_submit":    "angel.tasks.sync_doc_remote",
-                "on_cancel":    "angel.tasks.sync_doc_remote",
-                "on_trash":     "angel.tasks.sync_doc_remote"
+#                "after_insert": "angel.tasks.sync_doc_remote",
+#                "on_update":    "angel.tasks.sync_doc_remote",
+#                "after_rename": "angel.tasks.sync_doc_remote",
+#                "on_submit":    "angel.tasks.sync_doc_remote",
+#                "on_cancel":    "angel.tasks.sync_doc_remote",
+#                "on_trash":     "angel.tasks.sync_doc_remote"
         }
 }
 
