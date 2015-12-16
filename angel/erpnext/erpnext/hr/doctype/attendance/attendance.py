@@ -42,6 +42,7 @@ class Attendance(Document):
 	def validate(self):
 		from erpnext.controllers.status_updater import validate_status
 		from erpnext.accounts.utils import validate_fiscal_year
+		clock_in = self.get("clock_in")
 		validate_status(self.status, ["Present", "Absent", "Half Day"])
 		validate_fiscal_year(self.att_date, self.fiscal_year, _("Attendance Date"), self)
 		self.validate_att_date()
@@ -63,41 +64,102 @@ class Attendance(Document):
 	def check_in_time(self):
 		clock_in_time = str(self.get("clock_in"))
 		clock_out_time = str(self.get("clock_out"))
-		hours = str(self.get("hours"))
-	
-                # Getting Clock In time Detail
+		clock_out_default = clock_out_time.find(".")
+		clock_in_default = clock_in_time.find(".")
 		arr_in = clock_in_time.split(":")
- 		clock_in_hour = cint(arr_in[0])
-		clock_in_min = cint(arr_in[1])
-		clock_in_sec = cint(arr_in[2])
-		
-		# Getting Clock Out Time Detail	
-		arr_out = clock_out_time.split(":")
-		clock_out_hour = cint(arr_out[0])
-		clock_out_min = cint(arr_out[1])
-		clock_out_sec = cint(arr_out[2])
+                arr_out = clock_out_time.split(":")
+		arr_in_len = len(arr_in)
+		arr_out_len = len(arr_out)	
 	
-		# Getting Hours Detail
-		arr_hours = hours.split(":")
-		if((len(arr_hours) == 3)):
-			hours_hour = cint(arr_hours[0])
-			hours_min = cint(arr_hours[1])
-			hours_sec = cint(arr_hours[2])
-			if(not((hours_hour) and (hours_min))):
-                        	self.set("status", "Absent")
-                	elif((hours_hour < 8 and hours_hour > 0) or (clock_in_hour > 9)):
-                        	self.set("status", "Half Day")
-                	elif(hours_hour > 8):
-                        	self.set("status", "Present")
-		elif(not(len(arr_hours))):
+		if((clock_out_default > 0 and  clock_in_default > 0)):	
+			frappe.msgprint("Check")
 			self.set("status", "Absent")
+			self.set("clock_in", "00:00:00")
+			self.set("clock_out", "00:00:00")
+			self.set("hours", "00:00:00")
+			self.set("fine", 0.0)
+			return
+		elif((clock_in_default < 0) and (clock_out_default > 0)):
+			self.set("clock_in", self.get("clock_in"))
+			self.set("status", "Absent")
+			self.set("clock_out", "00:00:00")
+			self.set("hours","00:00:00")
+			return
+		elif((clock_out_default < 0) and (clock_in_default > 0)):
+			self.set("clock_out", self.get("clock_out"))
+			self.set("status", "Absent")
+			self.set("clock_in", "00:00:00")
+			self.set("hours", "00:00:00")
+			return
+		elif(clock_out_default < 0 and clock_in_default < 0):
+			hours = ""			
+			for t in range(0,3):
+				diff = cint(arr_out[t]) - cint(arr_in[t])
+				if(t == 0):
+					if((diff <= 0 )):
+						hours = hours + "00:"
+					elif((diff > 0) and (len(str(diff)) == 2)):
+						hours = hours + str(diff) + ":"
+					elif((diff > 0) and ((len(str(diff))) == 1)):
+						hours = hours + "0" + str(diff) + ":"
+				elif(t == 1):
+					if((diff < 0)):
+						temp_hours = hours.split(":")
+						temp_hour = cint(temp_hours[0])
+						if(temp_hour == 0):
+							temp_diff = str(diff).replace("-", "", 1)
+							temp_diff = cint(temp_diff)
+							temp_diff = 60 - temp_diff
+							hours = hours + str(temp_diff) + ":"
+						elif(temp_hour != 0):
+							temp_diff = 60 - int(str(diff).replace("-", "", 1))
+							temp_hour = temp_hour - 1
+							temp_hour_str = str(temp_hour)
+							if((len(temp_hour_str)) == 1):
+								hours = "0" + str(temp_hour) + ":" + str(temp_diff) + ":"
+							elif((len(temp_hour_str)) == 2):
+ 								hours =  str(temp_hour) + ":" + str(temp_diff) + ":"
+					elif(diff == 0):
+						hours = hours + "00:"	
+                                        elif((diff > 0) and (len(str(diff)) == 2)):
+                                                hours = hours + str(diff) + ":"      
+                                        elif((diff > 0) and ((len(str(diff))) == 1)): 
+                                                hours = hours + "0" + str( diff) + ":"
+				elif(t == 2):
+					if((diff <= 0 )):
+                                                hours = hours + "00"
+                                        elif((diff > 0) and (len(str(diff)) == 2)):
+                                                hours = hours + str(diff)      
+                                        elif((diff > 0) and ((len(str(diff))) == 1)): 
+                                                hours = hours + "0" + str(diff)
+			self.set("hours", hours)
+			hours_arr = self.get("hours").split(":")
+			frappe.msgprint(hours_arr)
+		
+			arr_in_hour = cint(arr_in[0])
+			arr_in_min = cint(arr_in[1])
+			arr_out_hour = cint(arr_out[0])
+			arr_out_min = cint(arr_out[0])
+			hours_hour = cint( hours_arr[0])
+			hours_min = cint(hours_arr[1])
 
-		diff = clock_out_hour - clock_in_hour
-		if(diff < 0):
-			frappe.throw("Time In Cannot be Greater then Time Out")
-		if(clock_in_time == clock_out_time):
-			frappe.throw("Time In and Time Out Cannot be Same")
-		if((clock_in_hour == 8) and (clock_in_min < 30 and clock_in_min > 1)):
-			self.set("fine", 50)
-		elif((clock_in_hour == 8) and (clock_in_min < 59)):
-			self.set("fine", 100) 	
+			if((arr_in_hour == 8) and (arr_in_min > 31 and arr_in_min <= 59)):
+				self.set("fine", 5000)
+			elif((arr_in_hour == 9) and (arr_in_min > 1 and arr_in_min <= 30)):
+				self.set("fine", 10000)			
+			elif(((arr_in_hour >= 9) and (arr_in_min >= 31))):
+				self.set("status", "Half Day")
+				self.set("fine", 0.0)
+			elif(((arr_in_hour <= 9) and (arr_in_min <= 30))):
+				if(hours_hour > 8):
+					self.set("status", "Present")
+				elif(hours_hour == 8 and hours_min >= 30):
+					self.set("status", "Present")
+
+
+
+
+
+
+
+			
