@@ -192,7 +192,7 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 		if(!row.t_warehouse) row.t_warehouse = this.frm.doc.to_warehouse;
 	},
 
-	source_mandatory: ["Material Issue", "Material Transfer", "Subcontract", "Material Transfer for Manufacture"],
+	source_mandatory: ["Material Issue", "Material Return", "Material Transfer", "Subcontract", "Material Transfer for Manufacture"],
         //25Nov Nikhil: added Material Return
         target_mandatory: ["Material Receipt","Material Return", "Material Transfer", "Subcontract", "Material Transfer for Manufacture"],
 
@@ -235,11 +235,9 @@ cur_frm.script_manager.make(erpnext.stock.StockEntry);
 
 cur_frm.cscript.toggle_related_fields = function(doc) {
 	cur_frm.toggle_enable("from_warehouse", doc.purpose!='Material Receipt');
-	cur_frm.toggle_enable("to_warehouse", doc.purpose!='Material Issue');
-        cur_frm.toggle_enable("from_warehouse", doc.purpose!='Material Return');  
+	cur_frm.toggle_enable("to_warehouse", doc.purpose!='Material Issue'); 
 	cur_frm.fields_dict["items"].grid.set_column_disp("s_warehouse", doc.purpose!='Material Receipt');
 	cur_frm.fields_dict["items"].grid.set_column_disp("t_warehouse", doc.purpose!='Material Issue');
-        cur_frm.fields_dict["items"].grid.set_column_disp("s_warehouse",doc.purpose!='Material Return');
 	cur_frm.cscript.toggle_enable_bom();
 
 	if (doc.purpose == 'Subcontract') {
