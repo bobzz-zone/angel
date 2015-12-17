@@ -134,32 +134,32 @@ class Attendance(Document):
                                                 hours = hours + "0" + str(diff)
 			self.set("hours", hours)
 			hours_arr = self.get("hours").split(":")
-			frappe.msgprint(hours_arr)
-		
 			arr_in_hour = cint(arr_in[0])
 			arr_in_min = cint(arr_in[1])
 			arr_out_hour = cint(arr_out[0])
 			arr_out_min = cint(arr_out[0])
 			hours_hour = cint( hours_arr[0])
 			hours_min = cint(hours_arr[1])
-
 			if((arr_in_hour == 8) and (arr_in_min > 31 and arr_in_min <= 59)):
 				self.set("fine", 5000)
+				if(hours_hour >= 8 and (hours_min >= 30) or (hours_hour > 8)):
+					self.set("status", "Present")
+	
+			elif((arr_in_hour <= 8 and arr_in_min <= 30) or (arr_in_hour < 8)):
+                                if((hours_hour > 8) or (hours_hour >= 8 and hours_min >= 30)):
+                                        self.set("status", "Present")
+                                        self.set("fine", 00)
+
 			elif((arr_in_hour == 9) and (arr_in_min > 1 and arr_in_min <= 30)):
-				self.set("fine", 10000)			
-			elif(((arr_in_hour >= 9) and (arr_in_min >= 31))):
+				self.set("fine", 10000)
+				if((hours_hour >= 8 and hours_min >= 30) or (hours > 8)):
+					self.set("status", "Present")
+					
+			elif(((arr_in_hour >= 9) and (arr_in_min >= 31)) or (arr_in_hour  > 9)):
 				self.set("status", "Half Day")
-				self.set("fine", 0.0)
-			elif(((arr_in_hour <= 9) and (arr_in_min <= 30))):
-				if(hours_hour > 8):
-					self.set("status", "Present")
-				elif(hours_hour == 8 and hours_min >= 30):
-					self.set("status", "Present")
-
-
-
-
-
-
-
+				self.set("fine", 00)
 			
+			if(hours_hour < 8 and hours_hour > 4):
+				self.set("status", "Half Day")
+				self.set("fine", 00)
+
