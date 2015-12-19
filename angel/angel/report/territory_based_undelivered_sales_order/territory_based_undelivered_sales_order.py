@@ -27,7 +27,7 @@ def get_columns(filters):
 
 def  get_data(filters):
      territory = filters["territory"]
-     frappe.msgprint( _("{0}".format( territory)))
+     #frappe.msgprint( _("{0}".format( territory)))
      data = frappe.db.sql('''SELECT `name`, `territory`, `delivery_status`     
              FROM 
                  `tabSales Order`
