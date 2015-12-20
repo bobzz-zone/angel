@@ -17,6 +17,7 @@ def execute(filters=None):
 
 	data = []
 	for emp in sorted(att_map):
+		total_fine = att_map["total_fine"]
 		emp_det = emp_map.get(emp)
 		if not emp_det:
 			continue
@@ -38,7 +39,7 @@ def execute(filters=None):
 				total_p += 0.5
 				total_a += 0.5
 
-		row += [total_p, total_a]
+		row += [total_p, total_a, total_fine]
 
 		data.append(row)
 
@@ -54,18 +55,20 @@ def get_columns(filters):
 	for day in range(filters["total_days_in_month"]):
 		columns.append(cstr(day+1) +"::20")
 
-	columns += [_("Total Present") + ":Float:80", _("Total Absent") + ":Float:80"]
+	columns += [_("Total Present") + ":Float:80", _("Total Absent") + ":Float:80",_("Total Fine") + ":Currency:"]
 	return columns
 
 def get_attendance_list(conditions, filters):
 	attendance_list = frappe.db.sql("""select employee, day(att_date) as day_of_month,
-		status from tabAttendance where docstatus = 1 %s order by employee, att_date""" %
+		status, SUM(fine) as total_fine  from tabAttendance where docstatus = 1 %s order by employee, att_date""" %
 		conditions, filters, as_dict=1)
 
 	att_map = {}
 	for d in attendance_list:
 		att_map.setdefault(d.employee, frappe._dict()).setdefault(d.day_of_month, "")
 		att_map[d.employee][d.day_of_month] = d.status
+		att_map["total_fine"] = d.total_fine
+	
 
 	return att_map
 
