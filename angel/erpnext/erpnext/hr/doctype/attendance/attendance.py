@@ -72,7 +72,6 @@ class Attendance(Document):
 		arr_out_len = len(arr_out)	
 	
 		if((clock_out_default > 0 and  clock_in_default > 0)):	
-			frappe.msgprint("Check")
 			self.set("status", "Absent")
 			self.set("clock_in", "00:00:00")
 			self.set("clock_out", "00:00:00")
