@@ -59,6 +59,8 @@ def add_data(w, args):
 				get_fiscal_year(date)[0], employee.company,
 				existing_attendance and existing_attendance.naming_series or get_naming_series(),
 				employee.fingerprint_id, #added fingerprint_id
+				existing_attendance and existing_attendance.clock_in or "",
+				existing_attendance and existing_attendance.clock_out or "",
 			]
 			w.writerow(row)
 	return w
@@ -75,7 +77,7 @@ def get_active_employees():
 	return employees
 
 def get_existing_attendance_records(args):
-	attendance = frappe.db.sql("""select name, att_date, employee, status, naming_series, fingerprint_id
+	attendance = frappe.db.sql("""select name, att_date, employee, status, naming_series, fingerprint_id, clock_in, clock_out
 		from `tabAttendance` where att_date between %s and %s and docstatus < 2""",
 (args["from_date"], args["to_date"]), as_dict=1)
 
