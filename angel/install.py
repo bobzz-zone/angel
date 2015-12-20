@@ -41,13 +41,16 @@ def after_install():
         # overright ../../erpnext/erpnext/public/js/conf.js ../../angel/angel/public/js/conf.js
         #system("cp " + path.join(APPS, "angel/angel/public/js/conf.js") + " " + path.join(APPS, "erpnext/erpnext/public/js/conf.js"))
         install_required_docs()
+
 # Customer Group Tree, Item Group Tree, Chart of Accounts,  Chart of Cost Centers
 def install_required_docs():
+        # Item Group
         doc = frappe.new_doc("Item Group")
         doc.is_group = "Yes"
         doc.item_group_name = "All Item Groups"
         doc.save()
         frappe.db.commit()
+
         # Customer Group
         doc = frappe.new_doc("Customer Group")
         doc.is_group = "Yes"
