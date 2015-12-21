@@ -492,6 +492,7 @@ frappe.ui.form.GridRow = Class.extend({
 	},
 	show_form: function() {
 		var me = this;
+                //debugger;
 		if(!this.form_panel) {
 			this.form_panel = $('<div class="form-in-grid"></div>')
 				.appendTo(this.wrapper);
@@ -513,7 +514,11 @@ frappe.ui.form.GridRow = Class.extend({
 		cur_frm.cur_grid = this;
 		this.wrapper.addClass("grid-row-open");
 		frappe.ui.scroll(this.wrapper, true, 15);
+                //debugger;
+                //frappe.msgprint((me.doc.parentfield + "_on_form_rendered"));
 		me.frm.script_manager.trigger(me.doc.parentfield + "_on_form_rendered");
+                // Code Added by chetan
+                me.frm.script_manager.trigger("form_render", me.doc.doctype, me.doc.name);
 	},
 	hide_form: function() {
 		// if(this.form_panel)
