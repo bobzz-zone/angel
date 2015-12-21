@@ -1,0 +1,69 @@
+frappe.ui.form.on("Sales Order Item", "price_list_rate", function(doc, cdt, cdn){
+  var d = locals[cdt][cdn];
+
+  var price_list = frappe.model.get_value("Sales Order Item", cdn, "price_list");
+  if ( price_list == "" || ! price_list){
+     frappe.model.set_value("Sales Order Item", cdn, "price_list_rate", 0.0);
+     return;
+  }
+
+  var item_code = frappe.model.get_value("Sales Order Item", cdn, "item_code");
+  frappe.model.get_value("Item Price", {
+                     "item_code": item_code,
+                     "price_list": price_list
+                    }, 'price_list_rate', 
+                    function(r){
+                         frappe.model.set_value("Sales Order Item", cdn, "price_list_rate", r.price_list_rate);
+                    });
+   
+ 
+  
+  //cur_frm.fields_dict.items.grid.grid_rows_by_docname[cdn].refresh_field('price_list_rate');
+});
+
+frappe.ui.form.on("Sales Order Item", "price_list", function(doc, cdt, cdn){
+       var d = locals[cdt][cdn];
+       frappe.model.trigger("price_list_rate", 
+                      frappe.model.get_value("Sales Order Item", cdn, "price_list_rate"), d);
+ });
+
+frappe.ui.form.on("Sales Order", "ignore_pricing_rule", function(frm){
+
+        var check = cint(frm.doc.ignore_pricing_rule);
+
+        if(check == 1){
+        //alert(check +" Value ON");
+        frm.toggle_display("selling_price_list", 0);  
+        frm.toggle_reqd("selling_price_list", false); 
+        }
+        else if (check == 0){
+        //child table rule gets hidden or disabled
+        //alert(check +" Value OF");
+        debugger ;
+        frm.toggle_display("selling_price_list", 1);  
+        frm.toggle_reqd("selling_price_list", true); 
+        }
+});
+
+frappe.ui.form.on("Sales order Item", "items_add", function(frm, cdt, cdn) {
+   debugger;
+});
+frappe.ui.form.on("Sales Order", "items_on_form_rendered", function(frm, cdt, cdn){
+debugger;
+});
+frappe.ui.form.on("Sales Order", "form_render", function(frm, cdt, cdn){
+debugger;
+    if (cur_frm.doc.ignore_pricing_rule) {
+        cur_frm.toggle_display("price_list", 0); 
+        field = cur_frm.fields_dict.items.grid.grid_rows_by_docname[cdn].docfields.filter(function(r) {return r.fieldname === 'price_list'; })[0];
+    
+    field.reqd = false;
+    cur_frm.fields_dict.items.grid.grid_rows_by_docname[cdn].refresh_field('price_list');
+}
+else {
+    var sellingpl = frm.doc.selling_price_list;
+    frappe.model.set_value(cdt, cdn, "price_list", sellingpl);
+}
+
+
+});
