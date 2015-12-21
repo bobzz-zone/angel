@@ -33,14 +33,12 @@ frappe.ui.form.on("Sales Order", "ignore_pricing_rule", function(frm){
 
         if(check == 1){
         //alert(check +" Value ON");
-        debugger ;
         frm.toggle_display("selling_price_list", 0);  
         frm.toggle_reqd("selling_price_list", false); 
         }
         else if (check == 0){
         //child table rule gets hidden or disabled
         //alert(check +" Value OF");
-        debugger ;
         frm.toggle_display("selling_price_list", 1);  
         frm.toggle_reqd("selling_price_list", true); 
         //frappe.meta.get_docfield("Sales Order Item", "price_list", this.frm.docname).reqd = false;
