@@ -71,24 +71,41 @@ class Attendance(Document):
 		arr_in_len = len(arr_in)
 		arr_out_len = len(arr_out)	
 	
+		# Calculating When user Uploading  Attendance through Excel File
+		if(arr_in_len != 3 or arr_out_len != 3):
+			self.set("status", "Absent")
+			self.set("clock_in", "00:00:00")
+			self.set("clock_out", "00:00:00")
+			self.set("hours", "00:00:00")
+			self.set("fine", 00)
+			return
+		if((cint(arr_in[0]) == 0 and cint(arr_in[1]) == 0) or (cint(arr_out[0]) == 0 and cint(arr_out[1]) == 0)):
+			self.set("status", "Absent")
+			self.set("clock_in", "00:00:00")
+			self.set("clock_out", "00:00:00")
+			self.set("hours", "00:00:00")
+			self.set("fine", 00)
+			return
 		if((clock_out_default > 0 and  clock_in_default > 0)):	
 			self.set("status", "Absent")
 			self.set("clock_in", "00:00:00")
 			self.set("clock_out", "00:00:00")
 			self.set("hours", "00:00:00")
-			self.set("fine", 0.0)
+			self.set("fine", 00)
 			return
 		elif((clock_in_default < 0) and (clock_out_default > 0)):
 			self.set("clock_in", self.get("clock_in"))
 			self.set("status", "Absent")
 			self.set("clock_out", "00:00:00")
 			self.set("hours","00:00:00")
+			self.set("fine", 00)
 			return
 		elif((clock_out_default < 0) and (clock_in_default > 0)):
 			self.set("clock_out", self.get("clock_out"))
 			self.set("status", "Absent")
 			self.set("clock_in", "00:00:00")
 			self.set("hours", "00:00:00")
+			self.set("fine", 00)
 			return
 		elif(clock_out_default < 0 and clock_in_default < 0):
 			hours = ""			
