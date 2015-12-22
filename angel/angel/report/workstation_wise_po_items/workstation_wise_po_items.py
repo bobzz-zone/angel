@@ -6,53 +6,6 @@ import frappe
 
 def execute(filters=None):
 	columns, data = [], []
-        data  = [
-  {
-    u'account': u'Application of Funds (Assets) - OCF',
-    u'indent': 0.0,
-    u'parent_account': None,
-    u'from_date': '2015-01-01',
-    u'to_date': '2015-12-31',
-    u'dec_2015': u'',
-    u'account_name': u'Application of Funds (Assets)'
-  },
-  {
-    u'account': u'Current Assets - OCF',
-    u'indent': 1.0,
-    u'parent_account': u'Application of Funds (Assets) - OCF',
-    u'from_date': '2015-01-01',
-    u'to_date': '2015-12-31',
-    u'dec_2015': 150.0,
-    u'account_name': u'Current Assets'
-  },
-  {
-    u'account': u'Accounts Receivable - OCF',
-    u'indent': 2.0,
-    u'parent_account': u'Current Assets - OCF',
-    u'from_date': '2015-01-01',
-    u'to_date': '2015-12-31',
-    u'dec_2015': 150.0,
-    u'account_name': u'Accounts Receivable'
-  },
-  {
-    u'account': u'Debtors - OCF',
-    u'indent': 3.0,
-    u'parent_account': u'Accounts Receivable - OCF',
-    u'from_date': '2015-01-01',
-    u'to_date': '2015-12-31',
-    u'dec_2015': 150.0,
-    u'account_name': u'Debtors'
-  },
-  {
-    u'account': None,
-    u'account_name': u"'Total (Debit)'",
-    u'dec_2015': 150.0
-  },
-  {
-    
-  }
-]
-
         columns = [
   {
     u'width': 300,
