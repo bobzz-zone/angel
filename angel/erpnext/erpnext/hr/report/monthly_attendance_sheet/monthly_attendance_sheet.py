@@ -17,19 +17,20 @@ def execute(filters=None):
 
 	data = []
 	for emp in sorted(att_map):
-		total_fine = att_map["total_fine"]
 		emp_det = emp_map.get(emp)
 		if not emp_det:
 			continue
 
 		row = [emp, emp_det.employee_name, emp_det.branch, emp_det.department, emp_det.designation,
 			emp_det.company]
-
+		fine = 0
 		total_p = total_a = 0.0
 		for day in range(filters["total_days_in_month"]):
 			status = att_map.get(emp).get(day + 1, "Absent")
 			status_map = {"Present": "P", "Absent": "A", "Half Day": "HD"}
 			row.append(status_map[status])
+			emp_dict = att_map.get(emp)
+			has_key = emp_dict.has_key("fine"+str(day+1))
 
 			if status == "Present":
 				total_p += 1
@@ -38,8 +39,9 @@ def execute(filters=None):
 			elif status == "Half Day":
 				total_p += 0.5
 				total_a += 0.5
-
-		row += [total_p, total_a, total_fine]
+			if(has_key):
+				fine += cint(emp_dict.get("fine"+str(day+1)))
+		row += [total_p, total_a, fine]
 
 		data.append(row)
 
@@ -60,15 +62,15 @@ def get_columns(filters):
 
 def get_attendance_list(conditions, filters):
 	attendance_list = frappe.db.sql("""select employee, day(att_date) as day_of_month,
-		status, SUM(fine) as total_fine  from tabAttendance where docstatus = 1 %s order by employee, att_date""" %
+		status, fine  from tabAttendance where docstatus = 1 %s order by employee, att_date""" %
 		conditions, filters, as_dict=1)
 
 	att_map = {}
 	for d in attendance_list:
 		att_map.setdefault(d.employee, frappe._dict()).setdefault(d.day_of_month, "")
 		att_map[d.employee][d.day_of_month] = d.status
-		att_map["total_fine"] = d.total_fine
-	
+		fine_var = "fine" + str(d.day_of_month)
+		att_map[d.employee][fine_var] = d.fine
 
 	return att_map
 
