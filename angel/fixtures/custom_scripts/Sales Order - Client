@@ -39,30 +39,33 @@ frappe.ui.form.on("Sales Order", "ignore_pricing_rule", function(frm){
         else if (check == 0){
         //child table rule gets hidden or disabled
         //alert(check +" Value OF");
-        debugger ;
         frm.toggle_display("selling_price_list", 1);  
         frm.toggle_reqd("selling_price_list", true); 
+        //frappe.meta.get_docfield("Sales Order Item", "price_list", this.frm.docname).reqd = false;
+        //frappe.meta.get_docfield("Sales order Item", "price_list", this.frm.docname).read_only= 0;
         }
 });
 
-frappe.ui.form.on("Sales order Item", "items_add", function(frm, cdt, cdn) {
-   debugger;
-});
-frappe.ui.form.on("Sales Order", "items_on_form_rendered", function(frm, cdt, cdn){
-debugger;
-});
-frappe.ui.form.on("Sales Order", "form_render", function(frm, cdt, cdn){
-debugger;
+
+frappe.ui.form.on("Sales Order Item", "form_render", function(frm, cdt, cdn){
+field = cur_frm.fields_dict.items.grid.grid_rows_by_docname[cdn].docfields.filter(function(r) {return r.fieldname === 'price_list'; })[0];
+
     if (cur_frm.doc.ignore_pricing_rule) {
-        cur_frm.toggle_display("price_list", 0); 
-        field = cur_frm.fields_dict.items.grid.grid_rows_by_docname[cdn].docfields.filter(function(r) {return r.fieldname === 'price_list'; })[0];
-    
-    field.reqd = false;
+    field.read_only = false;  
+    field.visible = true;
+    field.reqd = true;
     cur_frm.fields_dict.items.grid.grid_rows_by_docname[cdn].refresh_field('price_list');
 }
 else {
     var sellingpl = frm.doc.selling_price_list;
     frappe.model.set_value(cdt, cdn, "price_list", sellingpl);
+    //field.toggle_display = true;
+    //field.reqd = false;
+    //cur_frm.toggle_reqd("price_list", false); 
+    //cur_frm.get_field("items").grid.toggle_reqd("price_list", false);
+    //cur_frm.fields_dict.items.grid.grid_rows_by_docname[cdn].refresh_field('price_list');
+    field.read_only = true;
+    cur_frm.fields_dict.items.grid.grid_rows_by_docname[cdn].refresh_field('price_list');
 }
 
 
