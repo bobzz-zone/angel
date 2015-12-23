@@ -8,3 +8,8 @@ from frappe.model.document import Document
 
 class RemoteDocumentSync(Document):
 	pass
+
+@frappe.whitelist()
+def sync_erp2(doc_list): 
+        frappe.msgprint(("Sync ERP"))
+
