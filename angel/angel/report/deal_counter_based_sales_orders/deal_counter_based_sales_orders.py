@@ -8,19 +8,17 @@ from frappe import msgprint, _
 def execute(filters=None):
 	columns, data = [], []
         columns = get_columns(filters)
-        data = get_data(filters) 
+        entries = get_data(filters) 
+        for d in entries:
+		data.append([d.name, d.deal_number, d.total])
 	return columns, data
 
 
 def get_columns(filters):
-        if not filters.get("name"):
-                msgprint(_("Please select Deal Number first"), raise_exception=1)
-
-
         return [
-                _("Sales Order No") + ":Link/Sales Order:140",
-                _("Deal Number") + ":Link/Deal Counter:140",
-                _("Total Amount") + ":Link/Currency:140"
+                _("Sales Order No") + "::140",
+                _("Deal Number") + "::140",
+                _("Total Amount") + ":Currency:140"
                ]
 
 def get_data(filters):
@@ -29,7 +27,7 @@ def get_data(filters):
              FROM 
                  `tabSales Order`
              WHERE 
-                  deal_number = %s; """ , 
-             deal_no, as_dict = True)
+                  deal_number = %s """ , 
+             deal_no, as_dict = 1)
         return data
         
