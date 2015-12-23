@@ -47,7 +47,7 @@
    "print_hide": 0, 
    "read_only": 0, 
    "report_hide": 0, 
-   "reqd": 1, 
+   "reqd": 0, 
    "search_index": 0, 
    "set_only_once": 0, 
    "unique": 0
@@ -82,7 +82,7 @@
  "is_submittable": 0, 
  "issingle": 0, 
  "istable": 0, 
- "modified": "2015-11-25 19:07:38.094411", 
+ "modified": "2015-12-23 15:27:52.966649", 
  "modified_by": "Administrator", 
  "module": "Angel", 
  "name": "Remote Document Sync", 
