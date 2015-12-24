@@ -361,7 +361,7 @@ class StockEntry(StockController):
 		sl_entries = []
 		
 		# make sl entries for source warehouse first, then do for target warehouse
-		for d in self.get('items'):
+		for d in (self.get('items')):
 			if cstr(d.s_warehouse):
 				sl_entries.append(self.get_sl_entries(d, {
 					"warehouse": cstr(d.s_warehouse),
@@ -369,12 +369,20 @@ class StockEntry(StockController):
 					"incoming_rate": 0
 				}))
 				
-		for d in self.get('items'):
+		for d in (self.get('items')):
 			if cstr(d.t_warehouse):
 				sl_entries.append(self.get_sl_entries(d, {
 					"warehouse": cstr(d.t_warehouse),
 					"actual_qty": flt(d.transfer_qty),
 					"incoming_rate": flt(d.valuation_rate)
+				}))
+
+		for d in (self.get('item')):
+			if cstr(d.t_warehouse):
+				sl_entries.append(self.get_sl_entries(d, {
+					"warehouse": cstr(d.t_warehouse),
+					"actual_qty": flt(d.qty),
+					"incoming_rate": flt(d.basic_rate)
 				}))
 
 		# On cancellation, make stock ledger entry for
