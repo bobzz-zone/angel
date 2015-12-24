@@ -5,6 +5,7 @@ import frappe
 from frappe.celery_app import celery_task, task_logger
 from frappe.frappeclient import FrappeClient
 from frappe.tasks import run_async_task
+import json
 
 
 from frappe.celery_app import get_queue 
@@ -23,16 +24,55 @@ class RsyncTaskRouter(object):
 
 # New Document type
 #Remote Document Sync
-def add_rm_sync_doc(name, doctype, source_name , target_name=''):
+def add_rm_sync_doc(name, doctype, source_name, docstatus, target_name=''):
 	rm_doc_sync =  frappe.new_doc("Remote Document Sync")
 	rm_doc_sync.name = name 
 	rm_doc_sync.doctype_name = doctype
 	rm_doc_sync.source_document_name = source_name
+	rm_doc_sync.document_status = docstatus
+	rm_doc_sync.remote_sync_status = 0
 	rm_doc_sync.target_document_name = target_name
         return rm_doc_sync
-	
 
 debug = 0
+
+@celery_task()
+def insert_sync_document(doc_dict):
+        print doc_dict
+        print frappe.form_dict.doc
+        if not frappe.conf.has_key('sync_server_ip') or frappe.conf.sync_server_ip == "":
+                return
+
+        doc  = json.loads(frappe.form_dict.doc)
+        #frappe.msgprint("{}".format(doc))
+        return
+        if ( not doc or not doc.has_key('sync_document_erp2') or 
+             not doc['sync_document_erp2'] ): #and not (method=="after_insert" or method=="on_update")
+        	return
+
+        #return 
+        add_rm_sync_doc(doc['name'], doc['doctype'], doc['name'])
+        rm_doc_name = frappe.get_value("Remote Document Sync",
+                                  { 'name': doc['name'],
+                                    'doctype_name': doc['doctype']
+                                  },
+                                  fieldname='name')
+        if (rm_doc_name):
+		rm_doc = frappe.get_doc(rm_doc_name)
+	        rm_doc.remote_sync_status = 0
+		rm_doc.save()
+        else:
+        	rm_doc = add_rm_sync_doc(doc['name'], doc['doctype'], doc['name'], doc['document_status'])
+		rm_doc.save()
+	
+        		
+        #frappe.msgprint(frappe.form_dict.doc)
+	pass
+
+#@frappe.whitelist
+#def sync_erp2(doc_list):
+#	frappe.msgprint(("Sync ERP"))
+
 @celery_task()
 #@frappe.async.handler
 def sync_doc(site, doc, event, method, retry=0):
@@ -45,7 +85,6 @@ def sync_doc(site, doc, event, method, retry=0):
  		return
         # Journal Entry, Sales Invoice, Purchase Invoice, Company
         print "2"
-        import json
         if not frappe.form_dict.doc:
         	return
 
@@ -56,11 +95,13 @@ def sync_doc(site, doc, event, method, retry=0):
              not frappe_form_dict['sync_document_erp2'] or #and not (method=="after_insert" or method=="on_update")
              not form_dict.has_key('name')):
  		return
+
         print "3"
         user = (frappe.session and frappe.session.user) or doc_dict['modified_by'] or "Administrator" 
         pwd = frappe.db.sql("""select password from __Auth where user=%s;""",(user))
         if not pwd:
                 return False
+
         print "4"
         pwd = pwd[0][0]
         try:
@@ -68,6 +109,7 @@ def sync_doc(site, doc, event, method, retry=0):
         except:
                 frappe.msgprint(("Auth Error"))
                 return
+
         if not client:
                 return
         print "5"
