@@ -40,6 +40,8 @@ frappe.listview_settings['Sales Order'] = {
 	},
 	onload: function(listview) {
 		var method = "erpnext.selling.doctype.sales_order.sales_order.stop_or_unstop_sales_orders";
+		//var delmethod = "erpnext.selling.doctype.sales_order.sales_order.make_delivery_note";
+		//var delmethod = "erpnext.selling.doctype.sales_order.sales_order.update_multiple_dno";
 
 		listview.page.add_menu_item(__("Set as Stopped"), function() {
 			listview.call_for_selected_items(method, {"status": "Stop"});
@@ -48,6 +50,39 @@ frappe.listview_settings['Sales Order'] = {
 		listview.page.add_menu_item(__("Set as Unstopped"), function() {
 			listview.call_for_selected_items(method, {"status": "Unstop"});
 		});
+//Angel#7: Added "Submit Delivery" menu button for multiple sales orders		
+		listview.page.add_menu_item(__("Submit Delivery"), function() {
+	        var me = this;
+        	var selected = listview.get_checked_items() || [];
+              	if(!selected.length) {
+                	msgprint(__("Please select Sales Order"));
+                  	return;
+              	}	
+              	else {
+		/*	for(var i = 0; i<selected.length; i++){
+				
+                      		item = selected[i];
+				//so = frappe.get_doc(item.name);
+				listview.call_for_selected_items((delmethod, {item.name}), {"status": "Overdue"});
+		*/		
+			
+		var item;
+              	names = $.map(selected, function(d) { return d.name; });
+              	frappe.call({
+                        method: "erpnext.selling.doctype.sales_order.sales_order.update_multiple_dno",
+                        args: {'so_list': names},
+                        freeze: true,
+                        callback: function(r) {
+                                if(!r.exc) {
+                                       // me.list_header.find(".list-select-all").prop("checked", false);
+                                       //  me.refresh();
+                                }
+                        }
+                });
+			}
+		//}
 
-	}
+
+	});
+}
 };
