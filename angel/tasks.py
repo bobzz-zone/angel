@@ -43,9 +43,10 @@ def insert_sync_document(doc_dict):
         if not frappe.conf.has_key('sync_server_ip') or frappe.conf.sync_server_ip == "":
                 return
 
-        doc  = json.loads(frappe.form_dict.doc)
-        #frappe.msgprint("{}".format(doc))
+        if frappe.form_dict and frappe.form_dict.doc:
+        	doc  = json.loads(frappe.form_dict.doc)
         return
+        #frappe.msgprint("{}".format(doc))
         if ( not doc or not doc.has_key('sync_document_erp2') or 
              not doc['sync_document_erp2'] ): #and not (method=="after_insert" or method=="on_update")
         	return
