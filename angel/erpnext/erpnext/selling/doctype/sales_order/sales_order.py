@@ -489,7 +489,6 @@ def get_events(start, end, filters=None):
 		}, as_dict=True, update={"allDay": 0})
 	return data
 
-@frappe.whitelist()
 #Angel#7: Added new function to create Draft Delivery Notes for multiple Sales orders from sales_order_list.js
 @frappe.whitelist()
 def update_multiple_dno(so_list):
