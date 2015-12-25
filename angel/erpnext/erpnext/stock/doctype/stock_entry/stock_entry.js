@@ -139,7 +139,6 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 	production_order: function() {
 		var me = this;
 		this.toggle_enable_bom();
-                debugger;
 		return frappe.call({
 			method: "erpnext.stock.doctype.stock_entry.stock_entry.get_production_order_details",
 			args: {production_order: me.frm.doc.production_order},
