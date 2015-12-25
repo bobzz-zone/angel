@@ -10,7 +10,6 @@ import frappe
 def after_install():
 	frappe.db.set_default('desktop:home_page', '')
         frappe.db.commit()
-        return 
 
         # erp-icon.svg  erpnext-footer.png  favicon.png  pos.svg  splash.png   /home/ubuntu/frappe-bench/sites/assets/erpnext/images
         # overright templates/includes/footer/footer_extension.html
