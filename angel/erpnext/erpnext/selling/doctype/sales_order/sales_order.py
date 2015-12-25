@@ -490,17 +490,6 @@ def get_events(start, end, filters=None):
 	return data
 
 @frappe.whitelist()
-def update_multiple_dno(so_list):
-	for so in so_list:
-		try:
-      			so_doc = frappe.get("Sales Order", so)
-			dn_doc = make_delivery_note(so)
-			dn_doc.save()
-			frappe.db.commit()  			
-                except:
-			pass
-			# so document is not present in ERP
-                
 #Angel#7: Added new function to create Draft Delivery Notes for multiple Sales orders from sales_order_list.js
 @frappe.whitelist()
 def update_multiple_dno(so_list):
