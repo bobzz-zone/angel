@@ -17,7 +17,6 @@ class TTDocument(Document):
 			against_v = arr.against_voucher_no
 			val = frappe.db.get_value("Sales Invoice",{"name":against_v},"outstanding_amount")
                         grand_total += arr.total_amount
-		        frappe.msgprint(arr.total_amount)
 			arr.outstanding_amount = val
                         dest.append(arr)
 	        self.set("outstanding_invoices", dest)
