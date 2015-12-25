@@ -644,7 +644,6 @@ def get_payment_entry_from_sales_order(sales_order):
 
 	return jv.as_dict()
 
-#adding functionality of 'Post to Journal' button to get payment entry from Petty Cash (on submit) Angel#12
 @frappe.whitelist()
 def get_payment_entry_from_petty_cash(petty_cash):
 	"""Returns new Journal Entry document as dict for given Petty Cash"""
@@ -655,21 +654,12 @@ def get_payment_entry_from_petty_cash(petty_cash):
 	jv = get_payment_entry(pc)
 	jv.remark = 'Advance payment made against Petty Cash {0}.'.format(pc.name)
 
-	# credit customer
 	row1 = jv.get("accounts")[0]
 	row1.account = pc.pay_for
-#	row1.party_type = ""
-#       row1.party = po.supplier
-#       row1.balance = get_balance_on(party_account)
-#       row1.party_balance = get_balance_on(party=po.supplier, party_type="Supplier")
         row1.debit_in_account_currency = pc.amount_tertagih
         row1.reference_type = pc.doctype
         row1.reference_name = pc.name
-#       row1.is_advance = "Yes"
 	row1.exchange_rate = exchange_rate
-#	row1.account_type = "Payable"
-
-        # debit bank
         row2 = jv.get("accounts")[1]
 	row2.credit_in_account_currency = pc.amount_tertagih
 	
