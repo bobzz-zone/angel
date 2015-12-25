@@ -227,7 +227,22 @@ frappe.ui.Listing = Class.extend({
 		this.$w.find('.list-paging-area, .list-loading').toggle(false);
 
 		if(r.message) {
-			r.values = this.get_values_from_response(r.message);
+			var lst  = this.get_values_from_response(r.message);
+			var lst1 = this.get_values_from_response(r.message);
+			var doctype = this.doctype;
+			if(doctype == "Remote Document Sync"){
+				var len = lst.length;
+				for(var i = 0; i<len; i++){
+					var stats = cint(lst1[i].remote_sync_status);
+					if(stats == 1){
+						lst.splice(i,1);
+							}
+						}
+				r.values = lst;
+					}
+			else{
+				r.values = this.get_values_from_response(r.message);
+			}
 		}
 
 		if(r.values && r.values.length) {
@@ -275,6 +290,7 @@ frappe.ui.Listing = Class.extend({
 		// render the rows
 		for(var i=0; i < m; i++) {
 			this.render_row(this.add_row(values[i]), values[i], this, i);
+			
 		}
 	},
 	update_paging: function(values) {
