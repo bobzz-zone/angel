@@ -34,11 +34,15 @@ frappe.listview_settings['Sales Invoice'] = {
 							var outstanding_amount = selected[i].outstanding_amount;
 							var due_date = selected[i].due_date;
 							var doc_status = selected[i].docstatus;
+							var customer = selected[i].customer;
 							var today = frappe.datetime.get_today();
 							if((due_date > today && outstanding_amount > 0) || (due_date <= today && outstanding_amount > 0) && (doc_status != 0)){
 							frappe.model.with_doctype("TT Document", function(){
 								total_amount += outstanding_amount;
 								var tbl = frappe.model.get_new_doc("TT Document");
+								$.extend(tbl, {
+                                                                        "customer":customer
+                                                                });
 								$.each(selected, function(i,d){
 									var detail = frappe.model.get_new_doc("TT Document Detail", tbl, "outstanding_invoices");
 									$.extend(detail, {
