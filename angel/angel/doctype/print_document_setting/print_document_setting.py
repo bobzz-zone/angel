@@ -31,7 +31,6 @@ def update_print_counter(dtype, name):
                 if not cur_val:
                 	raise 
 	        doc = frappe.get_doc("Print Document Setting", {'docname_name': name, 'doctype_name': dtype})
-                frappe.msgprint(frappe._("{0} chetan".format(doc)))
                 doc.current_value = doc.current_value + 1
         except:
                 doc = new_print_document_setting(dtype, name, 1, max_val)
