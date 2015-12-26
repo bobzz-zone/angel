@@ -11,7 +11,7 @@ class PrintDocumentSetting(Document):
 
 def new_print_document_setting(dtype, dname, cur_val, max_val):
         doc = frappe.new_doc("Print Document Setting")
-        doc.doctype = "Print Document Settting"
+        doc.doctype = "Print Document Setting"
         doc.doctype_name = dtype
         doc.docname_name = dname
         doc.current_value = cur_val
