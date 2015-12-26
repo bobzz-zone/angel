@@ -137,7 +137,8 @@ class StockEntry(StockController):
 				frappe.throw(_("Atleast one warehouse is mandatory"))
 
 			if self.purpose in source_mandatory and not d.s_warehouse:
-				if self.from_warehouse:
+				
+				if self.from_warehouse and not d.product_type:	#added and d.product_type
 					d.s_warehouse = self.from_warehouse
 				else:
 					frappe.throw(_("Source warehouse is mandatory for row {0}").format(d.idx))
@@ -161,12 +162,19 @@ class StockEntry(StockController):
 
 					else:
 						d.t_warehouse = None
-						if not d.s_warehouse:
+						# Added for coproducts and byproducts
+						if hasattr(d, 'product_type') and d.product_type:
+							d.s_warehouse = None
+							pass
+					        elif not d.s_warehouse:
 							frappe.throw(_("Source warehouse is mandatory for row {0}").format(d.idx))
 
-			if cstr(d.s_warehouse) == cstr(d.t_warehouse):
+			if cstr(d.s_warehouse) == cstr(d.t_warehouse) and not d.product_type:	#for product type
 				frappe.throw(_("Source and target warehouse cannot be same for row {0}").format(d.idx))
-
+			elif d.product_type:
+				d.s_warehouse = None
+				d.t_warehouse = self.to_warehouse 	
+			
 	def validate_production_order(self):
 		if self.purpose in ("Manufacture", "Material Transfer for Manufacture"):
 			# check if production order is entered
@@ -376,14 +384,13 @@ class StockEntry(StockController):
 					"actual_qty": flt(d.transfer_qty),
 					"incoming_rate": flt(d.valuation_rate)
 				}))
-
-		for d in (self.get('item')):
-			if cstr(d.t_warehouse):
-				sl_entries.append(self.get_sl_entries(d, {
-					"warehouse": cstr(d.t_warehouse),
-					"actual_qty": flt(d.qty),
-					"incoming_rate": flt(d.basic_rate)
-				}))
+#		for d in (self.get('item')):
+#			if cstr(d.t_warehouse):
+#				sl_entries.append(self.get_sl_entries(d, {
+#					"warehouse": cstr(d.t_warehouse),
+#					"actual_qty": flt(d.qty),
+#					"incoming_rate": flt(d.basic_rate)
+#				}))
 
 		# On cancellation, make stock ledger entry for
 		# target warehouse first, to update serial no values properly
@@ -729,7 +736,7 @@ class StockEntry(StockController):
 			se_child.expense_account = item_dict[d]["expense_account"] or expense_account
 			se_child.cost_center = item_dict[d]["cost_center"] or cost_center
 
-			if se_child.s_warehouse==None:
+			if se_child.s_warehouse==None and not se_child.product_type:	#added condition for product type not existing
 				se_child.s_warehouse = self.from_warehouse
 			if se_child.t_warehouse==None:
 				se_child.t_warehouse = self.to_warehouse
