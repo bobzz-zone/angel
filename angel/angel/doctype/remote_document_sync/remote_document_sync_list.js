@@ -13,7 +13,12 @@ frappe.listview_settings['Remote Document Sync'] = { onload: function(cur_list){
 		var data = [];
 		for(var i = 0; i < len; i++){
 			var item = selected[i];
-			data[i] = {source_document_name:item.source_document_name, doctype_name:item.doctype_name, document_status:item.document_status }
+			//data[i] = {source_document_name:item.source_document_name, doctype_name:item.doctype_name, document_status:item.document_status,"args":{"name":item.name,"target_document_name":item.target_document_name}}
+			data[i] = { "name": item.name,
+                                    "target_document_name": item.target_document_name,
+                                    "doctype_name": item.doctype_name
+                                  }
+		        //console.log(data);
 		}
 		
 		frappe.call({
