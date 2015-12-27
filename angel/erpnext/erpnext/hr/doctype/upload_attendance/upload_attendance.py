@@ -79,13 +79,13 @@ def get_existing_attendance_records(args):
 	attendance = frappe.db.sql("""select name, att_date, employee, status, naming_series, fingerprint_id, clock_in, clock_out
 		from `tabAttendance` where att_date between %s and %s and docstatus < 2""",
 (args["from_date"], args["to_date"]), as_dict=1)
-#       frappe.msgprint(("this chetan {}".format(attendance)))
+        #frappe.msgprint(("this chetan {}".format(attendance)))
 
 	existing_attendance = {}
 	for att in attendance:
 		existing_attendance[tuple([att.att_date, att.employee])] = att
 
-#       frappe.msgprint(("{}".format(existing_attendance)))
+        #frappe.msgprint(("{}".format(existing_attendance)))
 	return existing_attendance
 
 def get_naming_series():
