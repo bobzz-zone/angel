@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import frappe
-
+from frappe import _
 from frappe.celery_app import celery_task, task_logger
 from frappe.frappeclient import FrappeClient
 from frappe.tasks import run_async_task
@@ -38,42 +38,203 @@ debug = 0
 
 @celery_task()
 def insert_sync_document(doc_dict):
-        print doc_dict
+        #print doc_dict
         print frappe.form_dict.doc
         if not frappe.conf.has_key('sync_server_ip') or frappe.conf.sync_server_ip == "":
                 return
 
-        if frappe.form_dict and frappe.form_dict.doc:
-        	doc  = json.loads(frappe.form_dict.doc)
+        if not frappe.form_dict and not frappe.form_dict.doc:
+		return 
+
+       
         return
+       	doc  = json.loads(frappe.form_dict.doc)
+		
         #frappe.msgprint("{}".format(doc))
         if ( not doc or not doc.has_key('sync_document_erp2') or 
              not doc['sync_document_erp2'] ): #and not (method=="after_insert" or method=="on_update")
         	return
 
         #return 
-        add_rm_sync_doc(doc['name'], doc['doctype'], doc['name'])
+        #add_rm_sync_doc(doc['name'], doc['doctype'], doc['name'], doc['docstatus'])
         rm_doc_name = frappe.get_value("Remote Document Sync",
                                   { 'name': doc['name'],
                                     'doctype_name': doc['doctype']
                                   },
                                   fieldname='name')
+        doc['sync_document_erp2'] = 0
+        frappe.form_dict.doc = json.dumps(doc)
+        frappe.msgprint(("chetan"))
         if (rm_doc_name):
-		rm_doc = frappe.get_doc(rm_doc_name)
+		rm_doc = frappe.get_doc("Remote Document Sync", rm_doc_name)
 	        rm_doc.remote_sync_status = 0
+                rm_doc.document_status = doc['docstatus']
 		rm_doc.save()
+               
         else:
-        	rm_doc = add_rm_sync_doc(doc['name'], doc['doctype'], doc['name'], doc['document_status'])
+        	rm_doc = add_rm_sync_doc(doc['name'], doc['doctype'], doc['name'], doc['docstatus'])
 		rm_doc.save()
 	
-        		
+        frappe.db.commit()		
         #frappe.msgprint(frappe.form_dict.doc)
 	pass
 
+def sync_erp2_queue(doc_list):
+        if not frappe.conf.has_key('sync_server_ip') or frappe.conf.sync_server_ip == "":
+                return
+	process_sync_documents(doc_list)
+	
+def sync_document(docs, method):
+	client = ''
+        # Get User and Password from Database
+        user = (frappe.session and frappe.session.user) or doc_dict['modified_by'] or "Administrator" 
+        pwd = frappe.db.sql("""select password from __Auth where user=%s;""",(user))
+        if not pwd:
+                return False
+
+        pwd = pwd[0][0]
+        try:
+        	client = FrappeClient(frappe.conf.sync_server_ip, user, pwd)
+        except:
+                frappe.msgprint(("Auth Error"))
+                return
+
+        if not client:
+                return
+	res = ''
+        if method == "bulk_update":
+ 		return client.bulk_update(docs)
+	else:
+		return client.save(docs)
+
+default_columns = ['name', 'creation', 'modified', 'modified_by', 'owner',
+        'docstatus', 'parent', 'parentfield', 'parenttype', 'idx']
+
+def process_sync_documents(docs):
+	docs = json.loads(docs)
+        update_docs = []
+        saved_docs = []
+	saved_docs_index = []
+         
+	data = [{"name":"Payment Tool","target_document_name":"","doctype_name":"DocType"},{"name":"JV-00007","target_document_name":"","doctype_name":"Journal Entry"},{"name":"JV-00003","target_document_name":"","doctype_name":"Journal Entry"},{"name":"TT Document Detail","target_document_name":"TT Document Detail","doctype_name":"DocType"}]
+        for index in range(0,len(docs)):
+                # name is not present
+		each = docs[index]
+		name = each["name"]
+		doctype_name = each["doctype_name"]
+		if name == "" or doctype_name == "":
+			continue	
+
+		doc = frappe.get_doc(each['doctype_name'], each['name']) 
+ 		doc = doc.as_dict()
+		if each["target_document_name"]:
+                        doc['name'] = each["target_document_name"]
+			doc['docname'] = each["target_document_name"]
+			update_docs.append(doc)
+                else:
+			saved_docs_index.append(index)
+			doc['name'] = None
+			saved_docs.append(doc)	
+	
+        status = sync_document(update_docs, "bulk_update") if update_docs else None
+	saved_docs_name = []
+	for each in saved_docs:
+		status = sync_document(each, "save")
+		saved_docs_name.append(status["name"])
+	count = 0
+	for index in saved_docs_index:
+		remote_doc = docs[index]
+		doc = frappe.get_doc("Remote Document Sync", remote_doc["name"])
+		doc1 = doc.as_dict()
+		doc1["target_document_name"] = saved_docs_name[count]
+		doc1["remote_sync_status"] = 1
+		doc.update(doc1)
+		doc.save()
+		frappe.db.commit()
+		count += 1 
+	'''	
+        print "6"
+        try:
+                print "7"
+		remote_doc_dict = client.get_doc(form_dict['doctype'], form_dict['name'])
+                #frappe.msgprint(frappe._("{0}".format(remote_doc_dict)))
+        except:
+                if debug:
+        		frappe.msgprint(("Error"))
+                pass
+
+        print "8"
+        #frappe.msgprint(("after sync_server_ip {0}".format(form_dict)))
+  
+        rm_doc_name = frappe.get_value("Remote Document Sync",
+                                  { 'name': form_dict['name'],
+                                    'doctype_name': form_dict['doctype']
+                                  },
+                                  fieldname='target_document_name')
+        
+        if rm_doc_name:
+                try:
+                        print "9"
+                        if debug:
+                        	frappe.msgprint(frappe._("try"))
+                        remote_doc_dict = client.get_doc(form_dict['doctype'], rm_doc_name)
+			remote_doc = frappe.get_doc(remote_doc_dict)
+                        try:
+                        	rm_doc_sync = frappe.get_doc("Remote Document Sync", rm_doc_name)
+                        except:
+                                rm_doc_sync = add_rm_sync_doc(form_dict['name'], form_dict['doctype'], form_dict['name'], '')
+                                
+                        #import json
+                        #remote_doc.update(json.loads(remote_doc_dict))
+                except:
+                        print "10"
+                        if debug:
+                        	frappe.msgprint(frappe._("try2 except {0}".format(form_dict['name'])))
+                        if not retry:
+                                print "11"
+                                sync_doc(site, doc, event, method, 1) 
+                                pass
+                        else:
+                                print "12"
+                                if debug:
+                                	frappe.msgprint(frappe._("try except else"))
+				remote_doc = frappe.new_doc(form_dict['doctype'])
+                                rm_doc_sync = add_rm_sync_doc(form_dict['name'], form_dict['doctype'], form_dict['name'], '')
+        else:
+                print "13"
+                if debug:
+                	frappe.msgprint(frappe._("try else"))
+                remote_doc = frappe.new_doc(form_dict['doctype'])
+                rm_doc_sync = add_rm_sync_doc(form_dict['name'], form_dict['doctype'], form_dict['name'], '')
+
+        try:
+                print "14"
+                if not remote_doc.name:
+                        method = "after_insert"
+
+		if method == "after_insert":
+			for key in remote_doc.as_dict().keys():
+				 if key in ["name", "creation", "modified", "modified_by", "owner", "docstatus", "parent", "parentfield", "parenttype", "idx", "rgt", "lft"]:
+					 continue
+				 remote_doc.set(key, doc.get(key))
+                        print "15"
+                        remote_dict = {}
+                        print remote_doc
+			remote_dict = client.insert(remote_doc)
+			rm_doc_sync.target_document_name = remote_dict['name'] if remote_dict and remote_dict.has_key('name') else doc.get('name')
+			rm_doc_sync.save()
+
+		if method == "on_update":
+			return 
+			for key in remote_doc.as_dict().keys():
+				pass
+	except:
+		pass
+	'''
 #@frappe.whitelist
 #def sync_erp2(doc_list):
 #	frappe.msgprint(("Sync ERP"))
-
+	
 @celery_task()
 #@frappe.async.handler
 def sync_doc(site, doc, event, method, retry=0):

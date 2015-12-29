@@ -7,6 +7,7 @@ from frappe import _
 import frappe.model
 import frappe.utils
 import json, os
+import datetime
 
 @frappe.whitelist()
 def get_list(doctype, fields=None, filters=None, order_by=None,
@@ -87,8 +88,8 @@ def insert(doc=None):
 def save(doc):
 	if isinstance(doc, basestring):
 		doc = json.loads(doc)
-
-	doc = frappe.get_doc(doc).save()
+	doc = frappe.get_doc(doc)
+	doc.save()
 	return doc.as_dict()
 
 @frappe.whitelist()
@@ -136,7 +137,7 @@ def bulk_update(docs):
 	failed_docs = []
 	for doc in docs:
 		try:
-			ddoc = {key: val for key, val in doc.iteritems() if key not in ['doctype', 'docname']}
+			ddoc = {key: val for key, val in doc.iteritems() if key not in ['doctype', 'name']}
 			doctype = doc['doctype']
 			docname = doc['docname']
 			doc = frappe.get_doc(doctype, docname)

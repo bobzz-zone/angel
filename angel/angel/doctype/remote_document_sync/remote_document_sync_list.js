@@ -18,7 +18,7 @@ frappe.listview_settings['Remote Document Sync'] = { onload: function(cur_list){
                                     "target_document_name": item.target_document_name,
                                     "doctype_name": item.doctype_name
                                   }
-		        //console.log(data);
+		        console.log(data);
 		}
 		
 		frappe.call({

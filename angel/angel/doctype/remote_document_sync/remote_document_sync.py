@@ -5,11 +5,12 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
+from angel.tasks import sync_erp2_queue
 
 class RemoteDocumentSync(Document):
 	pass
 
 @frappe.whitelist()
-def sync_erp2(doc_list): 
-        frappe.msgprint(("Sync ERP"))
+def sync_erp2(doc_list):
+	sync_erp2_queue(doc_list)
 
