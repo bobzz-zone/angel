@@ -3,9 +3,9 @@ from __future__ import unicode_literals
 from os import system, getcwd, environ, path
 import frappe	
 
-#USER = "/home/" + environ['USER'] if environ.has_key("USER") else "korecent" 
-#FBENCH = path.join(USER, "frappe-bench")
-#APPS = path.join(USER, "frappe-bench/apps")
+USER = "/home/" + environ['USER'] if environ.has_key("USER") else "korecent" 
+FBENCH = path.join(USER, "frappe-bench")
+APPS = path.join(USER, "frappe-bench/apps")
 
 def after_install():
 	frappe.db.set_default('desktop:home_page', '')
