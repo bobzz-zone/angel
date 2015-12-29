@@ -69,6 +69,12 @@ class FrappeClient(object):
 			"docs": frappe.as_json(docs)
 		})
 
+	def save(self, doc):
+		return self.post_request({
+			"cmd": "frappe.client.save",
+			"doc": frappe.as_json(doc)
+		})
+
 	def delete(self, doctype, name):
 		return self.post_request({
 			#"cmd": "frappe.model.delete_doc",
@@ -227,8 +233,11 @@ class FrappeClient(object):
 			#raise
 
 		if rjson and ("exc" in rjson) and rjson["exc"]:
-			#raise FrappeException(rjson["exc"])
-                        pass
+			if frappe.conf.has_key('sync_server_ip'):
+				return rjson["exc"]
+			else:
+				raise FrappeException(rjson["exc"])
+                	pass
 		if 'message' in rjson:
 			return rjson['message']
 		elif 'data' in rjson:

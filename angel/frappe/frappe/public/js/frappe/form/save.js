@@ -16,13 +16,17 @@ frappe.ui.form.save = function(frm, action, callback, btn) {
 	}[toTitle(action)];
 
 	var freeze_message = working_label ? __(working_label) : "";
+        
+        // Added by chetan to make sync ERP2 working 
+        frm.doc['sync_document_erp2'] = 1
+        //frm['sync_document_erp2'] = 1
 
 	var save = function() {
 		check_name(function() {
 			if(check_mandatory()) {
 				_call({
 					method: "frappe.desk.form.save.savedocs",
-					args: { doc: frm.doc, action:action},
+					args: { doc: frm.doc, action:action, 'sync_document_erp2': 1},
 					callback: function(r) {
 						$(document).trigger("save", [frm.doc]);
 						callback(r);
@@ -40,7 +44,8 @@ frappe.ui.form.save = function(frm, action, callback, btn) {
 	var cancel = function() {
 		var args = {
 			doctype: frm.doc.doctype,
-			name: frm.doc.name
+			name: frm.doc.name,
+                        'sync_document_erp2': 1
 		};
 
 		// update workflow state value if workflow exists

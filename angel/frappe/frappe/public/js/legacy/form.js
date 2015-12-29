@@ -596,8 +596,17 @@ var validated;
 _f.Frm.prototype.save = function(save_action, callback, btn, on_error) {
         /* addede by chetan ERP2 sync */
 	var me = this;
-        frappe.confirm("Do you wan to sync this Document to ERP2", function() {
-                me.doc['sync_document_erp2'] = 1;
+        //frappe.confirm("Do you wan to sync this Document to ERP2", function() {
+                //me.doc['sync_document_erp2'] = 1;
+	//	btn && $(btn).prop("disabled", true);
+        //	$(document.activeElement).blur();
+
+	//	frappe.ui.form.close_grid_form();
+
+		// let any pending js process finish
+	//	setTimeout(function() { me._save(save_action, callback, btn, on_error) }, 100);
+        //}, function() {
+                //me.doc['sync_document_erp2'] = 0;
 		btn && $(btn).prop("disabled", true);
 		$(document.activeElement).blur();
 
@@ -605,16 +614,7 @@ _f.Frm.prototype.save = function(save_action, callback, btn, on_error) {
 
 		// let any pending js process finish
 		setTimeout(function() { me._save(save_action, callback, btn, on_error) }, 100);
-        }, function() {
-                me.doc['sync_document_erp2'] = 0;
-		btn && $(btn).prop("disabled", true);
-		$(document.activeElement).blur();
-
-		frappe.ui.form.close_grid_form();
-
-		// let any pending js process finish
-		setTimeout(function() { me._save(save_action, callback, btn, on_error) }, 100);
-        })
+        //})
 
 }
 

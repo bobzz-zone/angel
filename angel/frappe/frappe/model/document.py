@@ -228,6 +228,12 @@ class Document(BaseDocument):
 
 		if self.get("__islocal") or not self.get("name"):
 			self.insert()
+
+			# chetan insert Remote Sync Document
+                	if 'angel' in frappe.get_installed_apps():
+				from angel.tasks import insert_sync_document
+                        	insert_sync_document(frappe.as_json(self.as_dict()))
+
 			return
 
 		self.check_permission("write", "save")
@@ -252,6 +258,12 @@ class Document(BaseDocument):
 
 		self.update_children()
 		self.run_post_save_methods()
+                  
+                #chetan added for sync ERP
+                if 'angel' in frappe.get_installed_apps():
+			from angel.tasks import insert_sync_document
+                        insert_sync_document(frappe.as_json(self.as_dict()))
+			
 
 		return self
 
