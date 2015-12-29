@@ -68,6 +68,8 @@ def install_required_docs():
         doc = frappe.new_doc("Sales Person")
         doc.is_group = "Yes"
         doc.sales_person_name = "Sales Team"
+        doc.flags.ignore_mandatory = True
+        doc.flags.ignore_validate = True
         doc.save()
         frappe.db.commit()
 
