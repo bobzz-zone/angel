@@ -3,9 +3,9 @@ from __future__ import unicode_literals
 from os import system, getcwd, environ, path
 import frappe	
 
-#USER = "/home/" + environ['USER'] if environ.has_key("USER") else "korecent" 
-#FBENCH = path.join(USER, "frappe-bench")
-#APPS = path.join(USER, "frappe-bench/apps")
+USER = "/home/" + environ['USER'] if environ.has_key("USER") else "korecent" 
+FBENCH = path.join(USER, "frappe-bench")
+APPS = path.join(USER, "frappe-bench/apps")
 
 def after_install():
 	frappe.db.set_default('desktop:home_page', '')
@@ -68,6 +68,8 @@ def install_required_docs():
         doc = frappe.new_doc("Sales Person")
         doc.is_group = "Yes"
         doc.sales_person_name = "Sales Team"
+        doc.flags.ignore_mandatory = True
+        doc.flags.ignore_validate = True
         doc.save()
         frappe.db.commit()
 
