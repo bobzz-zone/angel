@@ -159,6 +159,10 @@ frappe.ui.Listing = Class.extend({
 		if(frappe.model.is_submittable(this.doctype)) {
 			this.filter_list.add_filter(this.doctype, "docstatus", "!=", 2);
 		};
+		// Added by chetan
+		if (this.doctype === "Remote Document Sync") {
+			this.filter_list.add_filter(this.doctype, "remote_sync_status", "=", "0");
+		}
 	},
 
 	clear: function() {
@@ -197,6 +201,7 @@ frappe.ui.Listing = Class.extend({
 	},
 	get_call_args: function() {
 		// load query
+		//debugger;
 		if(!this.method) {
 			var query = this.get_query ? this.get_query() : this.query;
 			query = this.add_limits(query);
@@ -227,14 +232,18 @@ frappe.ui.Listing = Class.extend({
 		this.$w.find('.list-paging-area, .list-loading').toggle(false);
 
 		if(r.message) {
-			var lst  = this.get_values_from_response(r.message);
+			//debugger;
+		/*	var lst  = this.get_values_from_response(r.message);
 			var lst1 = this.get_values_from_response(r.message);
 			var doctype = this.doctype;
 			if(doctype == "Remote Document Sync"){
 				var len = lst.length;
+				var count = 0;
 				for(var i = 0; i<len; i++){
 					var stats = cint(lst1[i].remote_sync_status);
+					console.log(stats + "  at Location "+i);
 					if(stats == 1){
+						console.log(++count);
 						lst.splice(i,1);
 							}
 						}
@@ -243,6 +252,8 @@ frappe.ui.Listing = Class.extend({
 			else{
 				r.values = this.get_values_from_response(r.message);
 			}
+		*/
+			r.values = this.get_values_from_response(r.message);
 		}
 
 		if(r.values && r.values.length) {

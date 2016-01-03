@@ -42,6 +42,7 @@ debug = 0
 @celery_task()
 def insert_sync_document(doc_dict):
         #print doc_dict
+
 	if debug:
         	frappe.msgprint(frappe.form_dict)
         if not frappe.conf.has_key('sync_server_ip') or frappe.conf.sync_server_ip == "":
