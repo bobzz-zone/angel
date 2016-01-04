@@ -43,36 +43,6 @@ def get_data():
 				},
 			]
 		},
-		#{
-		#	"label": _("Help"),
-		#	"items": [
-		#		{
-		#			"type": "help",
-		#			"name": _("Data Import and Export"),
-		#			"youtube_id": "6wiriRKPhmg"
-		#		},
-		#		{
-		#			"type": "help",
-		#			"label": _("Setting up Email"),
-		#			"youtube_id": "YFYe0DrB95o"
-		#		},
-		#		{
-		#			"type": "help",
-		#			"label": _("Printing and Branding"),
-		#			"youtube_id": "cKZHcx1znMc"
-		#		},
-		#		{
-		#			"type": "help",
-		#			"label": _("Users and Permissions"),
-		#			"youtube_id": "fnBoRhBrwR4"
-		#		},
-		#		{
-		#			"type": "help",
-		#			"label": _("Workflow"),
-		#			"youtube_id": "yObJUg9FxFs"
-		#		},
-		#	]
-		#},
 		{
 			"label": _("Customize"),
 			"icon": "icon-glass",
@@ -110,7 +80,23 @@ def get_data():
 					"description": _("Setup SMS gateway settings")
 				},
 			]
-		}
+		},
+		{
+			"label": _("Print Setting"),
+			"icon": "icon-envelope",
+			"items": [
+				{
+					"type": "doctype",
+					"name": "Print Doctype Setting",
+					"description": _("Create and manage print doctype setting")
+				},
+				{
+					"type": "doctype",
+					"name": "Print Document Setting",
+					"description": _("Create and manage print document setting")
+				}
+				]
+			}
 	]
 
 	for module, label, icon in (
