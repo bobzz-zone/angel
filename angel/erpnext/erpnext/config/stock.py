@@ -252,12 +252,6 @@ def get_data():
 					"name": "Purchase Receipt Trends",
 					"doctype": "Purchase Receipt"
 				},
-				{
-					"type": "report",
-					"is_query_report": True,
-					"name": "Treat Consignment",
-					"doctype": "Sales Invoice"
-				},
 			]
 		},
 		#{
