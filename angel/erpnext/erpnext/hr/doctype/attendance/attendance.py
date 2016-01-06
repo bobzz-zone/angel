@@ -3,7 +3,7 @@
 
 from __future__ import unicode_literals
 import frappe
-
+from datetime import datetime
 from frappe.utils import getdate, nowdate, cint
 from frappe import _
 from frappe.model.document import Document
@@ -77,6 +77,8 @@ class Attendance(Document):
 		end_time = str(values["end_time"])
 		clock_in = str(self.get("clock_in"))
 		clock_out = str(self.get("clock_out"))
+		att_date = str(self.get("att_date"))
+		out_date = str(self.get("clockout_date"))
 		# Empty Check while upload from upload_attendance
 		if (clock_in.find(".") > 0 and clock_out.find(".") > 0):
 			self.set("fine", 00)
@@ -99,125 +101,126 @@ class Attendance(Document):
 			self.set("clock_in", "00:00:00")
 			self.set("clock_out", clock_out[0:clock_out.find(".")])
 			return
-		hours = self.get_time_diff_hours(clock_in, clock_out)
-		hour = 0
-		if(len(hours.split(":")) != 0):
-			arr = hours.split(":")
-			hour = arr[0]
-		if(hour == 0):
-			self.set("fine", 00)
-			self.set("status", "Absent")
-			self.set("clock_in", clock_in)
-			self.set("clock_out", clock_out)
-			self.set("hours", hours)
-			return
-		clock_in_diff = frappe.utils.time_diff(clock_in, start_time).total_seconds()/3600
-		clock_out_diff = frappe.utils.time_diff(end_time, clock_out).total_seconds()/3600
-		if(clock_in_diff < 0):
-			early = abs(clock_in_diff)
-		if(clock_out_diff < 0):
-			late = abs(clock_out_diff)
-
-		# Below code will work if employee came in his alloted shift
-		if(clock_in_diff > 0 and clock_out_diff > 0):
-			total_late_hours = clock_in_diff + clock_out_diff
-			if(total_late_hours > 1.5):
-				self.set("fine", 0.00)
-				self.set("status", "Half Day")
-				self.set("hours", hours)
+		if(att_date == out_date):
+			hours = self.get_time_diff_hours(clock_in, clock_out)
+			hour = 0
+			if(len(hours.split(":")) != 0):
+				arr = hours.split(":")
+				hour = arr[0]
+			if(hour == 0):
+				self.set("fine", 00)
+				self.set("status", "Absent")
 				self.set("clock_in", clock_in)
 				self.set("clock_out", clock_out)
+				self.set("hours", hours)
 				return
-			elif(total_late_hours < 1.5):
-				if(total_late_hours > 0.5 and total_late_hours <= 1.0):
-					self.set("fine", 5000)
-					self.set("status","Present")
+
+			clock_in_diff = frappe.utils.time_diff(clock_in, start_time).total_seconds()/3600
+			clock_out_diff = frappe.utils.time_diff(end_time, clock_out).total_seconds()/3600
+
+			# Below code will work if employee came in his alloted shift
+			if(clock_in_diff > 0 and clock_out_diff > 0):
+				total_late_hours = clock_in_diff + clock_out_diff
+				if(total_late_hours > 1):
+					self.set("fine", 0.00)
+					self.set("status", "Half Day")
 					self.set("hours", hours)
 					self.set("clock_in", clock_in)
 					self.set("clock_out", clock_out)
 					return
-				elif(total_late_hours > 1.0 and total_late_hours <= 1.5):
+				elif(total_late_hours < 1):
+					if(total_late_hours > 0.1 and total_late_hours <= 0.5):
+						self.set("fine", 5000)
+						self.set("status","Present")
+						self.set("hours", hours)
+						self.set("clock_in", clock_in)
+						self.set("clock_out", clock_out)
+						return
+					elif(total_late_hours > 0.5 and total_late_hours <= 1):
+						self.set("fine", 10000)
+						self.set("status", "Present")
+						self.set("hours", hours)
+						self.set("clock_in", clock_in)
+						self.set("clock_out", clock_out)
+						return
+			# Below code will work if employee came in others shift
+			if(clock_in_diff <= 0 and clock_out_diff <= 0):
+				self.set("fine", 00)
+				self.set("status", "Present")
+				self.set("hours", hours)
+				self.set("clock_in", clock_in)
+				self.set("clock_out", clock_out)
+				return 					
+			if(clock_in_diff > 0 and clock_out_diff <= 0):
+				if(clock_in_diff <= 0.1):
+					self.set("fine", 00)
+					self.set("status", "Present")
+					self.set("hours", hours)
+					self.set("clock_in", clock_in)
+					self.set("clock_out", clock_out)
+					return
+				elif(clock_in_diff > 0.1 and clock_in_diff <= 0.5):
+					self.set("fine", 5000)
+					self.set("status", "Present")
+					self.set("hours", hours)
+					self.set("clock_in", clock_in)
+					self.set("clock_out", clock_out)
+					return
+				elif(clock_in_diff > 0.5 and clock_in_diff <= 1):
 					self.set("fine", 10000)
 					self.set("status", "Present")
 					self.set("hours", hours)
 					self.set("clock_in", clock_in)
 					self.set("clock_out", clock_out)
 					return
-		# Below code will work if employee came in others shift
-		if(clock_in_diff <= 0 and clock_out_diff <= 0):
-			self.set("fine", 00)
-			self.set("status", "Present")
-			self.set("hours", hours)
-			self.set("clock_in", clock_in)
-			self.set("clock_out", clock_out)
-			return 					
-		if(clock_in_diff > 0 and clock_out_diff <= 0):
-			if(clock_in_diff < 0.5):
-				self.set("fine", 00)
-				self.set("status", "Present")
-				self.set("hours", hours)
-				self.set("clock_in", clock_in)
-				self.set("clock_out", clock_out)
-				return
-			elif(clock_in_diff > 0.5 and clock_in_diff <= 1.0):
-				self.set("fine", 5000)
-				self.set("status", "Present")
-				self.set("hours", hours)
-				self.set("clock_in", clock_in)
-				self.set("clock_out", clock_out)
-				return
-			elif(clock_in_diff > 1.0 and clock_in_diff <= 1.5):
-				self.set("fine", 10000)
-				self.set("status", "Present")
-				self.set("hours", hours)
-				self.set("clock_in", clock_in)
-				self.set("clock_out", clock_out)
-				return
-			elif(clock_in_diff > 1.5):
-				self.set("fine", 00)
-				self.set("status", "Half Day")
-				self.set("hours", hours)
-				self.set("clock_in", clock_in)
-				self.set("clock_out", clock_out)
-				return
-		if(clock_out_diff > 0 and clock_in_diff <= 0):
-			if(clock_out_diff < 0.5):
-				self.set("fine", 00)
-				self.set("status", "Present")
-				self.set("hours", hours)
-				self.set("clock_in", clock_in)
-				self.set("clock_out", clock_out)
-				return
-			elif(clock_out_diff > 0.5 and clock_out_diff <= 1.0):
-				self.set("fine", 5000)
-				self.set("status", "Present")
-				self.set("hours", hours)
-				self.set("clock_in", clock_in)
-				self.set("clock_out", clock_out)
-				return
-			elif(clock_out_diff > 1.0 and clock_out_diff <= 1.5):
-				self.set("fine", 10000)
-				self.set("status", "Present")
-				self.set("hours", hours)
-				self.set("clock_in", clock_in)
-				self.set("clock_out", clock_out)
-				return
-			elif(clock_out_diff > 1.5):
-				self.set("fine", 00)
-				self.set("status", "Half Day")
-				self.set("hours", hours)
-				self.set("clock_in", clock_in)
-				self.set("clock_out", clock_out)
-		return
-
-
+				elif(clock_in_diff > 1):
+					self.set("fine", 00)
+					self.set("status", "Half Day")
+					self.set("hours", hours)
+					self.set("clock_in", clock_in)
+					self.set("clock_out", clock_out)
+					return
+			if(clock_out_diff > 0 and clock_in_diff <= 0):
+				if(clock_out_diff < 0.5):
+					self.set("fine", 00)
+					self.set("status", "Present")
+					self.set("hours", hours)
+					self.set("clock_in", clock_in)
+					self.set("clock_out", clock_out)
+					return
+				elif(clock_out_diff > 0.1 and clock_out_diff <= 0.5):
+					self.set("fine", 5000)
+					self.set("status", "Present")
+					self.set("hours", hours)
+					self.set("clock_in", clock_in)
+					self.set("clock_out", clock_out)
+					return
+				elif(clock_out_diff > 0.5 and clock_out_diff <= 1):
+					self.set("fine", 10000)
+					self.set("status", "Present")
+					self.set("hours", hours)
+					self.set("clock_in", clock_in)
+					self.set("clock_out", clock_out)
+					return
+				elif(clock_out_diff > 1):
+					self.set("fine", 00)
+					self.set("status", "Half Day")
+					self.set("hours", hours)
+					self.set("clock_in", clock_in)
+					self.set("clock_out", clock_out)
+					return
+		elif(att_date != out_date):
+			start_diff = self.calculate_diff(start_time, clock_in)
+			end_diff = self.calculate_diff(clock_out, end_time)
+			frappe.msgprint("Start Diff = {} , End Diff = {}".format(start_diff, end_diff))
 	def get_time_diff_hours(self,clock_in, clock_out):
 		clock_in_time = str(clock_in)
 		clock_out_time = str(clock_out)
 		arr_in = clock_in_time.split(":")
-                arr_out = clock_out_time.split(":")
+		arr_out = clock_out_time.split(":")
 		arr_in_len = len(arr_in)
-		arr_out_len = len(arr_out)	
+		arr_out_len = len(arr_out)
+
 		if(arr_in_len != 3 or arr_out_len != 3):
 			frappe.throw(_("Please enter time in correct format"))
 			return	
@@ -229,7 +232,7 @@ class Attendance(Document):
 			diff = cint(arr_out[t]) - cint(arr_in[t])
 			if(t == 0):
 				if((diff <= 0 )):
-					hours = hours + str(abs(diff))
+					hours = hours + str(abs(diff))+":"
 				elif((diff > 0) and (len(str(diff)) == 2)):
 						hours = hours + str(diff) + ":"
 				elif((diff > 0) and ((len(str(diff))) == 1)):
@@ -265,3 +268,55 @@ class Attendance(Document):
                                 elif((diff > 0) and ((len(str(diff))) == 1)): 
                                         hours = hours + "0" + str(diff)
 		return hours
+	
+	# If There is difference of days
+	def time_diff(self, clock_in, clock_out):
+		clock_in_time = str(clock_in)
+		clock_out_time = str(clock_out)
+		clockout_date = self.get("clockout_date")
+		clockin_date = self.get("att_date")
+		var = clockout_date == clockin_date
+		formt = "%Y-%m-%d %H:%M:%S"
+		clock_in_datetime = str(clockin_date + " " + clock_in_time)
+		clock_out_datetime = str(clockout_date + " " + clock_out_time)
+		if not var:
+			intime = datetime.strptime(clock_in_datetime, formt)
+			outtime = datetime.strptime(clock_out_datetime, formt)
+			diff = str(outtime - intime)
+			if(diff.find(",") >= 0):
+				diff = diff[diff.find(",")+1:len(diff)-1]
+				return diff
+			return diff
+
+	def calculate_diff(self, start_time, clock_in):
+		cal_time = ""
+		arr_start = start_time.split(":")
+		arr_in = clock_in.split(":")
+		if(len(arr_start) == 3 and len(arr_in) == 3):
+			for t in range(0, 3):
+				diff = cint(arr_in[t]) - cint(arr_start[t])
+				if(t == 0):
+					if(diff < 0):
+						cal_time = cal_time + str(24 - abs(diff))
+					elif(diff == 0):
+						cal_time = cal_time + str(00)
+					elif(diff > 0):
+						cal_time = cal_time + str(diff)
+				elif(t == 1):
+					if(cint(cal_time.split(":")[0]) == 0):
+						if(diff < 0):
+							cal_time = cal_time + ":00"
+						if(diff > 0):
+							cal_time = cal_time + ":" + str(diff)
+					if(cint(cal_time.split(":")[0]) > 0):
+						if(diff < 0):
+							hour = cint(cal_time.split(":")[0]) - 1
+							min_diff = 60 - abs(diff)
+							cal_time = str(hour) + ":" + str(min_diff)
+						elif(diff == 0):
+							cal_time = cal_time + ":" + str(00)
+						elif(diff > 0):
+							cal_time = cal_time + ":" + str(diff)
+				elif(t ==2):
+					cal_time = cal_time + ":" + str(00)
+			return cal_time							
