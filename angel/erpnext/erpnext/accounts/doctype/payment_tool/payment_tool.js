@@ -116,6 +116,10 @@ frappe.ui.form.on("Payment Tool", "get_outstanding_vouchers", function(frm) {
 	erpnext.payment_tool.check_mandatory_to_fetch(frm.doc);
 
 	frm.set_value("vouchers", []);
+        tt_document = "";
+        if (frm.doc.from_tt_document) {
+                tt_document = frm.doc.tt_document_number;
+        }
 
 	return  frappe.call({
 		method: 'erpnext.accounts.doctype.payment_tool.payment_tool.get_outstanding_vouchers',
@@ -125,7 +129,8 @@ frappe.ui.form.on("Payment Tool", "get_outstanding_vouchers", function(frm) {
 				"party_type": frm.doc.party_type,
 				"received_or_paid": frm.doc.received_or_paid,
 				"party": frm.doc.party,
-				"party_account": frm.doc.party_account
+				"party_account": frm.doc.party_account,
+                                "tt_document": tt_document
 			}
 		},
 		callback: function(r, rt) {
