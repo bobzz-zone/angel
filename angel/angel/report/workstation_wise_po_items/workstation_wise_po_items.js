@@ -10,6 +10,12 @@ frappe.query_reports["Workstation Wise PO-Items"] = {
 			"options": "Company",
 			"default": frappe.defaults.get_user_default("company"),
 			"reqd": 1
+		},
+		{
+			"fieldname":"prod_order",
+			"label": __("Production Order No"),
+			"fieldtype": "Link",
+			"options": "Production Order",
 		}
 	],
 	"formatter": function(row, cell, value, columnDef, dataContext, default_formatter) {

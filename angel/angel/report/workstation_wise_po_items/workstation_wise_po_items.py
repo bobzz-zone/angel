@@ -21,64 +21,60 @@ def execute(filters=None):
   }
 ]
 	data = get_data(filters)
+	
 	return columns, data
 
 def get_data(filters):
-	workstations = frappe.db.sql("""select DISTINCT bi.item_workstation 
-                                        from `tabBOM Item` bi""")
-	#workstations = frappe.db.sql("""select DISTINCT bi.item_workstation, bi.parent, po.name from `tabBOM Item` bi, `tabProduction Order` po where po.bom_no = bi.parent""")
+	prod_orders = frappe.db.sql("""select DISTINCT po.name from `tabProduction Order` po where po.bom_no IS NOT NULL""")  if filters.get("prod_order") is None  else ((filters.get("prod_order"),),)
+
         data = []
-        if not workstations:
+	if not len(prod_orders):
 		return []
-	
-	for workstation in workstations:
-                if not len(workstation):
-                	continue
-                workstation = workstation[0]
-		data.append( {
-                                 'indent': 0.0,
-                                 'parent_account': None,
-                                 'dec_2015': 0,
-                                 'account': workstation,
-                                 'account_name': workstation
-                             })
 
-                prod_orders = frappe.db.sql("""select DISTINCT po.name 
-                                               from `tabProduction Order` po, `tabBOM Item` bi
-                                               where po.bom_no = bi.parent AND
-                                                     bi.item_workstation = '%s'""" %(workstation))
-                if not len(prod_orders):
+	for prod_order in prod_orders:
+		if not len(prod_order):
 			continue
-		for prod_order in prod_orders:
-			if not len(prod_order):
-				continue
-			prod_order = prod_order[0]
-			data.append( {
-                                 'indent': 1.0,
-                                 'parent_account': workstation,
-                                 'dec_2015': 0,
-                                 'account': prod_order,
-                                 'account_name': prod_order
-                             })
-                        #items = frappe.db.sql("""select DISTINCT operation from `tabProduction Order Operation` where parent= '%s'""" %(prod_order))
-                        items = frappe.db.sql("""select DISTINCT bi.item_code, bi.qty 
-                                                 from `tabBOM Item` bi, `tabProduction Order` po 
-                                                 where po.bom_no = bi.parent AND
-                                                       bi.item_workstation = '%s' AND
-                                                       po.name = '%s' """ %(workstation, prod_order))
+		prod_order = prod_order[0]
+		data.append( {
+			 'indent': 0.0,
+			 'parent_account': None,
+			 'dec_2015': 0,
+			 'account': prod_order,
+			 'account_name': prod_order
+		     })
 
- 			if not len(items):
+		items = frappe.db.sql("""select bi.item_workstation, bi.item_code, bi.qty
+					 from `tabBOM Item` bi, `tabProduction Order` po
+					 where po.bom_no = bi.parent AND
+					       po.name = '%s' """ %(prod_order))
+
+		if not len(items):
+			continue
+		workstations = {}
+		for item in items:
+			if not len(item):
 				continue
-                        for item in items:
-				if not len(item):
-					continue
-				item, qty = item
+			workstation, item, qty = item
+			# require this hash for uniqueness of no
+ 			#it will generate a hash order of 10
+			work_hash = frappe.generate_hash(workstation, 10)
+			if workstations.has_key(workstation):
+				work_hash = workstations[workstation]
+                        else:
+				workstations[workstation] = work_hash
 				data.append({
-					'indent': 2.0,
+					'indent': 1.0,
 					'parent_account': prod_order,
-					'dec_2015': qty,
-					'account': item,
-					'account_name': item
-                                   })
+					'dec_2015': 0,
+					'account': work_hash,
+					'account_name': workstation
+				})
+			data.append({
+				'indent': 2.0,
+				'parent_account': work_hash,
+				'dec_2015': qty,
+				'account': item,
+				'account_name': item
+			   })
 	#frappe.msgprint((data))
 	return data
