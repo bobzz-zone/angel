@@ -1,0 +1,28 @@
+frappe.ui.form.on("Payment Tool", "tt_document_number", function(frm) {
+
+    if(frm.doc.tt_document_number)
+    {
+        if(frm.doc.party_type === "Customer")
+        {
+            frappe.model.get_value("TT Document", frm.doc.tt_document_number, "customer", 
+                  function(r) { 
+                       if (r.customer) {frm.set_value("party", r.customer);}
+                    } );
+         
+        }
+        else  {
+            frappe.msgprint("Party type has to be Customer for retrieving Sales Invoices from TT Document Number");
+            return;
+        }
+    }
+    
+});
+
+frappe.ui.form.on("Payment Tool", "party_type", function(frm) {
+
+    frm.trigger("tt_document_number");
+});
+
+frappe.ui.form.on("Payment Tool", "from_tt_document", function(frm){
+     frm.set_value("tt_document_number", "");
+});
