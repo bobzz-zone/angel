@@ -1,0 +1,125 @@
+// fetch value of FingerPrint Id from Employee doctype on change of Employee field automatically
+
+// cur_frm.add_fetch(link_field, source_fieldname, target_fieldname);
+cur_frm.add_fetch("employee", "fingerprint_id", "fingerprint_id");
+
+frappe.ui.form.on("Attendance", "clock_out",function(frm){
+
+   var clock_in  = frm.doc.clock_in;
+   var clock_out = frm.doc.clock_out;
+   
+     var time_in = clock_in.split(":");
+     var time_out = clock_out.split(":");
+     var hours = "";
+       for (var i = 0; i < time_in.length; i++)
+      {
+         var timein = cint(time_in[i]);
+         var timeout = cint(time_out[i]);
+         var diff = timeout - timein;
+         var str = diff.toString();
+             if( i == 0)
+             {
+                 if(!(diff) || (diff < 0 ) )
+                 { hours =  hours.concat("00:");}
+             else if ((diff) && (str.length  == 2) && (diff > 0)) {hours = hours.concat(diff + ":");}
+             else if((diff) && (str.length == 1) && (diff > 0)){ hours = hours.concat("0"+diff+":");}
+                    
+             }
+             else if (i == 1)
+              { 
+                if(!(diff) || (diff < 0) ){hours =  hours.concat("00:");}
+                  
+                else if ((diff) && (str.length  == 2) && (diff > 0)) {hours = hours.concat(diff + ":");}
+             else if((diff) && (str.length == 1) && (diff > 0)){ hours = hours.concat("0"+diff+":");}
+          
+              }
+             else if(i == 2)
+             {
+                if(!(diff) || (diff < 0)){hours =  hours.concat("00");}
+                 else if ((diff) && (str.length  == 2) && (diff > 0)) {hours = hours.concat(diff );}
+             else if((diff) && (str.length == 1) && (diff > 0)){ hours = hours.concat("0"+diff);}
+             }        
+      }
+frm.set_value("hours", hours);
+
+           var time_in_hour = time_in[0];
+           var time_in_min  = time_in[1];
+           
+           var time_out_hour = time_out[0];
+           var time_out_min  = time_out[1];
+           var hour = cint(hours.substring(0,2));
+           var min  = cint (hours.substring(3,4));
+           var sec  = cint(hours.substring(7,7));
+
+            if (!(hour) && !(min) && !(sec)) {
+                 frm.set_value("status", "Absent");
+                }
+            else if(hour > 8) {
+                  frm.set_value("status", "Present");
+                }
+            else if ((hour < 8 && hour > 0)){
+                    if(time_in_hour > 9){
+                        frm.set_value("status", "Half Day");
+                      }   
+             }
+   
+ //Calculating Fine 
+             
+            
+             
+
+
+
+});
+
+/*
+// To Calculate Fine
+
+var calculate_fine = function(frm){
+
+// Getting All Time Detail
+var date_and_time = frappe.datetime.get_datetime_as_string().split(" ");
+var actual_time = date_and_time[1];
+var clock_in = frm.doc.clock_in;
+var clock_out = frm.doc.clock_out;
+
+// Storing Actual Hours , Min, Sec 
+var time_arr = actual_time.split(":");
+var actual_time_hour = cint(time_arr[0]);
+var actual_time_min =  cint(time_arr[1]);
+var actual_time_sec =  cint(time_arr[2]);
+
+// Storing Clock Out Hour, Min, Sec
+var clock_out_arr =  clock_out.split(":");
+var clock_out_hour = cint(clock_out_arr[0]);
+var clock_out_min =  cint(clock_out_arr[1]);
+var clock_out_sec =  cint(clock_out_arr[2]);
+
+// Storing Clock In Hour, Min, Sec
+
+var clock_in_arr =  clock_in.split(":");
+var clock_in_hour = cint(clock_in_arr[0]);
+var clock_in_min =  cint(clock_in_arr[1]);
+var clock_in_sec =  cint(clock_in_arr[2]);
+ 
+// Variable For Storing Fine
+
+var fine  = ""
+       
+                  if((clock_in_hour == 08) && (clock_in_min < 30)){
+                    fine = 50;
+                     }
+                   if((clock_in_hour == 08) && (clock_in_min > 30)){
+                     fine = 100;
+                     }
+            
+}
+*/
+
+/*
+frappe.ui.form.on("Attendance", "employee", function(frm) {
+    cur_frm.add_fetch("Set Shifts","start_time" ,"actual_intime");
+    cur_frm.add_fetch("Set Shifts","end_time" ,"actual_outtime");
+});
+
+*/
