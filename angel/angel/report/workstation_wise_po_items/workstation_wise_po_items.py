@@ -50,10 +50,12 @@ def get_data(filters):
 
 		if not len(items):
 			continue
+
 		workstations = {}
 		for item in items:
 			if not len(item):
 				continue
+
 			workstation, item, qty = item
 			# require this hash for uniqueness of no
  			#it will generate a hash order of 10
