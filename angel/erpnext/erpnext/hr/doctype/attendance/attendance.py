@@ -3,7 +3,7 @@
 
 from __future__ import unicode_literals
 import frappe
-from datetime import datetime
+import datetime
 from frappe.utils import getdate, nowdate, cint
 from frappe import _
 from frappe.model.document import Document
@@ -106,15 +106,15 @@ class Attendance(Document):
 			hour = 0
 			if(len(hours.split(":")) != 0):
 				arr = hours.split(":")
-				hour = arr[0]
-			if(hour == 0):
+				hour = cint(arr[0])
+			if(hour <= 2 or hour < 0):
 				self.set("fine", 00)
 				self.set("status", "Absent")
 				self.set("clock_in", clock_in)
 				self.set("clock_out", clock_out)
 				self.set("hours", hours)
 				return
-
+			
 			clock_in_diff = frappe.utils.time_diff(clock_in, start_time).total_seconds()/3600
 			clock_out_diff = frappe.utils.time_diff(end_time, clock_out).total_seconds()/3600
 
@@ -210,9 +210,12 @@ class Attendance(Document):
 					self.set("clock_out", clock_out)
 					return
 		elif(att_date != out_date):
+			hours = self.time_diff(clock_in, clock_out)
 			start_diff = self.calculate_diff(start_time, clock_in)
 			end_diff = self.calculate_diff(clock_out, end_time)
-			frappe.msgprint("Start Diff = {} , End Diff = {}".format(start_diff, end_diff))
+			var = self.add_start_end_diff(start_diff, end_diff)
+			return self.calculate_attendance(var , clock_in, clock_out, hours)
+		
 	def get_time_diff_hours(self,clock_in, clock_out):
 		clock_in_time = str(clock_in)
 		clock_out_time = str(clock_out)
@@ -220,7 +223,6 @@ class Attendance(Document):
 		arr_out = clock_out_time.split(":")
 		arr_in_len = len(arr_in)
 		arr_out_len = len(arr_out)
-
 		if(arr_in_len != 3 or arr_out_len != 3):
 			frappe.throw(_("Please enter time in correct format"))
 			return	
@@ -232,7 +234,7 @@ class Attendance(Document):
 			diff = cint(arr_out[t]) - cint(arr_in[t])
 			if(t == 0):
 				if((diff <= 0 )):
-					hours = hours + str(abs(diff))+":"
+					hours = hours + str((diff))+":"
 				elif((diff > 0) and (len(str(diff)) == 2)):
 						hours = hours + str(diff) + ":"
 				elif((diff > 0) and ((len(str(diff))) == 1)):
@@ -241,6 +243,10 @@ class Attendance(Document):
 				if((diff < 0)):
 					temp_hours = hours.split(":")
 					temp_hour = cint(temp_hours[0])
+					if(temp_hour < 0):
+						temp_hour = temp_hour -1
+						minute = 60 - abs(cint(diff))
+						hours = str(temp_hour) + ":" + str(minute) + ":"
 					if(temp_hour == 0):
 						temp_diff = str(diff).replace("-", "", 1)
 						temp_diff = cint(temp_diff)
@@ -280,8 +286,8 @@ class Attendance(Document):
 		clock_in_datetime = str(clockin_date + " " + clock_in_time)
 		clock_out_datetime = str(clockout_date + " " + clock_out_time)
 		if not var:
-			intime = datetime.strptime(clock_in_datetime, formt)
-			outtime = datetime.strptime(clock_out_datetime, formt)
+			intime = datetime.datetime.strptime(clock_in_datetime, formt)
+			outtime = datetime.datetime.strptime(clock_out_datetime, formt)
 			diff = str(outtime - intime)
 			if(diff.find(",") >= 0):
 				diff = diff[diff.find(",")+1:len(diff)-1]
@@ -304,7 +310,7 @@ class Attendance(Document):
 						cal_time = cal_time + str(diff)
 				elif(t == 1):
 					if(cint(cal_time.split(":")[0]) == 0):
-						if(diff < 0):
+						if(diff <= 0):
 							cal_time = cal_time + ":00"
 						if(diff > 0):
 							cal_time = cal_time + ":" + str(diff)
@@ -319,4 +325,60 @@ class Attendance(Document):
 							cal_time = cal_time + ":" + str(diff)
 				elif(t ==2):
 					cal_time = cal_time + ":" + str(00)
-			return cal_time							
+			return cal_time
+	#Calculating Time Different:
+	def add_start_end_diff(self, start, end):
+		frmt = "%H:%M:%S"
+		start_time = start
+		end_time = end
+		start_time_format = datetime.datetime.strptime(start_time, frmt)
+		end_time_format = datetime.datetime.strptime(end_time, frmt)
+		time1 = datetime.timedelta(hours = start_time_format.hour, minutes = start_time_format.minute, seconds = start_time_format.second)
+		time2 = datetime.timedelta(hours = end_time_format.hour, minutes = end_time_format.minute, seconds = end_time_format.second)
+		diff = time1 + time2
+		diff = diff.total_seconds()/3600
+		diff = round(diff, 1)
+		return diff
+	#Calculating status for different days in attendance
+	def calculate_attendance(self, time, clock_in, clock_out, hours):
+		time = float(time)
+		hours = hours
+		arr_hours = hours.split(":")
+		hour = cint(arr_hours[0])
+		if(hour <= 2):
+			self.set("fine", 00)
+			self.set("status", "Absent")
+			self.set("clock_in", clock_in)
+			self.set("clock_out", clock_out)
+			self.set("hours", hours)
+			return
+		if(hour  > 2):
+			if(time == 0):
+				self.set("fine", 00)
+				self.set("status", "Present")
+				self.set("clock_in", clock_in)
+				self.set("clock_out", clock_out)
+				self.set("hours", hours)
+				return
+			elif(time > 0 and time < 0.5):
+				self.set("fine",5000)
+				self.set("status", "Present")
+				self.set("clock_in", clock_in)
+				self.set("clock_out", clock_out)
+				self.set("hours", hours)
+				return
+			elif(time > 0.5 and time < 1):
+				self.set("fine", 10000)
+				self.set("status", "Present")
+				self.set("clock_in", clock_in)
+				self.set("clock_out", clock_out)
+				self.set("hours", hours)
+				return
+			elif(time  > 1):
+				self.set("fine", 00)
+				self.set("status", "Half Day")
+				self.set("clock_in", clock_in)
+				self.set("clock_out", clock_out)
+				self.set("hours", hours)
+				return
+		
