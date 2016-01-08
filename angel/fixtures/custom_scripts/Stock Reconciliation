@@ -1,0 +1,72 @@
+frappe.ui.form.on("Stock Reconciliation Item","qty",function(frm,cdt,cdn){
+
+        var d = locals[cdt][cdn];
+        var quantity = cint(d.qty);
+        var item_code = d.item_code;
+        var warehouse = d.warehouse;
+        var depreciation_rate = 0;
+        var last_purchase_rate= 0;
+        if(warehouse == "Fixed Asset WareHouse - OCF"){
+        frappe.model.get_value("Item",{"item_code":item_code},'depreciation_rate', function(r){
+            if(r.depreciation_rate != null){
+             depreciation_rate = cint(r.depreciation_rate);
+            }
+           
+});
+        frappe.model.get_value("Item",{"item_code":item_code},'last_purchase_rate', function(r){
+           
+           if(r.last_purchase_rate != null){
+             last_purchase_rate = cint(r.last_purchase_rate);
+             if(last_purchase_rate != 0 && depreciation_rate != 0){
+           var result = last_purchase_rate - (last_purchase_rate * depreciation_rate)/100; 
+            
+                       if(quantity != 0){
+                          result = result * quantity;
+                         frappe.model.set_value("Stock Reconciliation Item", d.name,"valuation_rate",result);
+                       
+                        }
+                   } 
+            }
+});
+             }
+
+              else {
+                  frappe.model.set_value("Stock Reconciliation Item", d.name,"valuation_rate", 00);
+}
+});
+frappe.ui.form.on("Stock Reconciliation Item","qty",function(frm,cdt,cdn){
+
+        var d = locals[cdt][cdn];
+        var quantity = cint(d.qty);
+        var item_code = d.item_code;
+        var warehouse = d.warehouse;
+        var appreciation = 0;
+        var last_purchase_rate= 0;
+        if(warehouse == "Fixed Asset WareHouse - OCF"){
+        frappe.model.get_value("Item",{"item_code":item_code},'appreciation', function(r){
+            if(r.appreciation != null){
+             appreciation = cint(r.appreciation);
+            }
+           
+});
+        frappe.model.get_value("Item",{"item_code":item_code},'last_purchase_rate', function(r){
+           
+           if(r.last_purchase_rate != null){
+             last_purchase_rate = cint(r.last_purchase_rate);
+             if(last_purchase_rate != 0 && appreciation != 0){
+           var result = last_purchase_rate + (last_purchase_rate * appreciation)/100; 
+            
+                       if(quantity != 0){
+                          result = result * quantity;
+                         frappe.model.set_value("Stock Reconciliation Item", d.name,"valuation_rate",result);
+                       
+                        }
+                   } 
+            }
+});
+             }
+
+              else {
+                  frappe.model.set_value("Stock Reconciliation Item", d.name,"valuation_rate", 00);
+}
+});
