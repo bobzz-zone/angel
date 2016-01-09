@@ -35,9 +35,9 @@ def add_header(w):
 	w.writerow(["Notes:"])
 	w.writerow(["Please do not change the template headings"])
 	w.writerow(["Status should be one of these values: " + status])
-	w.writerow(["If you are overwriting existing attendance records, 'ID' column mandatory"])
+	w.writerow(["If you are overwriting existing attendance records, 'ID' column mandatory, Ensure ClockOut Date is entered to compute correct status as per shift"])
 	w.writerow(["ID", "Employee", "Employee Name", "Date", "Status",
-		"Fiscal Year", "Company", "Naming Series", "FingerPrint_ID", "Clock_In", "Clock_Out", "Shift"])
+		"Fiscal Year", "Company", "Naming Series", "FingerPrint_ID", "Shift", "Clock_In", "Clock_Out_Date", "Clock_Out"])
 	return w
 
 def add_data(w, args):
@@ -58,9 +58,10 @@ def add_data(w, args):
 				get_fiscal_year(date)[0], employee.company,
 				existing_attendance and existing_attendance.naming_series or get_naming_series(),
 				employee.fingerprint_id, #added fingerprint_id
+				employee.shift, #shift added
 				existing_attendance and existing_attendance.clock_in or "",
+				date, #clock_out date will be today() by default and has to be manually edited as per shift
 				existing_attendance and existing_attendance.clock_out or "",
-				employee.shift,
 			]
 			w.writerow(row)
 	return w
@@ -77,10 +78,9 @@ def get_active_employees():
 	return employees
 
 def get_existing_attendance_records(args):
-	attendance = frappe.db.sql("""select name, att_date, employee, status, naming_series, fingerprint_id, clock_in, clock_out
+	attendance = frappe.db.sql("""select name, att_date, employee, status, naming_series, fingerprint_id, clock_in, clockout_date, clock_out
 		from `tabAttendance` where att_date between %s and %s and docstatus < 2""",
 (args["from_date"], args["to_date"]), as_dict=1)
-        #frappe.msgprint(("this chetan {}".format(attendance)))
 
 	existing_attendance = {}
 	for att in attendance:
@@ -112,6 +112,9 @@ def upload():
 	columns = [scrub(f) for f in rows[4]]
 	columns[0] = "name"
 	columns[3] = "att_date"
+	columns[4] = "Absent"
+	columns[9] = "shift"
+	columns[11] = "clockout_date"
 	ret = []
 	error = False
 
