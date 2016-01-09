@@ -6,7 +6,7 @@ import frappe
 from frappe import msgprint, _
 import json
 import csv, cStringIO
-from frappe.utils import encode, cstr, cint, flt, comma_or
+from frappe.utils import encode, cstr, cint, flt, comma_or, to_timedelta
 
 def read_csv_content_from_uploaded_file(ignore_encoding=False):
 	if getattr(frappe, "uploaded_file", None):
@@ -128,6 +128,8 @@ def check_record(d):
 				d[key] = cint(val)
 			elif val and docfield.fieldtype in ["Currency", "Float", "Percent"]:
 				d[key] = flt(val)
+			elif val and docfield.fieldtype in ["Time"]: #added time format for attendance clock_in/clock_out
+				d[key] = to_timedelta(val)
 
 def import_doc(d, doctype, overwrite, row_idx, submit=False, ignore_links=False):
 	"""import main (non child) document"""
