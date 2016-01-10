@@ -107,7 +107,7 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 	clean_up: function() {
 		// Clear Production Order record from locals, because it is updated via Stock Entry
 		if(this.frm.doc.production_order &&
-				in_list(["Manufacture", "Material Transfer for Manufacture"], this.frm.doc.purpose)) {
+				in_list(["Manufacture", "Material Transfer for Manufacture", "Material Return"], this.frm.doc.purpose)) {
 			frappe.model.remove_from_locals("Production Order",
 				this.frm.doc.production_order);
 		}
@@ -170,7 +170,7 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 	},
 
 	toggle_enable_bom: function() {
-		this.frm.toggle_enable("bom_no", !in_list(["Manufacture", "Material Transfer for Manufacture"], this.frm.doc.purpose));
+		this.frm.toggle_enable("bom_no", !in_list(["Manufacture", "Material Transfer for Manufacture", "Material Return"], this.frm.doc.purpose));
 	},
 
 	add_excise_button: function() {
@@ -408,3 +408,15 @@ cur_frm.cscript.company = function(doc, cdt, cdn) {
 cur_frm.cscript.posting_date = function(doc, cdt, cdn){
 	erpnext.get_fiscal_year(doc.company, doc.posting_date);
 }
+frappe.ui.form.on("Stock Entry", "refresh", function(frm){
+		if(frm.doc.docstatus == 1){
+                 frm.add_custom_button("View Related Workstation Item",  function(){
+                         frappe.route_options = {
+                                 "prod_order":frm.doc.production_order
+                                 };
+                                  frappe.set_route("query-report", "Workstation Wise PO-Items");
+                                  }).addClass("btn-primary");
+                  }
+
+
+});
