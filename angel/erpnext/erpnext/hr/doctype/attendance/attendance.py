@@ -86,8 +86,6 @@ class Attendance(Document):
 		clock_out = cstr(self.get("clock_out"))
 		att_date = cstr(self.get("att_date"))
 		out_date = cstr(self.get("clockout_date"))
-		frappe.msgprint("Start Time {}, End Time {}, Half Day {}, Clock In {} , Clock Out {}, Att Date {}, Out Date {}".format(start_time, end_time, half_day \
-				, clock_in, clock_out, att_date, out_date))
 		# Empty Check while upload from upload_attendance
 		if (clock_in.find(".") > 0 and clock_out.find(".") > 0):
 			self.set("fine", 00)
@@ -109,6 +107,13 @@ class Attendance(Document):
 			self.set("hours", 0.0)
 			self.set("clock_in", "00:00:00")
 			self.set("clock_out", clock_out[0:clock_out.find(".")])
+			return
+		elif(clock_in == clock_out):
+			self.set("fine", 00)
+			self.set("status", Attendance.ABSENT)
+			self.set("hours", 0.0)
+			self.set("clock_in", "00:00:00")
+			self.set("clock_out", "00:00:00")
 			return
 		if(att_date == out_date):
 			return self.calculate_attendance_for_same_day(start_time, end_time, clock_in, clock_out, half_day)
@@ -144,7 +149,7 @@ class Attendance(Document):
                 		self.set("status", Attendance.PRESENT)
 				self.set("hours", total_worked_hour)
             		elif((total_diff_in_float >= 1 and total_worked_hour >= half_day) or (total_diff_in_float >= 1 and total_worked_hour >=  half_day) \
-					or total_worked_hour >= half_day ):
+					or total_worked_hour >= half_day):
                 		self.set("fine", 00)
                 		self.set("status", Attendance.HALF_DAY)
 				self.set("hours", total_worked_hour)
@@ -228,7 +233,7 @@ class Attendance(Document):
 				self.set("fine", Attendance.MAX_FINE)
 				self.set("status", Attendance.PRESENT)
 				self.set("hours", total_worked)
-			elif((total_diff > 1 and total_diff >= half_day) or total_worked >= half_day):
+			elif((total_diff > 1 and total_diff >= half_day and total_worked >= half_day) or total_worked >= half_day):
 				self.set("fine", 00)
 				self.set("status", Attendance.HALF_DAY)
 				self.set("hours", total_worked)
