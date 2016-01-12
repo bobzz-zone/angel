@@ -1,5 +1,7 @@
 frappe.listview_settings['TT Document'] = {
 	add_fields: ["status", "total_amount", "sales_person"],
+	// added by chetan by checking from listivew.js
+	//add_columns: ["status", "total_amount", "sales_person"],
 	selectable: true,
 	get_indicator: function(doc) {
 		if(doc.status=="Due for Payment") {
