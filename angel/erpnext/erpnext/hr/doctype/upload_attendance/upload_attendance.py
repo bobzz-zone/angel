@@ -51,16 +51,17 @@ def add_data(w, args):
 			if existing_attendance_records \
 				and tuple([date, employee.name]) in existing_attendance_records:
 					existing_attendance = existing_attendance_records[tuple([date, employee.name])]
+			date1 = frappe.utils.formatdate(frappe.utils.getdate(date), "dd-MM-yyyy")
 			row = [
 				existing_attendance and existing_attendance.name or "",
-				employee.name, employee.employee_name, date,
+				employee.name, employee.employee_name, date1,
 				existing_attendance and existing_attendance.status or "",
 				get_fiscal_year(date)[0], employee.company,
 				existing_attendance and existing_attendance.naming_series or get_naming_series(),
 				employee.fingerprint_id, #added fingerprint_id
 				employee.shift, #shift added
 				existing_attendance and existing_attendance.clock_in or "",
-				date, #clock_out date will be today() by default and has to be manually edited as per shift
+				date1, #clock_out date will be today() by default and has to be manually edited as per shift
 				existing_attendance and existing_attendance.clock_out or "",
 			]
 			w.writerow(row)
@@ -100,10 +101,8 @@ def get_naming_series():
 def upload():
 	if not frappe.has_permission("Attendance", "create"):
 		raise frappe.PermissionError
-
 	from frappe.utils.csvutils import read_csv_content_from_uploaded_file
 	from frappe.modules import scrub
-
 	rows = read_csv_content_from_uploaded_file()
 	rows = filter(lambda x: x and any(x), rows)
 	if not rows:
@@ -112,8 +111,6 @@ def upload():
 	columns = [scrub(f) for f in rows[4]]
 	columns[0] = "name"
 	columns[3] = "att_date"
-	columns[4] = "Absent"
-	columns[9] = "shift"
 	columns[11] = "clockout_date"
 	ret = []
 	error = False
