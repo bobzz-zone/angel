@@ -1,7 +1,7 @@
 
 frappe.ui.form.on("Petty Cash", { refresh: function(frm){
 	var pay_for = frm.doc.pay_for;
-	var amount_tertagih =frm.doc.amount_tertagih;
+	var amount =frm.doc.amount;
 	var status = cint(frm.doc.docstatus);
 	if(status == 1){
 		frm.add_custom_button(__("Post To Journal"),function(frm){
@@ -13,12 +13,12 @@ frappe.ui.form.on("Petty Cash", { refresh: function(frm){
 				if(i ==0){
 				$.extend(child_doc_type,{
 				"account": "Petty Cash A/C - BC",
-				"debit_in_account_currency":amount_tertagih
+				"debit_in_account_currency":amount
 	});
 }			else {
 			$.extend(child_doc_type,{
 				"account": pay_for,
-				"credit_in_account_currency":amount_tertagih
+				"credit_in_account_currency":amount
 });
 			}
 		
