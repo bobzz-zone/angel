@@ -6,6 +6,7 @@ import frappe
 from frappe import _
 from frappe.utils import flt, fmt_money, getdate, formatdate
 from frappe.model.document import Document
+from erpnext.accounts.doctype.sales_invoice.sales_invoice import set_sales_person_commission, update_commission_on_cancel
 from erpnext.accounts.party import validate_party_gle_currency, get_party_account_currency
 from erpnext.accounts.utils import get_account_currency
 from erpnext.setup.doctype.company.company import get_company_currency
@@ -186,7 +187,11 @@ def update_outstanding_amt(account, party_type, party, against_voucher_type, aga
 	if against_voucher_type in ["Sales Invoice", "Purchase Invoice"]:
 		frappe.db.sql("update `tab%s` set outstanding_amount=%s where name=%s" %
 			(against_voucher_type, '%s', '%s'),	(bal, against_voucher))
-
+		if against_voucher_type in ["Sales Invoice"]:
+			if bal == 0:
+				set_sales_person_commission(against_voucher)
+			else:
+				update_commission_on_cancel(against_voucher)
 def validate_frozen_account(account, adv_adj=None):
 	frozen_account = frappe.db.get_value("Account", account, "freeze_account")
 	if frozen_account == 'Yes' and not adv_adj:
