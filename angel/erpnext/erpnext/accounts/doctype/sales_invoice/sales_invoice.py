@@ -3,6 +3,7 @@
 
 from __future__ import unicode_literals
 import frappe
+from angel import utils
 import frappe.defaults
 from frappe.utils import cint, flt
 from frappe import _, msgprint, throw
@@ -80,7 +81,6 @@ class SalesInvoice(SellingController):
 
 	def on_submit(self):
 		super(SalesInvoice, self).on_submit()
-
 		if cint(self.update_stock) == 1:
 			self.update_stock_ledger()
 		else:
@@ -621,6 +621,41 @@ class SalesInvoice(SellingController):
 				}, write_off_account_currency)
 			)
 
+def set_sales_person_commission(sales_invoice_no):
+	if not sales_invoice_no:
+		return
+	data = frappe.db.get_value("Sales Invoice", filters={"name":sales_invoice_no}, fieldname="*", as_dict = True)
+	if not data:
+		return
+	sales_invoice = data["name"]
+	outstanding_amount = data["outstanding_amount"]
+	commission_rule = data["commission_rule"]
+	grand_total = data["grand_total"]
+	sales_team = frappe.db.get_values("Sales Team", filters = {"parent":sales_invoice}, fieldname = "*", as_dict = True)
+	if not sales_team:
+		return
+	commission = 0
+	if commission_rule and grand_total and sales_invoice:
+		if outstanding_amount == 0:
+			for person in sales_team:
+				allocated_percentage = person["allocated_percentage"]
+				emp_id = person["emp_id"]
+				commission = utils.calculate_sales_commission(outstanding_amount, grand_total, allocated_percentage, commission_rule)
+				if not frappe.db.get_value("Sales Team", filters = {"parent":sales_invoice, "emp_id":emp_id}, fieldname = "name"):
+					continue
+				query = frappe.db.sql("""update `tabSales Team` set calculated_commission = %s where parent = '%s'
+							and emp_id = '%s' """%(commission, sales_invoice, emp_id))
+				frappe.db.commit()
+def update_commission_on_cancel(sales_invoice):
+	if not sales_invoice:
+		return
+	if not frappe.db.get_value("Sales Invoice", filters = {"name":sales_invoice}, fieldname = "name", as_dict = True):
+		return
+	if not frappe.db.get_value("Sales Team", filters ={"parent":sales_invoice}, fieldname = "name", as_dict = True):
+		return
+	frappe.db.sql(""" UPDATE `tabSales Team` set calculated_commission = %s where parent = '%s' """%(0, sales_invoice))
+	frappe.db.commit()
+
 def get_list_context(context=None):
 	from erpnext.controllers.website_list_for_contact import get_list_context
 	list_context = get_list_context(context)
@@ -639,6 +674,7 @@ def get_bank_cash_account(mode_of_payment, company):
 
 @frappe.whitelist()
 def make_delivery_note(source_name, target_doc=None):
+	print "Under sales Invoice make Delivery note"
 	def set_missing_values(source, target):
 		target.ignore_pricing_rule = 1
 		target.run_method("set_missing_values")
