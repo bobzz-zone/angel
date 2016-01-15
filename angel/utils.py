@@ -24,8 +24,7 @@ def calculate_sales_commission(outstanding_amount, grand_total, allocated_percen
 
 def add_commission(emp_id, from_date , end_date):
 	if not emp_id or not from_date or not end_date:
-		frappe.throw(_("Require Three Argument's"))
-		return	
+		return 0	
 	sales_invoice = frappe.db.sql("""SELECT  SI.commission_rule, SI.outstanding_amount, SI.grand_total, ST.allocated_percentage from `tabSales Invoice` SI inner join
 		 `tabSales Team` ST on SI.name	= ST.parent WHERE ST.emp_id = '%s' and SI.posting_date >= '%s' and SI.posting_date <= '%s' and SI.docstatus = 1 
 		and SI.outstanding_amount = 0 """%(emp_id, from_date, end_date), as_dict = True)
