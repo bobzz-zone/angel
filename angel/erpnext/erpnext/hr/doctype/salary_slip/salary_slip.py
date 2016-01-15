@@ -3,7 +3,7 @@
 
 from __future__ import unicode_literals
 import frappe
-
+from angel.utils import add_commission
 from frappe.utils import add_days, cint, cstr, flt, getdate, nowdate, rounded
 from frappe.model.naming import make_autoname
 
@@ -133,7 +133,6 @@ class SalarySlip(TransactionBase):
 	def validate(self):
 		from frappe.utils import money_in_words
 		self.check_existing()
-
 		if not (len(self.get("earnings")) or
 			len(self.get("deductions"))):
 				self.get_emp_and_leave_details()
@@ -145,7 +144,6 @@ class SalarySlip(TransactionBase):
 
 		company_currency = get_company_currency(self.company)
 		self.total_in_words = money_in_words(self.rounded_total, company_currency)
-
 		set_employee_name(self)
 
 	def calculate_earning_total(self):
@@ -175,10 +173,11 @@ class SalarySlip(TransactionBase):
 
 	def calculate_net_pay(self):
 		disable_rounded_total = cint(frappe.db.get_value("Global Defaults", None, "disable_rounded_total"))
-
 		self.calculate_earning_total()
 		self.calculate_ded_total()
-		self.net_pay = flt(self.gross_pay) - flt(self.total_deduction)
+		self.calculate_comm()
+		self.net_pay = (flt(self.gross_pay) - flt(self.total_deduction))
+		self.net_pay += self.calculated_commission
 		self.rounded_total = rounded(self.net_pay,
 			self.precision("net_pay") if disable_rounded_total else 0)
 
@@ -195,3 +194,14 @@ class SalarySlip(TransactionBase):
 				attachments=[frappe.attach_print(self.doctype, self.name, file_name=self.name)])
 		else:
 			msgprint(_("Company Email ID not found, hence mail not sent"))
+	
+	def calculate_comm(self):
+		emp_name = self.employee
+		day = cint(self.total_days_in_month)
+		month = cint(self.month)
+		year = cint(self.fiscal_year)
+		start_date = frappe.utils.datetime.date(year, month, 1)
+		end_date = frappe.utils.get_last_day(start_date)
+		commission = add_commission(emp_name, start_date, end_date)
+		self.set("calculated_commission", commission)
+		return
