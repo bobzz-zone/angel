@@ -183,7 +183,7 @@ class Attendance(Document):
                 		self.set("fine", Attendance.MAX_FINE)
                 		self.set("status", Attendance.PRESENT)
 				self.set("hours", total_worked_hour)
-				elif((clock_out_diff_in_float >= 1 and total_worked_hour >= half_day)):
+			elif((clock_out_diff_in_float >= 1 and total_worked_hour >= half_day)):
                 		self.set("fine", 00)
                 		self.set("status", Attendance.HALF_DAY)
 				self.set("hours", total_worked_hour)
