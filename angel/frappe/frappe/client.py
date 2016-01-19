@@ -137,17 +137,21 @@ def bulk_update(docs):
 	failed_docs = []
 	for doc in docs:
 		try:
-			ddoc = {key: val for key, val in doc.iteritems() if key not in ['doctype', 'docname']}
+			#ddoc = {key: val for key, val in doc.iteritems() if key not in ['doctype', 'docname']}
 			doctype = doc['doctype']
 			docname = doc['docname']
-			doc = frappe.get_doc(doctype, docname)
-			doc.update(ddoc)
-			doc.save()
+			ddoc = frappe.get_doc(doctype, docname)
+			#ddoc["modified"] = frappe.utils.datetime.datetime.now()
+			#doc.modified = frappe.utils.datetime.datetime.now()			
+			ddoc.update(doc)
+			ddoc.save()
 		except:
 			failed_docs.append({
 				'doc': doc,
 				'exc': frappe.utils.get_traceback()
 			})
+	print failed_docs
+	frappe.msgprint("Returned Data = {}".format(failed_docs))
 	return {'failed_docs': failed_docs}
 
 @frappe.whitelist()
