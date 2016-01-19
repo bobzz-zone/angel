@@ -3,7 +3,6 @@
 
 from __future__ import unicode_literals
 import frappe
-from angel import utils
 import frappe.defaults
 from frappe.utils import cint, flt
 from frappe import _, msgprint, throw
@@ -636,7 +635,8 @@ def set_sales_person_commission(sales_invoice_no):
 		return
 	commission = 0
 	if commission_rule and grand_total and sales_invoice:
-		if outstanding_amount == 0:
+		if outstanding_amount == 0 and "angel" in frappe.get_installed_apps():	
+			from angel import utils
 			for person in sales_team:
 				allocated_percentage = person["allocated_percentage"]
 				emp_id = person["emp_id"]
