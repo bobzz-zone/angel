@@ -3,7 +3,6 @@
 
 from __future__ import unicode_literals
 import frappe
-from angel.utils import add_commission
 from frappe.utils import add_days, cint, cstr, flt, getdate, nowdate, rounded
 from frappe.model.naming import make_autoname
 
@@ -202,6 +201,8 @@ class SalarySlip(TransactionBase):
 		year = cint(self.fiscal_year)
 		start_date = frappe.utils.datetime.date(year, month, 1)
 		end_date = frappe.utils.get_last_day(start_date)
-		commission = add_commission(emp_name, start_date, end_date)
-		self.set("calculated_commission", commission)
+		if "angel" in frappe.get_installed_apps():
+			from angel.utils import add_commission
+			commission = add_commission(emp_name, start_date, end_date)
+			self.set("calculated_commission", commission)
 		return
