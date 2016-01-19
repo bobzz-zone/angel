@@ -214,7 +214,8 @@ class BOM(Document):
 			if flt(m.qty) <= 0:
 				frappe.throw(_("Quantity required for Item {0} in row {1}").format(m.item_code, m.idx))
 			#allowing multiple item entries and later applying validation for item+workstation combination being unique, instead of just Item: 10 Dec'15 Angel
-			check_list.append(cstr(m.item_code+" "+m.item_workstation))
+			if m.item_code and m.item_workstation:
+				check_list.append(cstr(m.item_code+" "+m.item_workstation))
 		unique_chk_list = set(check_list)
 		if len(unique_chk_list)	!= len(check_list):
 			#frappe.throw(_("Same item has been entered multiple times."))
