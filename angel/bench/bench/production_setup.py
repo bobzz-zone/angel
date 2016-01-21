@@ -56,13 +56,13 @@ def setup_production(user, bench='.'):
 	remove_default_nginx_configs()
 
 	if is_centos7():
-		supervisor_conf_filename = 'frappe.ini'
+		supervisor_conf_filename = user + '.ini'
 		copy_default_nginx_config()
 	else:
-		supervisor_conf_filename = 'frappe.conf'
+		supervisor_conf_filename = user + '.conf'
 
 	os.symlink(os.path.abspath(os.path.join(bench, 'config', 'supervisor.conf')), os.path.join(get_supervisor_confdir(), supervisor_conf_filename))
-	os.symlink(os.path.abspath(os.path.join(bench, 'config', 'nginx.conf')), '/etc/nginx/conf.d/frappe.conf')
+	os.symlink(os.path.abspath(os.path.join(bench, 'config', 'nginx.conf')), '/etc/nginx/conf.d/' + user + '.conf')
 	exec_cmd('supervisorctl reload')
 	if os.environ.get('NO_SERVICE_RESTART'):
 		return
