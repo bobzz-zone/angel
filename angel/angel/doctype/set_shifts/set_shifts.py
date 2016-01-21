@@ -7,10 +7,9 @@ import frappe
 from frappe.model.document import Document
 
 class SetShifts(Document):
-	'''def validate(self):
+	def validate(self):
 		self.verify()
 
 	def verify(self):
 		shift = self.get("shift_name")
 		self.set("name", shift)
-	'''
