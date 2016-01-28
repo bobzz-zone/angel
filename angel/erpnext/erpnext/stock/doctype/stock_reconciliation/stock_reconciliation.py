@@ -1,4 +1,4 @@
-# Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
+# Copyrighp (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
@@ -239,18 +239,48 @@ class StockReconciliation(StockController):
 		self.items = []
 		for item in get_items(warehouse, self.posting_date, self.posting_time):
 			self.append("items", item)
+	'''
+	@frappe.whitelist()
+	def get_items(warehouse, posting_date, posting_time):
+		items = frappe.get_list("Item", fields=["name"], filters=
+			{"is_stock_item": 1, "has_serial_no": 0, "has_batch_no": 0, "has_variants": 0})
+		for item in items:
+			item.item_code = item.name
+			item.warehouse = warehouse
+			item.qty, item.valuation_rate = get_stock_balance(item.name, warehouse,
+				posting_date, posting_time, with_valuation_rate=True)
+			item.current_qty = item.qty
+			item.current_valuation_rate = item.valuation_rate
+			del item["name"]
+
+		return items
+	'''
+	def before_save(self):
+		self.validate_qty()
+
+	def validate_qty(self):
+		qty = 0
+		items = self.get("items")
+		length = len(items)
+		for i in range(0,length):
+			item = items[i];
+			qty = cint(item.qty)
+			val = cint(frappe.db.get_value("Stock Ledger Entry", {"item_code":item.item_code},"actual_qty"))
+			if(qty > val):
+				frappe.throw("Quantity can't be greater than Actual Quantity")
+				return
+
 
 @frappe.whitelist()
 def get_items(warehouse, posting_date, posting_time):
 	items = frappe.get_list("Item", fields=["name"], filters=
-		{"is_stock_item": 1, "has_serial_no": 0, "has_batch_no": 0, "has_variants": 0})
-	for item in items:
-		item.item_code = item.name
-		item.warehouse = warehouse
-		item.qty, item.valuation_rate = get_stock_balance(item.name, warehouse,
-			posting_date, posting_time, with_valuation_rate=True)
-		item.current_qty = item.qty
-		item.current_valuation_rate = item.valuation_rate
-		del item["name"]
-
+                         {"is_stock_item": 1, "has_serial_no": 0, "has_batch_no": 0, "has_variants": 0})
+        for item in items:
+       		item.item_code = item.name
+                item.warehouse = warehouse
+                item.qty, item.valuation_rate = get_stock_balance(item.name, warehouse,
+                                 posting_date, posting_time, with_valuation_rate=True)
+                item.current_qty = item.qty
+                item.current_valuation_rate = item.valuation_rate
+                del item["name"]
 	return items
