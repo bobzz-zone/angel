@@ -236,12 +236,6 @@ def get_data():
 					"is_query_report": True
 				},
 				{
-					"type": "report",
-					"name": "TT Sales Commission",
-					"doctype": "TT Document",
-					"is_query_report":True
-				},
-				{
 					"type": "page",
 					"name": "financial-analytics",
 					"label": _("Financial Analytics"),
