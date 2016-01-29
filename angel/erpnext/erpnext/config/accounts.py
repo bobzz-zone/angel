@@ -40,7 +40,7 @@ def get_data():
 					"route": "Accounts Browser/Account",
 					"description": _("Tree of finanial accounts."),
 					"doctype": "Account",
-				},
+				}
 			]
 		},
 		{
@@ -234,6 +234,12 @@ def get_data():
 					"name": "Profit and Loss Statement",
 					"doctype": "GL Entry",
 					"is_query_report": True
+				},
+				{
+					"type": "report",
+					"name": "TT Sales Commission",
+					"doctype": "TT Document",
+					"is_query_report":True
 				},
 				{
 					"type": "page",
