@@ -167,6 +167,11 @@ def get_data():
 					"name": "SMS Settings",
 					"description": _("Setup SMS gateway settings")
 				},
+				{
+					"type": "doctype",
+					"name": "Commissions Rule",
+					"description": _("Set Commission Rule")
+				}
 			]
 		},
 		{
