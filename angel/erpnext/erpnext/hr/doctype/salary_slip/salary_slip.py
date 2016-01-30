@@ -3,6 +3,7 @@
 
 from __future__ import unicode_literals
 import frappe
+from angel.utils import add_commission
 from frappe.utils import add_days, cint, cstr, flt, getdate, nowdate, rounded
 from frappe.model.naming import make_autoname
 
@@ -159,6 +160,8 @@ class SalarySlip(TransactionBase):
 
 	def calculate_ded_total(self):
 		self.total_deduction = 0
+		fine = self.calculate_attendance_fine()
+		self.total_deduction = fine
 		for d in self.get('deductions'):
 			if cint(d.d_depends_on_lwp) == 1:
 				d.d_modified_amount = rounded((flt(d.d_amount) * flt(self.payment_days)
@@ -201,8 +204,23 @@ class SalarySlip(TransactionBase):
 		year = cint(self.fiscal_year)
 		start_date = frappe.utils.datetime.date(year, month, 1)
 		end_date = frappe.utils.get_last_day(start_date)
-		if "angel" in frappe.get_installed_apps():
-			from angel.utils import add_commission
-			commission = add_commission(emp_name, start_date, end_date)
-			self.set("calculated_commission", commission)
+		commission = add_commission(emp_name, start_date, end_date)
+		self.set("calculated_commission", commission)
 		return
+
+	def calculate_attendance_fine(self):
+		emp_name = self.employee
+                day = cint(self.total_days_in_month)
+                month = cint(self.month)
+                year = cint(self.fiscal_year)
+                start_date = frappe.utils.datetime.date(year, month, 1)
+                end_date = frappe.utils.get_last_day(start_date)
+		fine_data = frappe.db.sql("""SELECT SUM(fine) AS fine from `tabAttendance` WHERE employee =  %s AND att_date >= %s AND att_date  <= %s """,
+				     (emp_name, start_date, end_date), as_dict = True)
+		total_fine = 0
+		if fine_data:
+			data = fine_data[0]
+			if data.has_key("fine"):
+				total_fine = data["fine"]
+		self.set("attendance_fine", total_fine)
+		return total_fine
