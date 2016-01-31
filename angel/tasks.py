@@ -13,7 +13,54 @@ from frappe.celery_app import get_queue
 RSYNC_TASK_PREFIX = "rsync@" 
 default_columns = ['name', 'creation', 'modified', 'modified_by', 'owner',
         'docstatus', 'parent', 'parentfield', 'parenttype', 'idx']
+'''
+MASTER_TABLE = ["Account", "Activity Cost", "Activity type", "Address", "Appraisal Template","Attendance", "Authorization Rule", "Batch", "Blog Category",
+		"Blog Post", "Blogger", "BOM", "Branch", "Brand", "Campaign", "C-Form", "Comment", "Commissions Role", "Communication", "Company", "Contact",
+		"Cost Center", "Country", "Currency Exchange", "Custom Field", "Custom Script", "Customer", "Customer Group", "Deduction Type", "Delivery Note",
+		"Department", "Designation", "DocShare", "Earning Type", "Employee", "Employment Type", "Expense Claim Type", "File", "Fiscal Year", "Holiday List",
+		"Industry Type", "Item", "Item Attribute", "Item Attribute Value", "Item Group", "Item Price", "Item Variant", "Item Variant Attribute", "Journal Entry",
+		"Lead", "Leave Allocation", "Leave Block List", "Leave Type", "Material Request", "Mode of Payment", "Newsletter List", "Newsletter List Subscriber",
+		"Offer Letter", "Offer Term", "Operation", "Opportunity", "Petty Cash", "Price List", "Pricing Rule", "Print Heading", "Product Bundle", "Production Order",
+		"Project", "Purchase Invoice", "Purchase Order", "Purchase Taxes and Charges Template", "Quotation", "Quotation Lost Reason", "Salary Structure","Sales Invoice",
+		"Sales Order", "Sales Partner", "Sales Person", "Sales Taxes and Charges Template", "Serial No", "Standard Reply", "Stock Entry", "Supplier", "Supplier Quotation",
+		"Supplier Type", "Task", "Tax Rule", "Terms and Conditions", "Territory", "Time Log", "UOM", "User", "Warehouse", "Warranty Claim", "Website Theme", 
+		"Workflow Document State", "Workflow State", "Workstation", "DocShare", "DocField", "DocType", "DocPerm", "Role"]
+'''
 
+MASTER_TABLE = ["Account", "Activity Type", "Address", "Appraisal Template", "Branch", "Brand", "Comment", "Communication", "Company", "Contact", "Country", "Customer", "Customer Group",
+		"Deduction Type", "Designation", "Earning Type", "Employee", "Employment Type", "Expense Claim Type", "Fiscal Year", "Industry Type", "Item", "Item Attribute", "Item Group",
+		"Item Price", "Leave Type", "Mode of Payment", "Offer Term", "Operation list", "Price List", "Sales Person", "Supplier", "Supplier Type", "Territory", "UOM", "User",
+		"Warehouse", "Website Theme", "Workflow Document State", "Workflow State", "Workstation"]
+
+EXTRA_TABLE = ["Time Log", "Comment", "GL Entry", "DocShare", "User", "Bin", "Role", "File", "Custom Script", "Custom Field", "DocPerm", "Property Setter", "Customize Form", "DocField", "DocType" ]
+
+ITEM_TABLE = ["About Us Team Member", "Appraisal Goal", "Appraisal Template Goal", "Bank Reconciliation Detail", "Block Module", "BOM Explosion Item", "BOM Item", "BOM Operation",
+		"Budget Detail", "C-Form Invoice Detail", "Company History", "Customize Form Field", "Deal Counter Item", "DefaultValue", "Delivery Note Item", "Dependent Task",
+		 "DocField", "DocPerm", "Email Alert Recipient", "Employee Education", "Employee External Work History", "Employee Internal Work History", "Employee Leave Approver",
+		 "Event Role", "Expense Claim Detail", "Fiscal Year Company", "Holiday", "Installation Note Item", "Item Attribute Value", "Item Customer Detail",
+		 "Item Quality Inspection Parameter", "Item Reorder", "Item Supplier", "Item Tax", "Item Variant", "Item Variant Attribute", "Item Website Specification", 
+		 "Journal Entry Account", " Landed Cost Item", "Landed Cost Purchase Receipt", "Landed Cost Taxes and Charges", "Leave Block List Allow", "Leave Block List Date", 
+		 "Maintenance Schedule Detail", "Maintenance Schedule Item", "Maintenance Visit Purpose", "Material Request Item", "Mode of Payment Account", 
+		 "Monthly Distribution Percentage", "Offer Letter Term", "Opportunity Item", "Packed Item", "Packing Slip Item", "Page Role", "Party Account",
+		 "Payment Reconciliation Invoice", "Payment Reconciliation Payment", "Payment Tool Detail", "Price List Country", "Product Bundle Item", "Production Order Operation",
+		 "Production Plan Item", "Production Plan Sales Order", "Project Task", "Purchase Invoice Advance", "Purchase Invoice Item", "Purchase Order Item", 
+		 "Purchase Order Item Supplied", "Purchase Receipt Item", "Purchase Receipt Item Supplied", "Purchase Taxes and Charges", "Quality Inspection Reading", "Quotation Item",
+		 "Salary Slip Deduction", "Salary Slip Earning", "Salary Structure Deduction", "Salary Structure Earning", "Sales Invoice Advance", "Sales Invoice Item",
+		 "Sales Order Item", "Sales Taxes and Charges", "Sales Team", "Shipping Rule Condition", "Shipping Rule Country", "SMS Parameter", "Stock Entry Detail", 
+		 "Stock Product Detail", "Stock Reconciliation Item", "Supplier Quotation Item", "Target Detail", "Task Depends On", "Time Log Batch Detail", "Top Bar Item",
+		 "TT Document Detail", "UOM Conversion Detail", "UserRole", "Web Form Field", "Website Item Group", "Website Slideshow Item", "Workflow Document State",
+		 "Workflow Transition", "Workstation Working Hour"]
+
+NOT_SYNCABLE = MASTER_TABLE + ITEM_TABLE
+# chetan for reference
+'''
+abc = doc.as_json(doc)frappe.as_json(doc)
+        if isinstance(doc, basestring):
+                doc = json.loads(doc)
+
+        doc = frappe.get_doc(doc)
+
+'''
 # New Document type
 #Remote Document Sync
 class RsyncTaskRouter(object):
@@ -53,9 +100,9 @@ def insert_sync_document(doc_dict):
 	doc_dict = json.loads(doc_dict)	
 	name = doc_dict['name']
 	doctype = doc_dict['doctype']
-	# Removed GL Entry and Bin
-        if doctype in ["GL Entry", "Bin"]:
-		return 	
+	# Removed Non Syncable docs
+	if doc["doctype"] in NOT_SYNCABLE:
+		return
 
 	docstatus = doc_dict['docstatus']
 
@@ -101,68 +148,183 @@ def update_rm_sync_doc(name, target_name = None, document_status = None, remote_
 	return doc
 
 def sync_document(docs, method):
-	print "1"
 	client = ''
         # Get User and Password from Database
         user = (frappe.session and frappe.session.user) or doc_dict['modified_by'] or "Administrator" 
         pwd = frappe.db.sql("""select password from __Auth where user=%s;""",(user))
         if not pwd:
                 return False
-	print "2"
+
         pwd = pwd[0][0]
         try:
         	client = FrappeClient(frappe.conf.sync_server_ip, user, pwd)
         except:
                 frappe.msgprint(("Auth Error"))
                 return
-	print "3"
+
         if not client:
                 return 
 	res = ''
         if method == "bulk_update":
-		print "4"
+		docs = update_dl(docs)
  		return client.bulk_update(docs)
 	else:
-		print "5"
 		return client.save(docs)
-	
+
+"""
+ Get Child Table that are Matched with below Constant List
+"""
+PREVDOC_DOCTYPE = ['Maintenance Schedule', 'Purchase Order', 'Purchase Receipt', 'Quotation', 'Supplier Quotation', 'Installation Note']
+def get_child_table(doctype):
+	DOCTYPE = PREVDOC_DOCTYPE
+	DATA = []
+	TABLE = {}
+	if doctype:
+		new_doc = frappe.new_doc(doctype)
+		if new_doc.meta.get_table_fields():
+			for table in new_doc.meta.get_table_fields():
+				table_doctype = table.options
+				if table_doctype.find(" Item") > 0:
+					parent_doc = table_doctype.replace(" Item", "")
+					if parent_doc in DOCTYPE:
+						TABLE["fieldname"] = table.fieldname
+						TABLE["options"] = table.options
+						DATA.append(TABLE)
+	return DATA
+
+'''Get Target Document Name , Only for
+Those docs Which are already Synced with Sync Server '''
+def get_target_document(docname):
+	TARGET = {}
+	if docname:
+		values = frappe.db.get_value("Remote Document Sync",
+                                                filters= {"source_document_name" : docname,
+                                                          "remote_sync_status" : 1},
+                                                filedname = "*", as_dict = True)
+		if values:
+			TARGET = values
+	return TARGET
+
+'''Update Prevdoc_docname only for those which are Matched with below constant  List '''
+def update_parent(docs):
+	ret_list = []
+	ROWS = []
+        for doc in docs:
+		if doc['doctype'] not in PREVDOC_DOCTYPE:
+			ret_list.append(doc)
+		else:
+			doctype = doc["doctype"]
+			if doctype:
+				data = get_child_table(doctype)
+				if data:
+					table = data[0]
+					fieldname = table["fieldname"]
+					table_data = doc[fieldname]
+					if table_data:
+						for row in table_data:
+							if row["prevdoc_docname"]:
+								target = get_target_document(row["prevdoc_docname"])
+								if target:
+									row["prevdoc_docname"] = target["target_document_name"]
+							ROWS.append(row)
+						doc[fieldname] = ROWS
+			ret_list.append(doc)
+	return ret_list
+
+"""
+ Update Dynamic Link
+"""
+def update_dl(docs):
+	error_msg = []
+	modified_docs = []
+	if not docs:
+		docs
+	for doc in docs:
+		doctype = doc["doctype"]
+		new_doc = frappe.get_doc({"doctype":doctype})
+		ref = get_ref_field(new_doc)
+		fieldname = ""
+		table_name = ""
+		tables = []
+		if ref:
+			data = ref[0]
+			fieldname = data["fieldname"]
+			table_name = data["tabfieldname"]
+			modified_table = []
+			if doc.has_key(table_name):
+				tables = doc[table_name]
+				for table in tables:
+					tab_fieldname = table[fieldname]
+					if tab_fieldname:
+						target_doc = frappe.db.get_value("Remote Document Sync",
+                                                                             filters = {"source_document_name" : tab_fieldname,
+						                                        "remote_sync_status" : 1},
+                                                                             fieldname="*", as_dict = True)
+						if target_doc:
+							table[fieldname] = target_doc["target_document_name"]
+					modified_table.append(table)
+				doc[table_name] = modified_table
+		modified_docs.append(doc)
+	return modified_docs
+
+''' Get Reference Field  of Child Doc'''
+def get_ref_field(ddoc):
+	flag = False
+	data = []
+	doctype = {}
+	if not ddoc:
+		return data
+	table_fields = ddoc.meta.get_table_fields()
+	if not table_fields:
+		return data
+	for table in table_fields:
+		doctype_name = table.options
+		childdoc = frappe.get_doc({"doctype":doctype_name})
+		if not childdoc:
+			return data
+		dls = childdoc.meta.get_dynamic_link_fields()
+		if not dls:
+			return data
+		for dl in dls:
+			if dl.fieldname == "reference_name":
+				doctype["doctype"] = table.options
+				doctype["fieldname"] = dl.fieldname
+				doctype["tabfieldname"] = table.fieldname
+				data.append(doctype)
+	return data
+
 def save_doc(doc):
-	#saved_docs_index.append(index)
-	name = doc['name']
-	doc['name'] = None
-	#saved_docs.append(doc)	
-	status = sync_document(doc, "save")
-	if status and status.has_key("name"):
-		update_rm_sync_doc(name,
-			target_name = status["name"], remote_sync_status = 1)
-	else:
-		frappe.msgprint("not synced document {0}".format(name))
+	docs = []
+	docs.append(doc)
+	ddocs = update_dl(docs)
+	for doc in ddocs:
+		name = doc['name']
+		doc['name'] = None
+		status = sync_document(doc, "save")
+		if status and status.has_key("name"):
+			update_rm_sync_doc(name,
+				target_name = status["name"], remote_sync_status = 1)
+		else:
+			frappe.msgprint("not synced document {0}".format(name))
 
 def process_sync_documents(docs):
-	print docs
-	print "process_Sync_documents"
 	docs = json.loads(docs)
         update_docs = []
         saved_docs = []
 	saved_docs_index = []
-         
-	data = [{"name":"Payment Tool","target_document_name":"","doctype_name":"DocType"},{"name":"JV-00007","target_document_name":"","doctype_name":"Journal Entry"},{"name":"JV-00003","target_document_name":"","doctype_name":"Journal Entry"},{"name":"TT Document Detail","target_document_name":"TT Document Detail","doctype_name":"DocType"}]
+	# Data for reference testing
+	#data = [{"name":"Payment Tool","target_document_name":"","doctype_name":"DocType"},{"name":"JV-00007","target_document_name":"","doctype_name":"Journal Entry"},{"name":"JV-00003","target_document_name":"","doctype_name":"Journal Entry"},{"name":"TT Document Detail","target_document_name":"TT Document Detail","doctype_name":"DocType"}]
         for index in range(0,len(docs)):
-		print "inside for"
-                # name is not present
 		each = docs[index]
 		name = each["name"]
 		doctype_name = each["doctype_name"]
 		if name == "" or doctype_name == "":
 			continue	
-
 		doc = frappe.get_doc(each['doctype_name'], each['name']) 
  		doc = doc.as_dict()
-		print each
 		if each["target_document_name"]:
                         doc['name'] = each["target_document_name"]
 			doc['docname'] = each["target_document_name"]
-			#hack
 			doc['modified'] = doc['creation']
 			update_docs.append(doc)
                 else:
@@ -170,14 +332,9 @@ def process_sync_documents(docs):
 				saved_docs.append(doc)
 			else:
 				save_doc(doc)
-
 	for each in saved_docs:
-		save_doc(each)
-		
-	
+		save_doc(each)	
         status = sync_document(update_docs, "bulk_update") if update_docs else None
-	print "Status :- " 
-	print status
 	for each in update_docs:
 		remote_doc = frappe.get_value("Remote Document Sync", 
                                          { "target_document_name": each['name'],
@@ -220,7 +377,8 @@ def sync_erp2_queue(doc_list):
                 return
 	process_sync_documents(doc_list)
 	
-	
+
+'''	
 @celery_task()
 #@frappe.async.handler
 def sync_doc(site, doc, event, method, retry=0):
@@ -402,10 +560,7 @@ def sync_doc_remote(doc, method):
         sync_doc(site=frappe.local.site, doc=doc, event="doc_rsync", method = method)
         #print result
 
-
-# https://github.com/frappe/frappe-client
-# frappe/frappe/tests/test_async.py  for testing Async task
-# frappe/frappe/tests/test_hooks.py  for testing hooks
+'''
 #https://zapier.com/blog/async-celery-example-why-and-how/
 #https://celery.readthedocs.org/en/latest/userguide/tasks.html
 #https://celery.readthedocs.org/en/latest/userguide/calling.html
@@ -426,77 +581,5 @@ def sync_doc_remote(doc, method):
 self.session.get(self.url + "/api/resource/" + doctype, params=params, verify=self.verify)
 '''
 #prepare API call for second server with session
- # calling this funciton
+# calling this funciton
 # erpnext.tasks.send_newsletter.delay(frappe.local.site, self.name, event="bulk_long")
-
-'''
-# Testing case
-doc = frappe.new_doc("Territory")
-doc.territory_name = "All Territories"
-doc.is_group = "Yes"
-doc.save()
-'''
-def preprocess(self, params):
-        """convert dicts, lists to json"""
-        for key, value in params.iteritems():
-                if isinstance(value, (dict, list)):
-                        params[key] = json.dumps(value)
-
-        return params
-
-def post_process(self, response):
-        try:
-                rjson = response.json()
-        except ValueError:
-                print response.text
-                raise
-
-        if rjson and ("exc" in rjson) and rjson["exc"]:
-                raise FrappeException(rjson["exc"])
-        if 'message' in rjson:
-                return rjson['message']
-        elif 'data' in rjson:
-                return rjson['data']
-        else:
-                return None
-
-        ret = {}
-        frappe.init(site)
-        frappe.connect()
-
-        frappe.local.task_id = self.request.id
-
-        if hijack_std:
-                original_stdout, original_stderr = sys.stdout, sys.stderr
-                sys.stdout, sys.stderr = get_std_streams(self.request.id)
-                frappe.local.stdout, frappe.local.stderr = sys.stdout, sys.stderr
-
-        try:
-                set_task_status(self.request.id, "Running")
-                frappe.db.commit()
-                frappe.set_user(user)
-                # sleep(60)
-                frappe.local.form_dict = frappe._dict(form_dict)
-                execute_cmd(cmd, from_async=True)
-                ret = frappe.local.response
-
-        except Exception, e:
-                frappe.db.rollback()
-                ret = frappe.local.response
-                http_status_code = getattr(e, "http_status_code", 500)
-                ret['status_code'] = http_status_code
-                frappe.errprint(frappe.get_traceback())
-                frappe.utils.response.make_logs()
-                set_task_status(self.request.id, "Error", response=ret)
-                task_logger.error('Exception in running {}: {}'.format(cmd, ret['exc']))
-        else:
-                set_task_status(self.request.id, "Success", response=ret)
-                if not frappe.flags.in_test:
-                        frappe.db.commit()
-        finally:
-                if not frappe.flags.in_test:
-                        frappe.destroy()
-                if hijack_std:
-                        sys.stdout.write('\n' + END_LINE)
-                        sys.stderr.write('\n' + END_LINE)
-                        sys.stdout.close()
