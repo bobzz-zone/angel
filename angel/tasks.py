@@ -103,7 +103,7 @@ def insert_sync_document(doc_dict):
 	name = doc_dict['name']
 	doctype = doc_dict['doctype']
 	# Removed Non Syncable docs
-	if doc["doctype"] in NOT_SYNCABLE:
+	if doctype in NOT_SYNCABLE:
 		return
 
 	docstatus = doc_dict['docstatus']
