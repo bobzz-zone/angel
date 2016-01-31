@@ -8,6 +8,8 @@ from frappe.model.document import Document
 from angel.tasks import sync_erp2_queue
 
 class RemoteDocumentSync(Document):
+	def autoname(self):
+		self.name = self.doctype_name + "-" + self.source_document_name
 	pass
 
 @frappe.whitelist()

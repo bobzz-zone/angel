@@ -29,7 +29,7 @@ class RsyncTaskRouter(object):
 #Remote Document Sync
 def add_rm_sync_doc(name, doctype, source_name, docstatus, target_name=''):
 	rm_doc_sync =  frappe.new_doc("Remote Document Sync")
-	rm_doc_sync.name = name 
+	rm_doc_sync.name = name
 	rm_doc_sync.doctype_name = doctype
 	rm_doc_sync.source_document_name = source_name
 	rm_doc_sync.document_status = docstatus
