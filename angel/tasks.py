@@ -27,19 +27,21 @@ MASTER_TABLE = ["Account", "Activity Cost", "Activity type", "Address", "Apprais
 		"Workflow Document State", "Workflow State", "Workstation", "DocShare", "DocField", "DocType", "DocPerm", "Role"]
 '''
 
-MASTER_TABLE = ["Account", "Activity Type", "Address", "Appraisal Template", "Branch", "Brand", "Comment", "Communication", "Company", "Contact", "Country", "Customer", "Customer Group",
-		"Deduction Type", "Designation", "Earning Type", "Employee", "Employment Type", "Expense Claim Type", "Fiscal Year", "Industry Type", "Item", "Item Attribute", "Item Group",
-		"Item Price", "Leave Type", "Mode of Payment", "Offer Term", "Operation list", "Price List", "Sales Person", "Supplier", "Supplier Type", "Territory", "UOM", "User",
-		"Warehouse", "Website Theme", "Workflow Document State", "Workflow State", "Workstation"]
+MASTER_TABLE = ["Account", "Activity Type", "Address", "Appraisal Template", "Branch", "Brand", "Comment", "Communication", "Company",
+                "Contact", "Country", "Customer", "Customer Group", "Deduction Type", "Designation", "Earning Type", "Employee",
+                "Employment Type", "Expense Claim Type", "Fiscal Year", "Industry Type", "Item", "Item Attribute", "Item Group",
+		"Item Price", "Leave Type", "Mode of Payment", "Offer Term", "Operation list", "Price List", "Sales Person", "Supplier",
+                "Supplier Type", "Territory", "UOM", "User", "Warehouse", "Website Theme", "Workflow Document State",
+                "Workflow State", "Workstation"]
 
-EXTRA_TABLE = ["Time Log", "Comment", "GL Entry", "DocShare", "User", "Bin", "Role", "File", "Custom Script", "Custom Field", "DocPerm", "Property Setter", "Customize Form", "DocField", "DocType" ]
+EXTRA_TABLE = ["Time Log", "Task", "Comment", "GL Entry", "DocShare", "User", "Bin", "Role", "File", "Custom Script", "Custom Field", "DocPerm", "Property Setter", "Customize Form", "DocField", "DocType" ]
 
 ITEM_TABLE = ["About Us Team Member", "Appraisal Goal", "Appraisal Template Goal", "Bank Reconciliation Detail", "Block Module", "BOM Explosion Item", "BOM Item", "BOM Operation",
 		"Budget Detail", "C-Form Invoice Detail", "Company History", "Customize Form Field", "Deal Counter Item", "DefaultValue", "Delivery Note Item", "Dependent Task",
 		 "DocField", "DocPerm", "Email Alert Recipient", "Employee Education", "Employee External Work History", "Employee Internal Work History", "Employee Leave Approver",
 		 "Event Role", "Expense Claim Detail", "Fiscal Year Company", "Holiday", "Installation Note Item", "Item Attribute Value", "Item Customer Detail",
 		 "Item Quality Inspection Parameter", "Item Reorder", "Item Supplier", "Item Tax", "Item Variant", "Item Variant Attribute", "Item Website Specification", 
-		 "Journal Entry Account", " Landed Cost Item", "Landed Cost Purchase Receipt", "Landed Cost Taxes and Charges", "Leave Block List Allow", "Leave Block List Date", 
+		 "Journal Entry Account", "Landed Cost Item", "Landed Cost Purchase Receipt", "Landed Cost Taxes and Charges", "Leave Block List Allow", "Leave Block List Date", 
 		 "Maintenance Schedule Detail", "Maintenance Schedule Item", "Maintenance Visit Purpose", "Material Request Item", "Mode of Payment Account", 
 		 "Monthly Distribution Percentage", "Offer Letter Term", "Opportunity Item", "Packed Item", "Packing Slip Item", "Page Role", "Party Account",
 		 "Payment Reconciliation Invoice", "Payment Reconciliation Payment", "Payment Tool Detail", "Price List Country", "Product Bundle Item", "Production Order Operation",
@@ -51,7 +53,7 @@ ITEM_TABLE = ["About Us Team Member", "Appraisal Goal", "Appraisal Template Goal
 		 "TT Document Detail", "UOM Conversion Detail", "UserRole", "Web Form Field", "Website Item Group", "Website Slideshow Item", "Workflow Document State",
 		 "Workflow Transition", "Workstation Working Hour"]
 
-NOT_SYNCABLE = MASTER_TABLE + ITEM_TABLE
+NOT_SYNCABLE = MASTER_TABLE + ITEM_TABLE + EXTRA_TABLE
 # chetan for reference
 '''
 abc = doc.as_json(doc)frappe.as_json(doc)
