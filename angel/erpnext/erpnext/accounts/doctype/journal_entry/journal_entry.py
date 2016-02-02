@@ -21,6 +21,7 @@ class JournalEntry(AccountsController):
 		if not self.is_opening:
 			self.is_opening='No'
 		self.clearance_date = None
+
 		super(JournalEntry, self).validate_date_with_fiscal_year()
 		self.validate_party()
 		self.validate_cheque_info()
@@ -812,10 +813,8 @@ def get_account_balance_and_party_type(account, date, company, debit=None, credi
 	"""Returns dict of account balance and party type to be set in Journal Entry on selection of account."""
 	if not frappe.has_permission("Account"):
 		frappe.msgprint(_("No Permission"), raise_exception=1)
-
 	company_currency = get_company_currency(company)
 	account_details = frappe.db.get_value("Account", account, ["account_type", "account_currency"], as_dict=1)
-
 	if account_details.account_type == "Receivable":
 		party_type = "Customer"
 	elif account_details.account_type == "Payable":
