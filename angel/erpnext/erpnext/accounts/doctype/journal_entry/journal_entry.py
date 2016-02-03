@@ -811,16 +811,18 @@ def get_party_account_and_balance(company, party_type, party):
 @frappe.whitelist()
 def get_account_balance_and_party_type(account, date, company, debit=None, credit=None, exchange_rate=None):
 	"""Returns dict of account balance and party type to be set in Journal Entry on selection of account."""
+	party_type = ""
 	if not frappe.has_permission("Account"):
 		frappe.msgprint(_("No Permission"), raise_exception=1)
 	company_currency = get_company_currency(company)
 	account_details = frappe.db.get_value("Account", account, ["account_type", "account_currency"], as_dict=1)
-	if account_details.account_type == "Receivable":
-		party_type = "Customer"
-	elif account_details.account_type == "Payable":
-		party_type = "Supplier"
-	else:
-		party_type = ""
+	if account_details:
+		if account_details.account_type == "Receivable":
+			party_type = "Customer"
+		elif account_details.account_type == "Payable":
+			party_type = "Supplier"
+		else:
+			party_type = ""
 
 	grid_values = {
 		"balance": get_balance_on(account, date),
