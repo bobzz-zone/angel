@@ -47,14 +47,23 @@ cur_frm.fields_dict['item_code'].get_query = function(doc, cdt, cdn) {
 // Serial No based on item_code
 cur_frm.fields_dict['item_serial_no'].get_query = function(doc, cdt, cdn) {
 	var filter = {};
+	if (doc.item_code){
+	filter = {'item_code' :doc.item_code
+		}
+	}
+	else{
+		frappe.msgprint(frappe._("Please Select ITem Code First"));
+	}
+	
+	/*
 	if (doc.item_code) {
 		filter = {
 			'item_code': doc.item_code,
-			'status': "Available"
+		//	'status': "Available"
 		}
 	} else
 		filter = { 'status': "Available" }
-
+	*/
 	return { filters: filter }
 }
 
