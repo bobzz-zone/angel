@@ -159,8 +159,8 @@ class SalarySlip(TransactionBase):
 			self.gross_pay += flt(d.e_modified_amount)
 
 	def calculate_ded_total(self):
-		self.total_deduction = 0
 		fine = self.calculate_attendance_fine()
+		self.set("attendance_fine", fine)
 		self.total_deduction = fine
 		for d in self.get('deductions'):
 			if cint(d.d_depends_on_lwp) == 1:
@@ -222,5 +222,4 @@ class SalarySlip(TransactionBase):
 			data = fine_data[0]
 			if data.has_key("fine"):
 				total_fine = data["fine"]
-		self.set("attendance_fine", total_fine)
-		return total_fine
+		return flt(total_fine)

@@ -82,9 +82,10 @@ var calculate_earning_total = function(doc, dt, dn, reset_amount) {
 			tbl[i].e_modified_amount = tbl[i].e_amount;
 			refresh_field('e_modified_amount', tbl[i].name, 'earnings');
 		}
-		total_earn += flt(tbl[i].e_modified_amount);
+		total_earn += flt(tbl[i].e_modified_amount)
 	}
-	doc.gross_pay = total_earn + flt(doc.arrear_amount) + flt(doc.leave_encashment_amount);
+	commission = doc.calculated_commission;
+	doc.gross_pay = total_earn + flt(doc.arrear_amount) + flt(doc.leave_encashment_amount) + flt(commission);
 	refresh_many(['e_modified_amount', 'gross_pay']);
 }
 
@@ -104,7 +105,10 @@ var calculate_ded_total = function(doc, dt, dn, reset_amount) {
 		}
 		total_ded += flt(tbl[i].d_modified_amount);
 	}
-	doc.total_deduction = total_ded;
+	if (doc.attendance_fine != undefined){
+		total_ded += flt(doc.attendance_fine)
+	}
+	doc.total_deduction = total_ded
 	refresh_field('total_deduction');	
 }
 

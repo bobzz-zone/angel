@@ -368,6 +368,7 @@ frappe.ui.form.on("Journal Entry Account", {
 					if(r.message) {
 						$.extend(d, r.message);
 						refresh_field('accounts');
+						console.log("Navdeep", r);
 					}
 				}
 			});
