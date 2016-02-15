@@ -77,14 +77,12 @@ calculate(frm);
 frappe.ui.form.on("Deal Counter",{refresh:function(frm){
 
  if(cint(frm.doc.docstatus) == 1){
-   if(cint(frm.doc.balance_amt) > 0){     
-   frm.page.add_inner_button("Create New Sales Order",function(){
-
-        var doc = frappe.model.get_new_doc("Sales Order");
-         $.extend(doc,{
-
-         "customer":frm.doc.customer_name,
-         "deal_number":frm.docname
+      if ((cint(frm.doc.balance_amt) > 0) && (date.nowdate() <= frm.doc.validity_dateline)) {     
+              frm.page.add_inner_button("Create New Sales Order",function(){
+                   var doc = frappe.model.get_new_doc("Sales Order");
+                    $.extend(doc,{
+                              "customer":frm.doc.customer_name,
+                              "deal_number":frm.docname
         });
            frappe.set_route("Form","Sales Order",doc.name);
 }).addClass("btn-primary");
