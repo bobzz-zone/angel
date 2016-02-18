@@ -78,7 +78,9 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 	},
 
 	order_type: function() {
-		this.frm.toggle_reqd("delivery_date", this.frm.doc.order_type == "Sales");
+		// this.frm.toggle_reqd("delivery_date", frm.doc.status == "Sales");
+		// Above code comment by Navdeep on 18_02_16 and added new modified code
+		this.frm.toggle_reqd("delivery_date", 0);
 	},
 
 	tc_name: function() {
