@@ -1,0 +1,91 @@
+// cur_frm.add_fetch(link_field, source_fieldname, target_fieldname);
+cur_frm.add_fetch("deal_num", "new_deal_amt", "deal_amt");
+
+//Calculate Table DATA
+
+function calculate(frm){
+console.log(frm);
+ var table = cur_frm.doc.carry_forward ? cur_frm.doc.carry_forward:[];
+  var total_amount = 0;
+   for(var i = 0; i<table.length; i++){
+          total_amount += table[i].deal_amt;
+    }
+
+
+  frappe.model.set_value("Deal Counter", frm.docname, "used_deal_amt", total_amount);
+  var new_deal_amt = frm.doc.new_deal_amt;
+  var used_amt = frm.doc.used_deal_amt;
+  var balance_amt = cint(new_deal_amt - used_amt);
+  frappe.model.set_value("Deal Counter", frm.docname, "balance_amt", balance_amt);
+
+}
+
+frappe.ui.form.on("Deal Counter",{"onload":function(frm, cdt ,cdn){
+
+
+ calculate(frm);
+
+}
+});
+
+frappe.ui.form.on("Deal Counter Item",{"deal_num":function(frm, cdt, cdn)
+{
+
+  var len = frm.doc.carry_forward.length;
+  if(len > 3)
+  {
+   frappe.msgprint(frappe._("You Can't Enter More Than Three Items in a Table"));
+   $(".grid-delete-row").click();   
+  }
+  else {
+  calculate(frm); 
+}
+
+
+
+}
+});
+
+frappe.ui.form.on("Deal Counter Item",{"carry_forward_remove":function(frm, cdt, cdn){
+
+calculate(frm);
+}});
+
+frappe.ui.form.on("Deal Counter", "new_deal_amt",function(frm){
+
+        var credit_limit = cint(frm.doc.credit_limit);
+        var new_deal_amt = cint(frm.doc.new_deal_amt);
+        if(credit_limit < new_deal_amt)
+       {
+
+       frappe.msgprint(frappe._("Credit Limit Can't be Less than New Deal Amount"));
+       frappe.model.set_value("Deal Counter", frm.docname, "new_deal_amt", 0.0);
+        }
+
+
+
+
+});
+
+frappe.ui.form.on("Deal Counter", "new_deal_amt", function(frm)
+
+{
+calculate(frm);
+});
+
+
+frappe.ui.form.on("Deal Counter",{refresh:function(frm){
+
+ if(cint(frm.doc.docstatus) == 1){
+      if ((cint(frm.doc.balance_amt) > 0) && (date.nowdate() <= frm.doc.validity_dateline)) {     
+              frm.page.add_inner_button("Create New Sales Order",function(){
+                   var doc = frappe.model.get_new_doc("Sales Order");
+                    $.extend(doc,{
+                              "customer":frm.doc.customer_name,
+                              "deal_number":frm.docname
+        });
+           frappe.set_route("Form","Sales Order",doc.name);
+}).addClass("btn-primary");
+      } 
+   }
+}});
