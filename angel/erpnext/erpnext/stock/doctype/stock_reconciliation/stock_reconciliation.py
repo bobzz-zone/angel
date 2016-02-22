@@ -262,13 +262,22 @@ class StockReconciliation(StockController):
 		qty = 0
 		items = self.get("items")
 		length = len(items)
+		flag = False
+		
 		for i in range(0,length):
 			item = items[i];
 			qty = cint(item.qty)
+			item_data = frappe.db.get_value("Item", filters = {"item_code": item.item_code}, fieldname = "*", as_dict = True)
 			val = cint(frappe.db.get_value("Stock Ledger Entry", {"item_code":item.item_code},"actual_qty"))
-			if(qty > val):
-				frappe.throw("Quantity can't be greater than Actual Quantity")
-				return
+			if item_data:
+				appre = item_data["appreciation"]
+				depre = item_data["depreciation"]
+				if appre or depre:
+					if(qty > val):
+						flag = True
+						index = i+1
+						frappe.throw(_("For Item = {0}, Row = {1}, Quantity can't be greater than Actual Quantity".format(item.item_code, index)))
+						return
 
 
 @frappe.whitelist()
@@ -283,4 +292,6 @@ def get_items(warehouse, posting_date, posting_time):
                 item.current_qty = item.qty
                 item.current_valuation_rate = item.valuation_rate
                 del item["name"]
-	return items
+                         
+        return items
+				
