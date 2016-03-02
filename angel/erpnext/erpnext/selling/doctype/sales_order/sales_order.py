@@ -250,8 +250,6 @@ class SalesOrder(SellingController):
 				"reserved_qty": get_reserved_qty(item_code, warehouse)
 			})
 
-	def on_update(self):
-		pass
 
 def get_list_context(context=None):
 	from erpnext.controllers.website_list_for_contact import get_list_context
@@ -509,4 +507,15 @@ def update_multiple_dno(so_list):
                         #frappe.msgprint(("except {} ".format(so)))
                         # so document is not present in ERP
 
-
+@frappe.whitelist()
+def calculate_discount(brand= None):
+	discount_level = []
+	if brand:
+		name_dict = frappe.db.get_value("Multilevel Discount applicable", filters={"brand":brand}, fieldname ="name", as_dict = True)
+		if name_dict:
+			name = name_dict["name"]
+			discount = frappe.db.get_values("Multiple Discount level", filters ={"parent":name}, fieldname ="*", as_dict = True)
+			if discount:
+				for item in discount:
+					discount_level.append(item["discount"])
+	return discount_level
