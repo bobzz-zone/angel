@@ -149,6 +149,8 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 	},
 
 	item_code: function(doc, cdt, cdn) {
+                //chetan
+                
 		var me = this;
 		var item = frappe.get_doc(cdt, cdn);
 		if(item.item_code || item.barcode || item.serial_no) {
@@ -815,9 +817,11 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 
 frappe.ui.form.on(cur_frm.doctype + " Item", "rate", function(frm, cdt, cdn) {
 	var item = frappe.get_doc(cdt, cdn);
+	//Added by Navdeep For sales order Requirement
+	var local_form = locals[cdt][cdn]
+	var discount = local_form.discount;
 	frappe.model.round_floats_in(item, ["rate", "price_list_rate"]);
-
-	if(item.price_list_rate) {
+	if(item.price_list_rate && discount != "Multilevel Discount") {
 		item.discount_percentage = flt((1 - item.rate / item.price_list_rate) * 100.0, precision("discount_percentage", item));
 	} else {
 		item.discount_percentage = 0.0;
