@@ -127,10 +127,14 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 	price_list_rate: function(doc, cdt, cdn) {
 		var item = frappe.get_doc(cdt, cdn);
 		frappe.model.round_floats_in(item, ["price_list_rate", "discount_percentage"]);
-
-		item.rate = flt(item.price_list_rate * (1 - item.discount_percentage / 100.0),
-			precision("rate", item));
-
+		var discount = item.discount;
+		if(discount != "Multilevel Discount"){
+			item.rate = flt(item.price_list_rate * (1 - item.discount_percentage / 100.0),
+				precision("rate", item));
+		}
+		else{
+			this.set_rate(this.frm, cdt, cdn);
+		}
 		this.calculate_taxes_and_totals();
 	},
 
@@ -288,6 +292,38 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 			}
 		}
 		refresh_field('product_bundle_help');
+	},
+	set_rate : function(frm, cdt, cdn){
+		var form  = frm.fields_dict["items"].grid.grid_rows_by_docname[cdn];
+    		var brand = frm.doc.brand || null;
+    		var local_form = locals[cdt][cdn];
+    		var discount = local_form.discount;
+    		var qty = cint(local_form.qty);
+    		var price_list_rate = cint(local_form.price_list_rate);
+		var discount = local_form.discount;
+    		var text = "";
+		if(brand && discount == "Multilevel Discount"){
+      			frappe.call({
+       				async : false,
+       				method : "erpnext.selling.doctype.sales_order.sales_order.calculate_discount",
+       				args: {"brand":brand},
+       				callback: function(r){
+          			if(r.message){
+               				var data = r.message;
+                			var result = price_list_rate;
+               				for(var i=0; i<data.length; i++){
+                       				var discount = cint(data[i]);
+						data.length > i+1 ? text += discount + "% + " : text += discount + "%";
+                       				result = result*((100-discount)/100)
+                   				}
+             			local_form.rate = result * qty;
+			 	local_form.level_wise_discount = text	
+             			refresh_field("rate", cdn, "items");
+				refresh_field("level_wise_discount", cdn, "items");
+                			}
+           			}
+    			});
+		}
 	}
 });
 
