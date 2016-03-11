@@ -9,7 +9,21 @@ from frappe import _
 from frappe.model.document import Document
 
 class CombineDeliveries(Document):
-	pass
+	def validate(self):
+		flag = self.check_status()
+		if(flag):
+			self.status ="Partially Shipped"
+		else:
+			self.status = "Delivered"
+	def check_status(self):
+		result_table = self.result_table  or []
+		for result in result_table:
+			qty = result.qty_pending_delivery
+			if(qty):
+				return False
+			else:
+				return True
+		return True
 
 @frappe.whitelist()
 def get_delivery_note(data=None):
