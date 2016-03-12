@@ -6,7 +6,7 @@ frappe.listview_settings['Combine Deliveries'] = {
 			return [__("Delivered"), "green", "status,=,Delivered"]
 		}
 		else if(doc.status == "Partially Shipped"){
-			return [__("Partially Shipped"), "red", "status,=,Partially Shipped"]
+			return [__("Partially Shipped"), "orange", "status,=,Partially Shipped"]
 		}
 		
 	}
