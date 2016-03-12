@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 import json
+from frappe.utils import flt
 from frappe import _
 from frappe.model.document import Document
 
@@ -12,18 +13,20 @@ class CombineDeliveries(Document):
 	def validate(self):
 		flag = self.check_status()
 		if(flag):
-			self.status ="Partially Shipped"
+			self.status ="Delivered"
 		else:
-			self.status = "Delivered"
+			self.status = "Partially Shipped"
 	def check_status(self):
+		flag = True;
 		result_table = self.result_table  or []
 		for result in result_table:
-			qty = result.qty_pending_delivery
+			qty = flt(result.qty_pending_delivery)
 			if(qty):
-				return False
+				flag = False
+				break
 			else:
-				return True
-		return True
+				flag = True
+		return flag
 
 @frappe.whitelist()
 def get_delivery_note(data=None):
