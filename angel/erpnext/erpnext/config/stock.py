@@ -87,7 +87,12 @@ def get_data():
 					"type": "doctype",
 					"name": "Stock UOM Replace Utility",
 					"description": _("Change UOM for an Item."),
-				}
+				},
+                                {       
+                                        "type": "doctype",
+                                        "name": "Combine Deliveries",
+                                        "description":_("Delivery Status of multiple delivery notes"),
+                                },
 			]
 		},
 		{
