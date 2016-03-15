@@ -66,7 +66,7 @@ $.extend(cur_frm.cscript, {
 			var table = cur_frm.doc.result_table || [];
 			if(table){
 				if (table.length > 0){
-					me.form.clear_table("item_wise_quantities");
+					me.frm.clear_table("item_wise_quantities");
 					me.frm.clear_table("result_table");
 					me.frm.refresh();
 				}
