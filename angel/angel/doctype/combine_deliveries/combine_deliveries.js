@@ -34,7 +34,9 @@ $.extend(cur_frm.cscript, {
 			callback: function(r){
 				if(r && r.message){
 					var parent_doc = frappe.model.get_doc("Combine Deliveries", doc.name);
-					var data = r.message || [];
+					var records = r.message || {"result_table":[], "result_table_item_wise":[]};
+					var data = records['result_table']
+					var item_wise_data = records['result_table_item_wise']
 					for(var i=0;i<data.length;i++){
 						var child_doc = frappe.model.get_new_doc("Combine Delivery Item", parent_doc, "result_table");
 						var item = data[i]
@@ -43,6 +45,15 @@ $.extend(cur_frm.cscript, {
 							"item_name": item.item_name,
 							"qty_for_delivery": item.qty_for_delivery,
 							"price_of_item_as_per_qty" : item.price_list_rate
+						});
+					}
+					for(var i=0; i<item_wise_data.length; i++){
+						var child_doc = frappe.model.get_new_doc("CombineDelivery Itemwise", parent_doc, "item_wise_quantities");
+						var item = item_wise_data[i];
+						console.log(item);
+						$.extend(child_doc,{
+							"item_code": item.item_code,
+							"item_qty_for_delivery": item.qty_for_delivery
 						});
 					}
 					me.frm.refresh()
@@ -55,6 +66,7 @@ $.extend(cur_frm.cscript, {
 			var table = cur_frm.doc.result_table || [];
 			if(table){
 				if (table.length > 0){
+					me.form.clear_table("item_wise_quantities");
 					me.frm.clear_table("result_table");
 					me.frm.refresh();
 				}
@@ -116,6 +128,39 @@ $.extend(cur_frm.cscript, {
 			
 		
 
+	},
+"get_result_table_list": function(doc, cdt, cdn){
+				var result_table = doc.result_table || [];
+				var item_list = [];
+				var item_name = "";
+				var temp_item_name = "";
+				var qty = 0;
+				var temp_list = [];
+				var element_tobe_remove = [];
+				console.log("List Before", result_table);
+				if(result_table.length > 0){
+					for(var i=0; i<result_table.length-1; i++){
+						if(i == 0){
+							item_name = result_table[i].item_name;
+							qty += flt(result_table[i].qty_for_delivery)
+							element_tobe_remove = element_tobe_remove.concat(i);
+							continue;
+						}
+							temp_item_name = result_table[i].item_name;
+							if(temp_item_name == item_name){
+								qty += flt(result_table[i].qty_for_delivery)
+								element_tobe_remove = element_tobe_remove.concat(i)
+							}
+					}
+				temp_list = temp_list.concat(qty);
+				console.log("Element To be Remove ", element_tobe_remove);
+				result_table = result_table.splice(element_tobe_remove, element_tobe_remove.length);
+				console.log("List After", result_table);
+				}
+	},
+"get_items_wise": function(doc, cdt, cdn){
+
+		this.get_result_table_list(doc, cdt ,cdn);
 	}
 });
 /*
