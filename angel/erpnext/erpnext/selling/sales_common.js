@@ -14,6 +14,7 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 	onload: function() {
 		this._super();
 		this.setup_queries();
+		cur_frm.add_fetch("mld_name", "discount_name", "discount_name")
 	},
 
 	setup_queries: function() {
@@ -293,35 +294,41 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 		}
 		refresh_field('product_bundle_help');
 	},
+	mld_name: function(frm, cdt, cdn){
+			this.set_rate(this.frm, cdt, cdn);
+	},
 	set_rate : function(frm, cdt, cdn){
 		var form  = frm.fields_dict["items"].grid.grid_rows_by_docname[cdn];
-    		var brand = frm.doc.brand || null;
+    		var mld_name = form.doc.mld_name || null;
     		var local_form = locals[cdt][cdn];
     		var discount = local_form.discount;
-    		var qty = cint(local_form.qty);
     		var price_list_rate = cint(local_form.price_list_rate);
-		var discount = local_form.discount;
     		var text = "";
-		if(brand && discount == "Multilevel Discount"){
+		if(mld_name && discount == "Multilevel Discount"){
       			frappe.call({
        				async : false,
        				method : "erpnext.selling.doctype.sales_order.sales_order.calculate_discount",
-       				args: {"brand":brand},
+       				args: {"mld_name":mld_name, "price_list_rate":price_list_rate},
        				callback: function(r){
           			if(r.message){
                				var data = r.message;
-                			var result = price_list_rate;
-               				for(var i=0; i<data.length; i++){
-                       				var discount = cint(data[i]);
-						data.length > i+1 ? text += discount + "% + " : text += discount + "%";
-                       				result = result*((100-discount)/100)
+					var result = 0.0;
+               					for(var i=0; i<data.length; i++){
+							var item =  data[i];
+							result = item.rate;
+							text = item.text;
                    				}
-             			local_form.rate = result * qty;
-			 	local_form.level_wise_discount = text	
-             			refresh_field("rate", cdn, "items");
-				refresh_field("level_wise_discount", cdn, "items");
-                			}
-           			}
+						local_form.rate = result;
+			 			local_form.level_wise_discount = text;
+						console.log(text);
+				}
+				else{
+             				local_form.rate = price_list_rate;
+			 		local_form.level_wise_discount = 0;
+				}
+             		refresh_field("rate", cdn, "items");
+			refresh_field("level_wise_discount", cdn, "items");
+                		}
     			});
 		}
 	}
