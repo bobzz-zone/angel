@@ -5,8 +5,13 @@
 
 frappe.ui.form.on("Sales Order", {
 	onload: function(frm) {
+		var me = this;
 		erpnext.queries.setup_queries(frm, "Warehouse", function() {
 			return erpnext.queries.warehouse(frm.doc);
+		});
+		// {Navdeep} New code for child table > link field mld_name > customer_query[Link Field]
+		frm.set_query("mld_name", "items", function(doc, cdt, cdn){
+			return {filters: {"brand": frm.doc.brand || ""}}
 		});
 	}
 });
@@ -14,6 +19,7 @@ frappe.ui.form.on("Sales Order", {
 erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend({
 	refresh: function(doc, dt, dn) {
 		this._super();
+		console.log(this,"sahil");
 		this.frm.dashboard.reset();
 
 		if(doc.docstatus==1) {
@@ -205,3 +211,34 @@ cur_frm.cscript.on_submit = function(doc, cdt, cdn) {
 		cur_frm.email_doc(frappe.boot.notification_settings.sales_order_message);
 	}
 };
+$.extend(cur_frm.cscript, {
+"discount": function(doc, cdt, cdn){      
+      		var form = cur_frm.fields_dict.items.grid.grid_rows_by_docname[cdn];
+      		var check = form.doc.discount;
+		var discount_percentage_field = cur_frm.fields_dict.items.grid.get_docfield("discount_percentage");
+      		if (check == "Multilevel Discount"){
+			discount_percentage_field.hidden = 1;
+         		form.refresh();
+       		}
+       		else{
+			discount_percentage_field.hidden = 0;
+         		form.refresh();
+     		}      
+},
+"form_render": function(doc, cdt, cdn){
+		if(cdt != "Sales Order Item") return;
+      		var local_form = locals[cdt][cdn];
+      		var form = cur_frm.fields_dict.items.grid.grid_rows_by_docname[cdn];
+      		var check = local_form.discount;
+		var discount_percentage_field = cur_frm.fields_dict.items.grid.get_docfield("discount_percentage");
+      		if(check == "Multilevel Discount"){
+			discount_percentage_field.hidden = 1;
+			form.refresh();
+                }
+		else{
+			discount_percentage_field.hidden = 0;
+			form.refresh();
+                }
+
+	}
+});
