@@ -153,7 +153,11 @@
    "ignore_user_permissions": 0, 
    "in_filter": 0, 
    "in_list_view": 1, 
+<<<<<<< HEAD
    "label": "Affected Qty Rate ", 
+=======
+   "label": "Affected Qty Rate", 
+>>>>>>> 1906ea9863448dc1efdac59850cceb550f7dff0c
    "no_copy": 0, 
    "permlevel": 0, 
    "precision": "", 
@@ -173,7 +177,11 @@
  "is_submittable": 0, 
  "issingle": 0, 
  "istable": 1, 
+<<<<<<< HEAD
  "modified": "2016-03-12 14:36:29.600545", 
+=======
+ "modified": "2016-03-12 14:31:58.207216", 
+>>>>>>> 1906ea9863448dc1efdac59850cceb550f7dff0c
  "modified_by": "Administrator", 
  "module": "Angel", 
  "name": "Combine Delivery Item", 
