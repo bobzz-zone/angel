@@ -508,14 +508,26 @@ def update_multiple_dno(so_list):
                         # so document is not present in ERP
 
 @frappe.whitelist()
-def calculate_discount(brand= None):
-	discount_level = []
-	if brand:
-		name_dict = frappe.db.get_value("Multilevel Discount applicable", filters={"brand":brand}, fieldname ="name", as_dict = True)
-		if name_dict:
-			name = name_dict["name"]
-			discount = frappe.db.get_values("Multiple Discount level", filters ={"parent":name}, fieldname ="*", as_dict = True)
-			if discount:
-				for item in discount:
-					discount_level.append(item["discount"])
-	return discount_level
+def calculate_discount(mld_name = None, price_list_rate = None):
+	import re
+	discount_level = {}
+	discount_level_list = []
+	result = 0.0
+	text = ""
+	flag = 1;
+	if not price_list_rate:
+		return discount_level_list
+	result = flt(price_list_rate)
+	if mld_name:
+		discount = frappe.db.get_values("Multiple Discount level", filters ={"parent":mld_name}, fieldname ="*", as_dict = True)
+		if discount:
+			for item in discount:
+				discount_rate = flt(re.sub("[^0-9]", "" ,item['discount']))
+				result = result*((100-discount_rate)/100)
+				text += "LN-" + cstr(item['level_number']) +" = "+ cstr(discount_rate) + " + " if len(discount) > flag \
+				else "LN-" + cstr(item['level_number']) + " = " + cstr(discount_rate)
+				flag += flag
+			discount_level['text'] = text
+			discount_level['rate'] = result
+			discount_level_list.append(discount_level)
+	return discount_level_list

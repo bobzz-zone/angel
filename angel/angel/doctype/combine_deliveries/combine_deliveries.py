@@ -53,16 +53,26 @@ def get_delivery_note(data=None):
 	filtered_list = set(record_list)
 	filtered_list = list(filtered_list)
 	new_data = []
+	item_name_list = []
 	for item in filtered_list:
-		item_list = get_items(item)
-		if item_list:
-			for data in item_list:
-				new_data.append(data)
+		temp = get_items(item)
+		item_list = temp[1]
+		item_name_list = temp[0]
+		if temp:
+			if item_list:
+				for data in item_list:
+					new_data.append(data)
 	new_data.sort()
-	return new_data	
+	items = get_result_table_item(item_name_list, new_data)
+	data = {}
+	data["result_table"] = new_data
+	data['result_table_item_wise'] = items
+	return data
 
 def get_items(delivery_number):
+	records = []
 	item_list = []
+	item_name_list = []
 	if delivery_number:
 		items = frappe.db.get_values("Delivery Note Item", filters = {"parent":delivery_number, "docstatus":1}, fieldname="*", as_dict =True)
 		if items:
@@ -75,8 +85,11 @@ def get_items(delivery_number):
 				temp_item['qty_for_delivery'] = item['qty']
 				temp_item['item_code'] = item['item_code']
 				temp_item['price_list_rate'] = item['price_list_rate']
+				item_name_list.append(item['item_name'])
 				item_list.append(temp_item)
-	return item_list
+	records.append(item_name_list)
+	records.append(item_list)
+	return records
 
 @frappe.whitelist()
 def make_return_deliveries(source_name_list, target_doc = None):
@@ -93,4 +106,19 @@ def make_return_deliveries(source_name_list, target_doc = None):
 					doc.save()
 					frappe.db.commit()
 				except:
-					print frappe.get_traceback()		
+					print frappe.get_traceback()
+
+def get_result_table_item(item_name_list, result_table_list):
+	temp_list = []
+	items = {}
+	item_temp = {}
+	if result_table_list:
+		temp_list = list(set(item_name_list))
+		for result in result_table_list:
+			flag = items.has_key(result['item_name'])
+			if flag:
+				items[result['item_code']] += flt(result['qty_for_delivery'])
+			if not flag:
+				items[result['item_code']] = flt(result['qty_for_delivery'])
+	items = [{"item_code":key, "qty_for_delivery":value} for key, value in items.iteritems()]
+	return items
