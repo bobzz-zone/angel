@@ -192,7 +192,6 @@ def update_outstanding_amt(account, party_type, party, against_voucher_type, aga
 				set_sales_person_commission(against_voucher)
 			else:
 				update_commission_on_cancel(against_voucher)
-	
 def validate_frozen_account(account, adv_adj=None):
 	frozen_account = frappe.db.get_value("Account", account, "freeze_account")
 	if frozen_account == 'Yes' and not adv_adj:
