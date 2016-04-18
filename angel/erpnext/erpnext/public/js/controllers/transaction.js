@@ -1,6 +1,6 @@
 // Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 // License: GNU General Public License v3. See license.txt
-// Navdeep
+
 frappe.provide("erpnext");
 frappe.require("assets/erpnext/js/controllers/taxes_and_totals.js");
 frappe.require("assets/erpnext/js/utils.js");
