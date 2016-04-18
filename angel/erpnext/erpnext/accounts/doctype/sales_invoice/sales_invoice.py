@@ -3,6 +3,7 @@
 
 from __future__ import unicode_literals
 import frappe
+from angel import utils
 import frappe.defaults
 from frappe.utils import cint, flt
 from frappe import _, msgprint, throw
@@ -77,9 +78,10 @@ class SalesInvoice(SellingController):
 		self.validate_time_logs_are_submitted()
 		self.validate_multiple_billing("Delivery Note", "dn_detail", "amount", "items")
 		self.update_packing_list()
-
+		
 	def on_submit(self):
 		super(SalesInvoice, self).on_submit()
+
 		if cint(self.update_stock) == 1:
 			self.update_stock_ledger()
 		else:
@@ -108,6 +110,9 @@ class SalesInvoice(SellingController):
 			self.update_against_document_in_jv()
 
 		self.update_time_log_batch(self.name)
+                from angel.angel.doctype.deal_counter.deal_counter import update_dn_bal
+                update_dn_bal(self.name)
+
 
 	def before_cancel(self):
 		self.update_time_log_batch(None)
@@ -134,7 +139,8 @@ class SalesInvoice(SellingController):
 		self.validate_c_form_on_cancel()
 
 		self.make_gl_entries_on_cancel()
-
+		from angel.angel.doctype.deal_counter.deal_counter import update_dn_bal
+		update_dn_bal(self.name,cancel=True)
 	def update_status_updater_args(self):
 		if cint(self.update_stock):
 			self.status_updater.extend([{
@@ -626,17 +632,17 @@ def set_sales_person_commission(sales_invoice_no):
 	data = frappe.db.get_value("Sales Invoice", filters={"name":sales_invoice_no}, fieldname="*", as_dict = True)
 	if not data:
 		return
+	
 	sales_invoice = data["name"]
 	outstanding_amount = data["outstanding_amount"]
 	commission_rule = data["commission_rule"]
 	grand_total = data["grand_total"]
 	sales_team = frappe.db.get_values("Sales Team", filters = {"parent":sales_invoice}, fieldname = "*", as_dict = True)
 	if not sales_team:
-		return
+		return	
 	commission = 0
 	if commission_rule and grand_total and sales_invoice:
-		if outstanding_amount == 0 and "angel" in frappe.get_installed_apps():	
-			from angel import utils
+		if outstanding_amount == 0:
 			for person in sales_team:
 				allocated_percentage = person["allocated_percentage"]
 				emp_id = person["emp_id"]
@@ -646,6 +652,7 @@ def set_sales_person_commission(sales_invoice_no):
 				query = frappe.db.sql("""update `tabSales Team` set calculated_commission = %s where parent = '%s'
 							and emp_id = '%s' """%(commission, sales_invoice, emp_id))
 				frappe.db.commit()
+
 def update_commission_on_cancel(sales_invoice):
 	if not sales_invoice:
 		return
@@ -654,8 +661,8 @@ def update_commission_on_cancel(sales_invoice):
 	if not frappe.db.get_value("Sales Team", filters ={"parent":sales_invoice}, fieldname = "name", as_dict = True):
 		return
 	frappe.db.sql(""" UPDATE `tabSales Team` set calculated_commission = %s where parent = '%s' """%(0, sales_invoice))
-	frappe.db.commit()
-
+	frappe.db.commit()		
+				
 def get_list_context(context=None):
 	from erpnext.controllers.website_list_for_contact import get_list_context
 	list_context = get_list_context(context)
