@@ -93,7 +93,13 @@ def get_data():
                                         "name": "Combine Deliveries",
                                         "description":_("Delivery Status of multiple delivery notes"),
                                 },
-			]
+                                { 
+                                        "type": "doctype",
+                                        "name": "Trip Delivery",
+                                        "description":_("Trip Details for Combine deliveries"),
+                                },
+			]     
+                      
 		},
 		{
 			"label": _("Setup"),
