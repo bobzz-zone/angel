@@ -10,8 +10,11 @@ frappe.ui.form.on("Sales Order", {
 			return erpnext.queries.warehouse(frm.doc);
 		});
 		// {Navdeep} New code for child table > link field mld_name > customer_query[Link Field]
+		var query = {}
 		frm.set_query("mld_name", "items", function(doc, cdt, cdn){
-			return {filters: {"brand": frm.doc.brand || ""}}
+			frm.doc.customer?query['customer']=frm.doc.customer:""
+			frm.doc.brand?query['brand']=frm.doc.brand:""
+			return {filters: query}
 		});
 	}
 });
