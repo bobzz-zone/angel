@@ -114,7 +114,7 @@ class StockEntry(StockController):
 	def validate_warehouse(self):
 		"""perform various (sometimes conditional) validations on warehouse"""
 
-		source_mandatory = ["Material Issue", "Subcontract", "Material Transfer for Manufacture"]
+		source_mandatory = ["Material Issue", "Material Transfer", "Subcontract", "Material Transfer for Manufacture"]
 		target_mandatory = ["Material Receipt", "Material Return", "Material Transfer", "Subcontract", "Material Transfer for Manufacture"]
 
 		validate_for_manufacture_repack = any([d.bom_no for d in self.get("items")])
@@ -169,14 +169,14 @@ class StockEntry(StockController):
 					        elif not d.s_warehouse:
 							frappe.throw(_("Source warehouse is mandatory for row {0}").format(d.idx))
 
-			if cstr(d.s_warehouse) == cstr(d.t_warehouse) and not d.product_type:	#for product type
+			if cstr(d.s_warehouse) == cstr(d.t_warehouse) and d.product_type:	#for product type
 				frappe.throw(_("Source and target warehouse cannot be same for row {0}").format(d.idx))
 			elif d.product_type:
-				d.s_warehouse = None
+				d.s_warehouse = self.from_warehouse
 				d.t_warehouse = self.to_warehouse 	
 			
 	def validate_production_order(self):
-		if self.purpose in ("Manufacture", "Material Transfer for Manufacture"):
+		if self.purpose in ("Manufacture", "Material Transfer for Manufacture", "Material Return"):
 			# check if production order is entered
 			if not self.production_order:
 				frappe.throw(_("Production order number is mandatory for stock entry purpose manufacture"))
@@ -361,7 +361,7 @@ class StockEntry(StockController):
 		if self.production_order and self.purpose == "Manufacture":
 			production_item = frappe.db.get_value("Production Order",
 				self.production_order, "production_item")
-			if production_item not in items_with_target_warehouse:
+                      	if production_item not in items_with_target_warehouse:
 				frappe.throw(_("Finished Item {0} must be entered for Manufacture type entry")
 					.format(production_item))
 
