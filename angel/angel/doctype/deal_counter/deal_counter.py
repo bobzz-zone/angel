@@ -10,7 +10,7 @@ from frappe.model.document import Document
 class DealCounter(Document):
 	def validate(self):
 		amt = flt(self.credit_limit)
-		if(amt == 0.0):
+		if(amt < 0.0):
 			frappe.throw("Please Select Different Customer having  more Zero credit Limit")
 
 @frappe.whitelist()
@@ -81,5 +81,5 @@ def update_dn_bal(sales_invoice_name = None, cancel=False):
 	if not cancel:
 		dn_bal = flt(dn_amt['balance_amt']) - amt
 		frappe.db.sql("""UPDATE `tabDeal Counter` SET balance_amt = %s WHERE name = '%s'"""%(dn_bal, dn))
-		frappe.msgprint("Not Cancel")
+	
 		
