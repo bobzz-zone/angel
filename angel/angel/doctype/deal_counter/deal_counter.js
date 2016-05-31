@@ -36,7 +36,7 @@ $.extend(cur_frm.cscript,{
 		var me = this;
 		var flag = false;
 		var credit_limit = doc.credit_limit || 0;
-		if(credit_limit == 0){
+		if(credit_limit < 0){
 			frappe.msgprint(frappe._("Please Select Different customer  having  credit limit"));
 			me.frm.set_value('customer_name', '');
 		}
