@@ -18,7 +18,7 @@ frappe.ui.form.on("Petty Cash", { refresh: function(frm){
 				if(i ==0){
 				get_account_balance("Petty Cash - OCF", posting_date, "OCF Furniture")
 				$.extend(child_doc_type,{
-				"account": "Petty Cash - OCF",
+				"account": "",
 				"balance": PETTY_CASH.message.balance,
 				"account_currency": PETTY_CASH.message.account_currency,
 				"debit_in_account_currency":amount
