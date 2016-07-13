@@ -169,9 +169,9 @@ class StockEntry(StockController):
 					        elif not d.s_warehouse:
 							frappe.throw(_("Source warehouse is mandatory for row {0}").format(d.idx))
 
-			if cstr(d.s_warehouse) == cstr(d.t_warehouse) and d.product_type:	#for product type
-				frappe.throw(_("Source and target warehouse cannot be same for row {0}").format(d.idx))
-			elif d.product_type:
+		#	if cstr(d.s_warehouse) == cstr(d.t_warehouse) and d.product_type:	#for product type
+		#		frappe.throw(_("Source and target warehouse cannot be same for row {0}").format(d.idx))
+			if d.product_type:
 				d.s_warehouse = self.from_warehouse
 				d.t_warehouse = self.to_warehouse 	
 			
