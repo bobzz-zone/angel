@@ -11,6 +11,7 @@ from erpnext.stock.stock_ledger import get_previous_sle, NegativeStockError
 from erpnext.stock.get_item_details import get_available_qty, get_default_cost_center, get_conversion_factor
 from erpnext.manufacturing.doctype.bom.bom import validate_bom_no
 from erpnext.accounts.utils import validate_fiscal_year
+import json
 
 class IncorrectValuationRateError(frappe.ValidationError): pass
 class DuplicateEntryForProductionOrderError(frappe.ValidationError): pass
@@ -129,22 +130,25 @@ class StockEntry(StockController):
 				d.s_warehouse = None
 
 		for d in self.get('items'):
-			if not d.s_warehouse and not d.t_warehouse:
+			if not d.s_warehouse and not d.t_warehouse :
 				d.s_warehouse = self.from_warehouse
 				d.t_warehouse = self.to_warehouse
+
+			if d.product_type :
+                                d.s_warehouse = self.from_warehouse
+                                d.t_warehouse = self.to_warehouse
 
 			if not (d.s_warehouse or d.t_warehouse):
 				frappe.throw(_("Atleast one warehouse is mandatory"))
 
-			if self.purpose in source_mandatory and not d.s_warehouse:
-				
+			if self.purpose in source_mandatory and not d.s_warehouse:	
 				if self.from_warehouse and not d.product_type:	#added and d.product_type
 					d.s_warehouse = self.from_warehouse
 				else:
 					frappe.throw(_("Source warehouse is mandatory for row {0}").format(d.idx))
 
 			if self.purpose in target_mandatory and not d.t_warehouse:
-				if self.to_warehouse:
+				if self.to_warehouse and not d.product_type:
 					d.t_warehouse = self.to_warehouse
 				else:
 					frappe.throw(_("Target warehouse is mandatory for row {0}").format(d.idx))
@@ -163,18 +167,20 @@ class StockEntry(StockController):
 					else:
 						d.t_warehouse = None
 						# Added for coproducts and byproducts
-						if hasattr(d, 'product_type') and d.product_type:
+						if hasattr(d, 'product_type') and d.product_type and self.purpose not in ["Manufacture"]:
 							d.s_warehouse = None
 							pass
 					        elif not d.s_warehouse:
 							frappe.throw(_("Source warehouse is mandatory for row {0}").format(d.idx))
-
-		#	if cstr(d.s_warehouse) == cstr(d.t_warehouse) and d.product_type:	#for product type
-		#		frappe.throw(_("Source and target warehouse cannot be same for row {0}").format(d.idx))
-			if d.product_type:
-				d.s_warehouse = self.from_warehouse
-				d.t_warehouse = self.to_warehouse 	
 			
+			if self.purpose not in ["Manufacture"] and cstr(d.s_warehouse) == cstr(d.t_warehouse) and d.product_type:	#for product type
+				frappe.throw(_("Source and target warehouse cannot be same for row {0}").format(d.idx))
+			#if self.purpose not in ["Manufacture"] and d.product_type :
+			#	d.s_warehouse = self.from_warehouse
+			#	d.t_warehouse = self.to_warehouse
+				
+
+	
 	def validate_production_order(self):
 		if self.purpose in ("Manufacture", "Material Transfer for Manufacture", "Material Return"):
 			# check if production order is entered
@@ -361,7 +367,7 @@ class StockEntry(StockController):
 		if self.production_order and self.purpose == "Manufacture":
 			production_item = frappe.db.get_value("Production Order",
 				self.production_order, "production_item")
-                      	if production_item not in items_with_target_warehouse:
+                      	if production_item not in items_with_target_warehouse and self.purpose != "Manufacture":
 				frappe.throw(_("Finished Item {0} must be entered for Manufacture type entry")
 					.format(production_item))
 
@@ -666,7 +672,7 @@ class StockEntry(StockController):
 				self.add_to_stock_entry_detail({
 					item.item_code: {
 						"from_warehouse": item.warehouse,
-						"to_warehouse": "",
+					#	"to_warehouse": "",
 						"qty": qty,
 						"item_name": item.item_name,
 						"description": item.description,
