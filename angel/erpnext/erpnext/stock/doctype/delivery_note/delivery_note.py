@@ -381,8 +381,17 @@ def make_packing_slip(source_name, target_doc=None):
 
 	return doclist
 
+@frappe.whitelist()
+def update_multiple_cdno(do_list, target_doc=None):
+	import json
+	do_list = list(json.loads(do_list))
+
+	for do in do_list:
+		do_doc = frappe.get_doc("Delivery Note", do)
+		
 
 @frappe.whitelist()
 def make_sales_return(source_name, target_doc=None):
 	from erpnext.controllers.sales_and_purchase_return import make_return_doc
+	frappe.msgprint("data = {}".format(source_name))
 	return make_return_doc("Delivery Note", source_name, target_doc)
