@@ -5,9 +5,11 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
+from frappe import _, msgprint, throw
 
 class TTDocument(Document):
 
+	'''
 	def onload(self):
 		lst = []
 		grand_total = 0
@@ -21,4 +23,18 @@ class TTDocument(Document):
                         dest.append(arr)
 	        self.set("outstanding_invoices", dest)
 		self.set("grand_total", grand_total)
-			
+	'''		
+	def validate(self):
+		pass
+	def on_submit(self):
+		self.update_si()
+
+	def update_si(self):
+		table = self.outstanding_invoices or []
+		for item in table:
+			voucher_no = item.against_voucher_no
+			name = self.name
+			#frappe.msgprint(_("name = {0}").format(name))
+			if voucher_no:
+				frappe.db.sql(""" UPDATE `tabSales Invoice` SET tt_reference_number=%(number)s
+							WHERE name=%(tt_name)s""" , {"number":name, "tt_name":voucher_no}) 
