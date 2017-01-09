@@ -28,6 +28,18 @@ class CombineDeliveries(Document):
 				flag = True
 		return flag
 
+	def on_update(self):
+		self.update_delivery_note()
+
+	def update_delivery_note(self):
+		tbl = self.result_table
+		for item in tbl:
+			dn_name = item.delivery_note_number
+			name = self.name
+			if dn_name:
+				frappe.db.sql("""UPDATE `tabDelivery Note` SET combined_reference_number = %(val)s
+						WHERE name = %(flag)s """, {"flag":dn_name, "val":name})
+
 @frappe.whitelist()
 def get_delivery_note(data=None):
 	new_data = []
