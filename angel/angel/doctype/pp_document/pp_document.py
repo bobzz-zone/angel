@@ -13,6 +13,9 @@ class PPDocument(Document):
         def on_submit(self):
                 self.update_pp()
 
+        def on_cancel(self):
+                self.update_pp_cancel()
+
         def update_pp(self):
                 tbl = self.outstanding_invoices or []
                 for item in tbl:
@@ -21,3 +24,13 @@ class PPDocument(Document):
                         if voucher_no:
                                 frappe.db.sql(""" UPDATE `tabPurchase Invoice` SET pp_reference_number=%(val)s\
                                                         WHERE name=%(flag)s""" , {"flag":voucher_no, "val":name})
+
+
+        def update_pp_cancel(self):
+                tbl = self.outstanding_invoices or []
+                for item in tbl:
+                        voucher_no = item.against_voucher_no
+                        name = self.name
+                        if voucher_no:
+                                frappe.db.sql(""" UPDATE `tabPurchase Invoice` SET pp_reference_number=""\
+                                                        WHERE name=%(flag)s""" , {"flag":voucher_no})

@@ -1,0 +1,16 @@
+git commit doctype/customer_territory/__init__.py -m ".."
+git commit doctype/customer_territory/customer_territory.json -m ".."
+git commit doctype/customer_territory/customer_territory.py -m ".."
+git commit doctype/multilevel_discount_applicable/__init__.py -m ".."
+git commit doctype/multilevel_discount_applicable/multilevel_discount_applicable.json -m ".."
+git commit doctype/multilevel_discount_applicable/multilevel_discount_applicable.py -m ".."
+git commit doctype/multilevel_discount_applicable/test_multilevel_discount_applicable.py -m ".."
+git commit doctype/multiple_discount_level/__init__.py -m ".."
+git commit doctype/multiple_discount_level/multiple_discount_level.json -m ".."
+git commit doctype/multiple_discount_level/multiple_discount_level.py -m ".."
+git commit ../deal_counter.json -m ".."
+git commit ../erpnext/erpnext/setup/doctype/applicable_territory/__init__.py -m ".."
+git commit ../erpnext/erpnext/setup/doctype/applicable_territory/applicable_territory.json -m ".."
+git commit ../erpnext/erpnext/setup/doctype/applicable_territory/applicable_territory.py -m ".."
+
+

@@ -1,0 +1,17 @@
+{
+ "creation": "2016-08-19 16:25:57.886924", 
+ "custom_format": 1, 
+ "disabled": 0, 
+ "doc_type": "PP Document", 
+ "docstatus": 0, 
+ "doctype": "Print Format", 
+ "font": "Default", 
+ "format_data": "[{\"fieldname\": \"print_heading_template\", \"fieldtype\": \"HTML\", \"options\": \" <div style=\\\"float:left\\\">\\n<h3>PT. Ocean Centra Furnindo</h3>\\n</div>\\n<div style=\\\"float:right\\\">\\n     <h3>S{{ doc.name }}</h3>\\n\\n</div>\\n<br>\\n<br>\\n<br>\\n<hr>\\n<br> \"}, {\"fieldtype\": \"Section Break\"}, {\"fieldtype\": \"Column Break\"}, {\"print_hide\": 0, \"fieldname\": \"_custom_html\", \"fieldtype\": \"HTML\", \"options\": \"<br><br>\"}, {\"print_hide\": 0, \"fieldname\": \"supplier\"}, {\"print_hide\": 0, \"fieldname\": \"date\"}, {\"print_hide\": 0, \"fieldname\": \"_custom_html\", \"fieldtype\": \"HTML\", \"options\": \"<span style=\\\"padding-left:65px\\\"><b>No. TT</b></span><span style=\\\"padding-left:41px\\\">{{ doc.balance }}<br></span>\\n\\n<span style=\\\"padding-left:65px\\\"><b>Keterangan</b></span><span style=\\\"padding-left:10px\\\">:<br><br><br></span>\"}, {\"fieldtype\": \"Column Break\"}, {\"print_hide\": 0, \"fieldname\": \"_custom_html\", \"fieldtype\": \"HTML\", \"options\": \"<br><br>\"}, {\"print_hide\": 0, \"fieldname\": \"payment_method\"}, {\"print_hide\": 0, \"fieldname\": \"_custom_html\", \"fieldtype\": \"HTML\", \"options\": \"<span style=\\\"padding-left:59px\\\"><b>Bank</b></span><span style=\\\"padding-left:55px\\\">:<br></span>\\n\\n<span style=\\\"padding-left:59px\\\"><b>No. Giro</b></span>\\n\\n<span style=\\\"padding-left:38px\\\">:<br></span>\\n\\n<span style=\\\"padding-left:59px\\\"><b>Tgl Giro</b></span>\\n\\n<span style=\\\"padding-left:39px\\\">:\\n    <br>\\n    <br>\\n    </span>\"}, {\"fieldtype\": \"Section Break\"}, {\"fieldtype\": \"Column Break\"}, {\"visible_columns\": [{\"print_hide\": 0, \"fieldname\": \"against_voucher_no\", \"print_width\": \"\"}, {\"print_hide\": 0, \"fieldname\": \"total_amount\", \"print_width\": \"\"}, {\"print_hide\": 0, \"fieldname\": \"outstanding_amount\", \"print_width\": \"\"}], \"print_hide\": 0, \"fieldname\": \"outstanding_invoices\"}, {\"fieldtype\": \"Section Break\"}, {\"fieldtype\": \"Column Break\"}, {\"print_hide\": 0, \"fieldname\": \"grand_total\"}, {\"print_hide\": 0, \"fieldname\": \"paying_amount\"}, {\"fieldtype\": \"Section Break\"}, {\"fieldtype\": \"Column Break\"}, {\"print_hide\": 0, \"fieldname\": \"_custom_html\", \"fieldtype\": \"HTML\", \"options\": \"<div style=\\\"float:right; padding-top:20px\\\"><b>Medan, {{ doc.reference }}</b>\\n\\n</div><b>\\n<br>\\n</b>\\n\\n<br>\\n<br>\\n<br>\\n<b><span style=\\\"padding-left:75px\\\">Diketahui,</span></b>\\n\\n<b><span style=\\\"padding-left:155px\\\">Disetujui,</span></b>\\n\\n<b><span style=\\\"padding-left:160px\\\">Diterima,</span></b>\\n\\n<br>\\n<br>\\n<br>\\n<br>\\n<br>\\n<br>\\n<span style=\\\"padding-left:30px\\\">_______________________</span>\\n\\n<span style=\\\"padding-left:50px\\\">_______________________</span>\\n\\n<span style=\\\"padding-left:50px\\\">_______________________</span>\"}]", 
+ "modified": "2016-08-29 11:35:00.669211", 
+ "modified_by": "Juniardy@ocf.com", 
+ "name": "Stock ( S )", 
+ "owner": "Juniardy@ocf.com", 
+ "print_format_builder": 1, 
+ "print_format_type": "Server", 
+ "standard": "Yes"
+}
