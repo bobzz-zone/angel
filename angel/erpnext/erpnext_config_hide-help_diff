@@ -1,0 +1,316 @@
+diff --git a/erpnext/config/accounts.py b/erpnext/config/accounts.py
+index f32aeed..3dd0d43 100644
+--- a/erpnext/config/accounts.py
++++ b/erpnext/config/accounts.py
+@@ -333,26 +333,26 @@ def get_data():
+ 					"doctype": "Customer"
+ 				},
+ 			]
+-		},
+-		{
+-			"label": _("Help"),
+-			"icon": "icon-facetime-video",
+-			"items": [
+-				{
+-					"type": "help",
+-					"label": _("Chart of Accounts"),
+-					"youtube_id": "DyR-DST-PyA"
+-				},
+-				{
+-					"type": "help",
+-					"label": _("Opening Accounting Balance"),
+-					"youtube_id": "kdgM20Q-q68"
+-				},
+-				{
+-					"type": "help",
+-					"label": _("Setting up Taxes"),
+-					"youtube_id": "nQ1zZdPgdaQ"
+-				}
+-			]
++#		},
++#		{
++#			"label": _("Help"),
++#			"icon": "icon-facetime-video",
++#			"items": [
++#				{
++#					"type": "help",
++#					"label": _("Chart of Accounts"),
++#					"youtube_id": "DyR-DST-PyA"
++#				},
++#				{
++#					"type": "help",
++#					"label": _("Opening Accounting Balance"),
++#					"youtube_id": "kdgM20Q-q68"
++#				},
++#				{
++#					"type": "help",
++#					"label": _("Setting up Taxes"),
++#					"youtube_id": "nQ1zZdPgdaQ"
++#				}
++#			]
+ 		}
+ 	]
+diff --git a/erpnext/config/buying.py b/erpnext/config/buying.py
+index 7729872..0d240eb 100644
+--- a/erpnext/config/buying.py
++++ b/erpnext/config/buying.py
+@@ -156,14 +156,14 @@ def get_data():
+ 				}
+ 			]
+ 		},
+-		{
+-			"label": _("Help"),
+-			"items": [
+-				{
+-					"type": "help",
+-					"label": _("Customer and Supplier"),
+-					"youtube_id": "anoGi_RpQ20"
+-				},
+-			]
+-		},
++#		{
++#			"label": _("Help"),
++#			"items": [
++#				{
++#					"type": "help",
++#					"label": _("Customer and Supplier"),
++#					"youtube_id": "anoGi_RpQ20"
++#				},
++#			]
++#		},
+ 	]
+diff --git a/erpnext/config/crm.py b/erpnext/config/crm.py
+index d7a6b2e..bebb394 100644
+--- a/erpnext/config/crm.py
++++ b/erpnext/config/crm.py
+@@ -133,14 +133,14 @@ def get_data():
+ 				},
+ 			]
+ 		},
+-		{
+-			"label": _("Help"),
+-			"items": [
+-				{
+-					"type": "help",
+-					"label": _("Lead to Quotation"),
+-					"youtube_id": "TxYX4r4JAKA"
+-				},
+-			]
+-		},
++#		{
++#			"label": _("Help"),
++#			"items": [
++#				{
++#					"type": "help",
++#					"label": _("Lead to Quotation"),
++#					"youtube_id": "TxYX4r4JAKA"
++#				},
++#			]
++#		},
+ 	]
+diff --git a/erpnext/config/desktop.py b/erpnext/config/desktop.py
+index 498d100..6a1909f 100644
+--- a/erpnext/config/desktop.py
++++ b/erpnext/config/desktop.py
+@@ -62,12 +62,12 @@ def get_data():
+ 			"icon": "icon-phone",
+ 			"icon": "octicon octicon-issue-opened",
+ 			"type": "module"
+-		},
+-		"Learn": {
+-			"color": "#FCB868",
+-			"force_show": True,
+-			"icon": "icon-facetime-video",
+-			"type": "module",
+-			"is_help": True
++#		},
++#		"Learn": {
++#			"color": "#FCB868",
++#			"force_show": True,
++#			"icon": "icon-facetime-video",
++#			"type": "module",
++#			"is_help": True
+ 		}
+ 	}
+diff --git a/erpnext/config/manufacturing.py b/erpnext/config/manufacturing.py
+index 5b51b0f..87f5b48 100644
+--- a/erpnext/config/manufacturing.py
++++ b/erpnext/config/manufacturing.py
+@@ -111,15 +111,15 @@ def get_data():
+ 				},
+ 			]
+ 		},
+-		{
+-			"label": _("Help"),
+-			"icon": "icon-facetime-video",
+-			"items": [
+-				{
+-					"type": "help",
+-					"label": _("Bill of Materials"),
+-					"youtube_id": "hDV0c1OeWLo"
+-				},
+-			]
+-		}
++#		{
++#			"label": _("Help"),
++#			"icon": "icon-facetime-video",
++#			"items": [
++#				{
++#					"type": "help",
++#					"label": _("Bill of Materials"),
++#					"youtube_id": "hDV0c1OeWLo"
++#				},
++#			]
++#		}
+ 	]
+diff --git a/erpnext/config/selling.py b/erpnext/config/selling.py
+index 62dfe23..cf1d0ff 100644
+--- a/erpnext/config/selling.py
++++ b/erpnext/config/selling.py
+@@ -286,14 +286,14 @@ def get_data():
+ 				},
+ 			]
+ 		},
+-		{
+-			"label": _("Help"),
+-			"items": [
+-				{
+-					"type": "help",
+-					"label": _("Customer and Supplier"),
+-					"youtube_id": "anoGi_RpQ20"
+-				},
+-			]
+-		},
++#		{
++#			"label": _("Help"),
++#			"items": [
++#				{
++#					"type": "help",
++#					"label": _("Customer and Supplier"),
++#					"youtube_id": "anoGi_RpQ20"
++#				},
++#			]
++#		},
+ 	]
+diff --git a/erpnext/config/setup.py b/erpnext/config/setup.py
+index a660942..444c417 100644
+--- a/erpnext/config/setup.py
++++ b/erpnext/config/setup.py
+@@ -43,36 +43,36 @@ def get_data():
+ 				},
+ 			]
+ 		},
+-		{
+-			"label": _("Help"),
+-			"items": [
+-				{
+-					"type": "help",
+-					"name": _("Data Import and Export"),
+-					"youtube_id": "6wiriRKPhmg"
+-				},
+-				{
+-					"type": "help",
+-					"label": _("Setting up Email"),
+-					"youtube_id": "YFYe0DrB95o"
+-				},
+-				{
+-					"type": "help",
+-					"label": _("Printing and Branding"),
+-					"youtube_id": "cKZHcx1znMc"
+-				},
+-				{
+-					"type": "help",
+-					"label": _("Users and Permissions"),
+-					"youtube_id": "fnBoRhBrwR4"
+-				},
+-				{
+-					"type": "help",
+-					"label": _("Workflow"),
+-					"youtube_id": "yObJUg9FxFs"
+-				},
+-			]
+-		},
++#		{
++#			"label": _("Help"),
++#			"items": [
++#				{
++#					"type": "help",
++#					"name": _("Data Import and Export"),
++#					"youtube_id": "6wiriRKPhmg"
++#				},
++#				{
++#					"type": "help",
++#					"label": _("Setting up Email"),
++#					"youtube_id": "YFYe0DrB95o"
++#				},
++#				{
++#					"type": "help",
++#					"label": _("Printing and Branding"),
++#					"youtube_id": "cKZHcx1znMc"
++#				},
++#				{
++#					"type": "help",
++#					"label": _("Users and Permissions"),
++#					"youtube_id": "fnBoRhBrwR4"
++#				},
++#				{
++#					"type": "help",
++#					"label": _("Workflow"),
++#					"youtube_id": "yObJUg9FxFs"
++#				},
++#			]
++#		},
+ 		{
+ 			"label": _("Customize"),
+ 			"icon": "icon-glass",
+diff --git a/erpnext/config/stock.py b/erpnext/config/stock.py
+index f4ec6f0..e2568e6 100644
+--- a/erpnext/config/stock.py
++++ b/erpnext/config/stock.py
+@@ -259,25 +259,25 @@ def get_data():
+ 				},
+ 			]
+ 		},
+-		{
+-			"label": _("Help"),
+-			"icon": "icon-facetime-video",
+-			"items": [
+-				{
+-					"type": "help",
+-					"label": _("Items and Pricing"),
+-					"youtube_id": "qXaEwld4_Ps"
+-				},
+-				{
+-					"type": "help",
+-					"label": _("Opening Stock Balance"),
+-					"youtube_id": "0yPgrtfeCTs"
+-				},
+-				{
+-					"type": "help",
+-					"label": _("Item Variants"),
+-					"youtube_id": "OGBETlCzU5o"
+-				},
+-			]
+-		}
++#		{
++#			"label": _("Help"),
++#			"icon": "icon-facetime-video",
++#			"items": [
++#				{
++#					"type": "help",
++#					"label": _("Items and Pricing"),
++#					"youtube_id": "qXaEwld4_Ps"
++#				},
++#				{
++#					"type": "help",
++#					"label": _("Opening Stock Balance"),
++#					"youtube_id": "0yPgrtfeCTs"
++#				},
++#				{
++#					"type": "help",
++#					"label": _("Item Variants"),
++#					"youtube_id": "OGBETlCzU5o"
++#				},
++#			]
++#		}
+ 	]

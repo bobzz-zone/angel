@@ -1,0 +1,44 @@
+{% block header %}
+<h1 itemprop="name headline" itemscope itemtype="http://schema.org/BlogPost">
+	{{ title }}
+</h1>
+{% endblock %}
+
+{% block content %}
+<article class="blog-content" itemscope itemtype="http://schema.org/BlogPost">
+	<!-- begin blog content -->
+	<p class="small text-muted blog-info">
+		<span itemprop="author">{{ blogger_info and blogger_info.full_name or full_name }}</span>,
+		<span itemprop="dateCreated">{{ updated }}</span>
+    </p>
+	<div itemprop="articleBody" class="longform blog-text">
+	{{ content }}
+	</div>
+    <p class="text-muted blog-category">
+        <a href="/{{ parent_website_route }}" class="no-decoration">
+            {{ _("This post is filed under {0}").format(blog_category) }}</a>
+    </p>
+	<!-- end blog content -->
+</article>
+{% if blogger_info %}
+{% include "templates/includes/blog/blogger.html" %}
+{% endif %}
+<div class="blog-comments">
+	<h2>Comments</h2>
+	{% include 'templates/includes/comments/comments.html' %}
+	<script>
+	$(function() {
+		if(window.logged_in && getCookie("system_user")==="yes") {
+			frappe.has_permission("Blog Post", "{{ name }}", "write", function(r) {
+				frappe.require("/assets/frappe/js/frappe/website/editable.js");
+				frappe.make_editable($('[itemprop="articleBody"]'), "Blog Post", "{{ name }}", "content");
+			});
+		}
+	});
+	</script>
+</div>
+
+<script>
+	frappe.set_search_path("/blog");
+</script>
+{% endblock %}
