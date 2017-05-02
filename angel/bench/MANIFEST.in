@@ -1,3 +1,0 @@
-include *.md
-recursive-include bench *.conf
-recursive-include bench *.py
