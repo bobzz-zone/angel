@@ -5,7 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
-from angel.tasks import sync_erp2_queue
+#from angel.tasks import sync_erp2_queue
 
 class RemoteDocumentSync(Document):
 	#def autoname(self):
@@ -14,5 +14,6 @@ class RemoteDocumentSync(Document):
 
 @frappe.whitelist()
 def sync_erp2(doc_list):
-	sync_erp2_queue(doc_list)
+	pass
+	#sync_erp2_queue(doc_list)
 

@@ -9,95 +9,48 @@ APPS = path.join(USER, "frappe-bench/apps")
 
 def after_install():
 	frappe.db.set_default('desktop:home_page', '')
-        frappe.db.commit()
+	frappe.db.commit()
 
-        # erp-icon.svg  erpnext-footer.png  favicon.png  pos.svg  splash.png   /home/ubuntu/frappe-bench/sites/assets/erpnext/images
-        # overright templates/includes/footer/footer_extension.html
-        print "===========================Chetan after install===================="
-        print getcwd() 
-        system("cp " + path.join(APPS, "erpnext/erpnext/templates/includes/footer/footer_extension.html") + " " +  path.join(APPS, "erpnext/erpnext/templates/includes/footer/footer_extension.html-bk"))
-        system("cp " + path.join(APPS, "angel/angel/templates/includes/footer/footer_extension.html") + " " + path.join(APPS, "erpnext/erpnext/templates/includes/footer/footer_extension.html"))
-        #return 
-        system("cp " + path.join(FBENCH, "sites/assets/erpnext/images/erp-icon.svg") + " " + path.join(FBENCH, "sites/assets/erpnext/images/erp-icon-bk.svg"))
-        system("cp " + path.join(FBENCH, "sites/assets/erpnext/images/favicon.png ") + " " + path.join(FBENCH, "sites/assets/erpnext/images/favicon-bk.png"))
-        system("cp " + path.join(FBENCH, "sites/assets/erpnext/images/splash.png  ") + " " + path.join(FBENCH, "sites/assets/erpnext/images/splash-bk.png"))
-        system("cp " + path.join(FBENCH, "sites/assets/angel/images/ocf.svg ") + " " + path.join(FBENCH, "sites/assets/erpnext/images/erp-icon.svg"))
-        system("cp " + path.join(FBENCH, "sites/assets/angel/images/favicon-16x16.png ") + " " + path.join(FBENCH, "sites/assets/erpnext/images/favicon.png"))
-        system("cp " + path.join(FBENCH, "sites/assets/angel/images/ms-icon-310x310.png ") + " " + path.join(FBENCH, "sites/assets/erpnext/images/splash.png"))
+	# erp-icon.svg  erpnext-footer.png  favicon.png  pos.svg  splash.png   /home/ubuntu/frappe-bench/sites/assets/erpnext/images
+	# overright templates/includes/footer/footer_extension.html
+	print "===========================Chetan after install===================="
+	print getcwd() 
+	system("cp " + path.join(APPS, "erpnext/erpnext/templates/includes/footer/footer_extension.html") + " " +  path.join(APPS, "erpnext/erpnext/templates/includes/footer/footer_extension.html-bk"))
+	system("cp " + path.join(APPS, "angel/angel/templates/includes/footer/footer_extension.html") + " " + path.join(APPS, "erpnext/erpnext/templates/includes/footer/footer_extension.html"))
+	#return 
+	system("cp " + path.join(FBENCH, "sites/assets/erpnext/images/erp-icon.svg") + " " + path.join(FBENCH, "sites/assets/erpnext/images/erp-icon-bk.svg"))
+	system("cp " + path.join(FBENCH, "sites/assets/erpnext/images/favicon.png ") + " " + path.join(FBENCH, "sites/assets/erpnext/images/favicon-bk.png"))
+	system("cp " + path.join(FBENCH, "sites/assets/erpnext/images/splash.png  ") + " " + path.join(FBENCH, "sites/assets/erpnext/images/splash-bk.png"))
+	system("cp " + path.join(FBENCH, "sites/assets/angel/images/ocf.svg ") + " " + path.join(FBENCH, "sites/assets/erpnext/images/erp-icon.svg"))
+	system("cp " + path.join(FBENCH, "sites/assets/angel/images/favicon-16x16.png ") + " " + path.join(FBENCH, "sites/assets/erpnext/images/favicon.png"))
+	system("cp " + path.join(FBENCH, "sites/assets/angel/images/ms-icon-310x310.png ") + " " + path.join(FBENCH, "sites/assets/erpnext/images/splash.png"))
 
-        #overright frappe/frappe/public/js/frappe/ui/toolbar/navbar.html public/html/navbar.html
-        #overright  frappe/frappe/public/js/frappe/ui/toolbar/offcanvas_left_sidebar.html public/html/offcanvas_left_sidebar.html    
-        #SRC = os.join.path(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/navbar.html")
-        
-        system("cp " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/navbar.html") + " " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/navbar.html-bk") )
-        system("cp " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/offcanvas_left_sidebar.html") + " " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/offcanvas_left_sidebar.html-bk"))
-        system("cp " + path.join(APPS, "frappe/frappe/templates/pages/desk.html") + " " + path.join(APPS, "frappe/frappe/templates/pages/desk.html-bk") )
-        system("cp " + path.join(APPS, "angel/angel/public/html/navbar.html") + " " + path.join(APPS,"frappe/frappe/public/js/frappe/ui/toolbar/navbar.html"))
-        system("cp " + path.join(APPS, "angel/angel/public/html/offcanvas_left_sidebar.html") + " " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/offcanvas_left_sidebar.html"))
-        system("cp " + path.join(APPS, "angel/angel/templates/pages/desk.html") + " " + path.join(APPS, "frappe/frappe/templates/pages/desk.html"))
-        #system("cp " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/about.js") + " " + path.join(APPS,"frappe/frappe/public/js/frappe/ui/toolbar/about.js-bk"))
-        #system("cp " + path.join(APPS, "angel/angel/public/js/about.js") + " " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/about.js"))
-        # overright ../../erpnext/erpnext/public/js/conf.js ../../angel/angel/public/js/conf.js
-        #system("cp " + path.join(APPS, "angel/angel/public/js/conf.js") + " " + path.join(APPS, "erpnext/erpnext/public/js/conf.js"))
-        install_required_docs()
-
-# Customer Group Tree, Item Group Tree, Chart of Accounts,  Chart of Cost Centers
-def install_required_docs():
-        # Item Group
-        doc = frappe.new_doc("Item Group")
-        doc.is_group = "Yes"
-        doc.item_group_name = "All Item Groups"
-        doc.save()
-        frappe.db.commit()
-
-        # Customer Group
-        doc = frappe.new_doc("Customer Group")
-        doc.is_group = "Yes"
-        doc.customer_group_name = "All Customer Groups"
-        doc.save()
-        frappe.db.commit()
-
-        # Territory
-        doc = frappe.new_doc("Territory")
-        doc.is_group = "Yes"
-        doc.territory_name = "All Territories"
-        doc.save()
-        frappe.db.commit()
-
-        # Sales Person
-        doc = frappe.new_doc("Sales Person")
-        doc.is_group = "Yes"
-        doc.sales_person_name = "Sales Team"
-        doc.flags.ignore_mandatory = True
-        doc.flags.ignore_validate = True
-        doc.save()
-        frappe.db.commit()
-
-        if not frappe.local.site:
-                return
-        # return if scheduler is already enabled
-        if not frappe.utils.scheduler.is_scheduler_disabled():
-                return
-        site = frappe.local.site
-        try:
-                frappe.init(site=site)
-                frappe.connect()
-                frappe.utils.scheduler.enable_scheduler()
-                frappe.db.commit()
-                print "Enabled for", site
-        finally:
-                frappe.destroy()
+	#overright frappe/frappe/public/js/frappe/ui/toolbar/navbar.html public/html/navbar.html
+	#overright  frappe/frappe/public/js/frappe/ui/toolbar/offcanvas_left_sidebar.html public/html/offcanvas_left_sidebar.html    
+	#SRC = os.join.path(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/navbar.html")
+	
+	system("cp " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/navbar.html") + " " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/navbar.html-bk") )
+	system("cp " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/offcanvas_left_sidebar.html") + " " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/offcanvas_left_sidebar.html-bk"))
+	system("cp " + path.join(APPS, "frappe/frappe/templates/pages/desk.html") + " " + path.join(APPS, "frappe/frappe/templates/pages/desk.html-bk") )
+	system("cp " + path.join(APPS, "angel/angel/public/html/navbar.html") + " " + path.join(APPS,"frappe/frappe/public/js/frappe/ui/toolbar/navbar.html"))
+	system("cp " + path.join(APPS, "angel/angel/public/html/offcanvas_left_sidebar.html") + " " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/offcanvas_left_sidebar.html"))
+	system("cp " + path.join(APPS, "angel/angel/templates/pages/desk.html") + " " + path.join(APPS, "frappe/frappe/templates/pages/desk.html"))
+	#system("cp " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/about.js") + " " + path.join(APPS,"frappe/frappe/public/js/frappe/ui/toolbar/about.js-bk"))
+	#system("cp " + path.join(APPS, "angel/angel/public/js/about.js") + " " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/about.js"))
+	# overright ../../erpnext/erpnext/public/js/conf.js ../../angel/angel/public/js/conf.js
+	#system("cp " + path.join(APPS, "angel/angel/public/js/conf.js") + " " + path.join(APPS, "erpnext/erpnext/public/js/conf.js"))
+	
  
       
 	
 def def_content_overright(hooks):
-        for key in ['default_mail_footer', 'error_report_email', 'website_context']:
+	for key in ['default_mail_footer', 'error_report_email', 'website_context']:
 		if key in hooks:
 			del hooks[key]
 	#del hooks['default_mail_footer'] if hooks.has_key('default_mail_footer')
-        #del hooks['error_report_email']  if hooks.has_key('error_report_email')
-        #del hooks['website_context']     if hooks.has_key('website_context')
+	#del hooks['error_report_email']  if hooks.has_key('error_report_email')
+	#del hooks['website_context']     if hooks.has_key('website_context')
 
 def func_name():
-        print  str(traceback.extract_stack(None, 2)[0][0]) + ":  " + str(traceback.extract_stack(None, 2)[0][2])
+	print  str(traceback.extract_stack(None, 2)[0][0]) + ":  " + str(traceback.extract_stack(None, 2)[0][2])
 
