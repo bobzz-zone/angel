@@ -18,8 +18,6 @@ frappe.ui.form.on("Delivery Note Item", "price_list_rate", function(doc, cdt, cd
 });
 
 frappe.ui.form.on("Delivery Note Item", "price_list", function(doc, cdt, cdn){
-       var d = locals[cdt][cdn];
-
-       frappe.model.trigger("price_list_rate", 
-                      frappe.model.get_value("Delivery Note Item", cdn, "price_list_rate"), d);
- });
+  var d = locals[cdt][cdn];
+  frappe.model.trigger("price_list_rate", frappe.model.get_value("Delivery Note Item", cdn, "price_list_rate"), d);
+});
