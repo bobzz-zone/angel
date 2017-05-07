@@ -1,9 +1,0 @@
-Core
-Website
-Workflow
-Email
-Custom
-Geo
-Desk
-Print
-Integrations
