@@ -53,7 +53,7 @@ website_context = {
 # ------------
 
 # before_install = "angel.install.before_install"
-after_install = "angel.install.after_install"
+#after_install = "angel.install.after_install"
 
 # Desk Notifications
 # ------------------
