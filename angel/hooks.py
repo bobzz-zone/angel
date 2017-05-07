@@ -84,16 +84,16 @@ after_install = "angel.install.after_install"
 # 		"on_trash": "method"
 #	}
 # }
-doc_events = {
-        "*": {
+#doc_events = {
+#        "*": {
 #                "after_insert": "angel.tasks.sync_doc_remote",
 #                "on_update":    "angel.tasks.sync_doc_remote",
 #                "after_rename": "angel.tasks.sync_doc_remote",
 #                "on_submit":    "angel.tasks.sync_doc_remote",
 #                "on_cancel":    "angel.tasks.sync_doc_remote",
 #                "on_trash":     "angel.tasks.sync_doc_remote"
-        }
-}
+#        }
+#}
 
 
 # Scheduled Tasks
