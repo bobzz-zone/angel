@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from os import system, getcwd, environ, path
 import frappe	
 
-USER = "/home/" + environ['USER'] if environ.has_key("USER") else "korecent" 
+USER = "/home/frappe"
 FBENCH = path.join(USER, "frappe-bench")
 APPS = path.join(USER, "frappe-bench/apps")
 
