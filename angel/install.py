@@ -8,8 +8,8 @@ FBENCH = path.join(USER, "frappe-bench")
 APPS = path.join(USER, "frappe-bench/apps")
 
 def after_install():
-	frappe.db.set_default('desktop:home_page', '')
-	frappe.db.commit()
+	#frappe.db.set_default('desktop:home_page', '')
+	#frappe.db.commit()
 
 	# erp-icon.svg  erpnext-footer.png  favicon.png  pos.svg  splash.png   /home/ubuntu/frappe-bench/sites/assets/erpnext/images
 	# overright templates/includes/footer/footer_extension.html
@@ -30,7 +30,7 @@ def after_install():
 	#SRC = os.join.path(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/navbar.html")
 	
 	system("cp " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/navbar.html") + " " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/navbar.html-bk") )
-	system("cp " + path.join(APPS, "frappe/frappe/templates/pages/desk.html") + " " + path.join(APPS, "frappe/frappe/templates/pages/desk.html-bk") )
+	#system("cp " + path.join(APPS, "frappe/frappe/templates/pages/desk.html") + " " + path.join(APPS, "frappe/frappe/templates/pages/desk.html-bk") )
 	system("cp " + path.join(APPS, "angel/angel/public/html/navbar.html") + " " + path.join(APPS,"frappe/frappe/public/js/frappe/ui/toolbar/navbar.html"))
 	#system("cp " + path.join(APPS, "angel/angel/templates/pages/desk.html") + " " + path.join(APPS, "frappe/frappe/templates/pages/desk.html"))
 	#system("cp " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/about.js") + " " + path.join(APPS,"frappe/frappe/public/js/frappe/ui/toolbar/about.js-bk"))
@@ -41,14 +41,14 @@ def after_install():
  
       
 	
-def def_content_overright(hooks):
-	for key in ['default_mail_footer', 'error_report_email', 'website_context']:
-		if key in hooks:
-			del hooks[key]
+#def def_content_overright(hooks):
+#	for key in ['default_mail_footer', 'error_report_email', 'website_context']:
+#		if key in hooks:
+#			del hooks[key]
 	#del hooks['default_mail_footer'] if hooks.has_key('default_mail_footer')
 	#del hooks['error_report_email']  if hooks.has_key('error_report_email')
 	#del hooks['website_context']     if hooks.has_key('website_context')
 
-def func_name():
-	print  str(traceback.extract_stack(None, 2)[0][0]) + ":  " + str(traceback.extract_stack(None, 2)[0][2])
+#def func_name():
+#	print  str(traceback.extract_stack(None, 2)[0][0]) + ":  " + str(traceback.extract_stack(None, 2)[0][2])
 
