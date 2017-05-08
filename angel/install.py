@@ -32,7 +32,7 @@ def after_install():
 	system("cp " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/navbar.html") + " " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/navbar.html-bk") )
 	system("cp " + path.join(APPS, "frappe/frappe/templates/pages/desk.html") + " " + path.join(APPS, "frappe/frappe/templates/pages/desk.html-bk") )
 	system("cp " + path.join(APPS, "angel/angel/public/html/navbar.html") + " " + path.join(APPS,"frappe/frappe/public/js/frappe/ui/toolbar/navbar.html"))
-	system("cp " + path.join(APPS, "angel/angel/templates/pages/desk.html") + " " + path.join(APPS, "frappe/frappe/templates/pages/desk.html"))
+	#system("cp " + path.join(APPS, "angel/angel/templates/pages/desk.html") + " " + path.join(APPS, "frappe/frappe/templates/pages/desk.html"))
 	#system("cp " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/about.js") + " " + path.join(APPS,"frappe/frappe/public/js/frappe/ui/toolbar/about.js-bk"))
 	#system("cp " + path.join(APPS, "angel/angel/public/js/about.js") + " " + path.join(APPS, "frappe/frappe/public/js/frappe/ui/toolbar/about.js"))
 	# overright ../../erpnext/erpnext/public/js/conf.js ../../angel/angel/public/js/conf.js
