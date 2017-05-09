@@ -12,10 +12,10 @@ app_version = "0.0.1"
 
 error_report_email = "rosyeni@gmail.com"
 
-website_context = {
-	"splash_image": "/assets/angel/images/ms-icon-310x310.png",
-	"favicon"     :	"/assets/angel/images/favicon-16x16.png"
-}
+#website_context = {
+#	"splash_image": "/assets/angel/images/ms-icon-310x310.png",
+#	"favicon"     :	"/assets/angel/images/favicon-16x16.png"
+#}
 #fixtures = [
 #             "Custom Field", 
 #             "Property Setter", 
