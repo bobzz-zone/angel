@@ -593,35 +593,5 @@
   "width": null
  }, 
  
- {
-  "allow_on_submit": 0, 
-  "default": null, 
-  "depends_on": null, 
-  "description": null, 
-  "docstatus": 0, 
-  "doctype": "Custom Field", 
-  "dt": "Sales Invoice", 
-  "fieldname": "commission_rule", 
-  "fieldtype": "Link", 
-  "hidden": 0, 
-  "ignore_user_permissions": 0, 
-  "in_filter": 0, 
-  "in_list_view": 0, 
-  "insert_after": "sales_person", 
-  "label": "Commission Rule", 
-  "modified": "2016-01-31 22:19:02.273405", 
-  "name": "Sales Invoice-commission_rule", 
-  "no_copy": 0, 
-  "options": "Commissions Rule", 
-  "permlevel": 0, 
-  "precision": "", 
-  "print_hide": 0, 
-  "print_width": null, 
-  "read_only": 0, 
-  "report_hide": 0, 
-  "reqd": 0, 
-  "search_index": 0, 
-  "unique": 0, 
-  "width": null
- }
+ 
 ]
