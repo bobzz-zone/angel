@@ -1,5 +1,0 @@
-frappe.ui.form.on("Petty Cash", {"onload": function(frm){
-
-  frm.doc.transaction_date = frappe.datetime.get_today();
-
-}});

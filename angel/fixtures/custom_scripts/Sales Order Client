@@ -27,24 +27,7 @@ frappe.ui.form.on("Sales Order Item", "price_list", function(doc, cdt, cdn){
                       frappe.model.get_value("Sales Order Item", cdn, "price_list_rate"), d);
  });
 
-frappe.ui.form.on("Sales Order", "ignore_pricing_rule", function(frm){
- 
-         var check = cint(frm.doc.ignore_pricing_rule);
- 
-         if(check == 1){
-         //alert(check +" Value ON");
-         frm.toggle_display("selling_price_list", 0);  
-         frm.toggle_reqd("selling_price_list", false); 
-         }
-         else if (check == 0){
-         //child table rule gets hidden or disabled
-         //alert(check +" Value OF");
-         frm.toggle_display("selling_price_list", 1);  
-         frm.toggle_reqd("selling_price_list", true); 
-         //frappe.meta.get_docfield("Sales Order Item", "price_list", this.frm.docname).reqd = false;
-         //frappe.meta.get_docfield("Sales order Item", "price_list", this.frm.docname).read_only= 0;
-         }
- });
+
 
 frappe.ui.form.on("Sales Order", "customer", function(frm) {
     cur_frm.set_query("deal_number", function() {
