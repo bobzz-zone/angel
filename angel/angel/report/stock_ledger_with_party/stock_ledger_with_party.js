@@ -38,12 +38,6 @@ frappe.query_reports["Stock Ledger With Party"] = {
 			"options": "Item"
 		},
 		{
-			"fieldname":"batch_no",
-			"label": __("Batch No"),
-			"fieldtype": "Link",
-			"options": "Batch"
-		},
-		{
 			"fieldname":"brand",
 			"label": __("Brand"),
 			"fieldtype": "Link",
