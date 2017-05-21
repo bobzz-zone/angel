@@ -30,7 +30,7 @@ def get_customer_outstanding(customer, company):
 	outstanding_based_on_so = flt(outstanding_based_on_so[0][0]) if outstanding_based_on_so else 0.0
 
 	return {
-	"invoice":outstanding_based_on_gle,
-	"order":outstanding_based_on_so
+	"outstanding_invoice":outstanding_based_on_gle,
+	"outstanding_sales_order":outstanding_based_on_so
 	}
 
