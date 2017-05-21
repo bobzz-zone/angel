@@ -77,13 +77,13 @@ after_install = "angel.install.after_install"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
+doc_events = {
+	"Sales Order": {
+		"validate": "angel.angel.custom.overdue_invoice_check",
 # 		"on_cancel": "method",
 # 		"on_trash": "method"
-#	}
-# }
+	}
+}
 #doc_events = {
 #        "*": {
 #                "after_insert": "angel.tasks.sync_doc_remote",
