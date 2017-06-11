@@ -10,127 +10,113 @@ from frappe import _
 from frappe.model.document import Document
 
 class CombineDeliveries(Document):
-	def validate(self):
-		flag = self.check_status()
-		if(flag):
-			self.status ="Delivered"
-		else:
-			self.status = "Partially Shipped"
-	def check_status(self):
-		flag = True;
-		result_table = self.result_table  or []
-		for result in result_table:
-			qty = flt(result.qty_pending_delivery)
-			if(qty):
-				flag = False
-				break
-			else:
-				flag = True
-		return flag
+	def remove_dn(self):
+		lists=[]
+		for row in result_table:
+			if row.delivery_note_number!=self.delivery_note:
+				lists.append(row)
+		result_table=[]
+		for row in lists:
+			det_item = self.append("result_table",{})
+			det_item.delivery_note_number=self.delivery_note
+			det_item.item = row.item_code
+			det_item.item_name = row.item_name
+			det_item.qty = row.qty
+			det_item.rate = row.rate
 
+	def add_delivery_note(self):
+		if self.delivery_note:
+			found =0
+			for row in result_table:
+				if row.delivery_note_number == self.delivery_note:
+					found=1
+					break
+			if found==1:
+				frappe.throw("Delivery Note Already exist.")
+			else:
+				data = frappe.db.sql("""select di.item_code,di.item_name,di.qty,di.rate,d.combined_reference_number from `tabDelivery Note Item` di 
+					join `tabDelivery Note` d on di.parent = d.name 
+					where di.parent = "{}" 
+					and d.docstatus=1""".format(self.delivery_note),as_dict=1)
+				for row in data:
+					if row['combined_reference_number']:
+						frappe.throw("Cannot add Deliery Note that already in another Combine Delivery Document.")
+					det_item = self.append("result_table",{})
+					det_item.delivery_note_number=self.delivery_note
+					det_item.item = row['item_code']
+					det_item.item_name = row['item_name']
+					det_item.qty = row['qty']
+					det_item.rate = row['rate']
+		else:
+			frappe.throw("Delivery Note cannot be empty.")
+	def validate(self):
+		dn=""
+		for row in result_table:
+			if dn=="":
+				dn = """ "{}" """.format(row.delivery_note_number)
+			elif not row.delivery_note_number in dn:
+				dn = """ {},"{}" """.format(dn, row.delivery_note_number)
+		data = frappe.db.sql("""select name,combined_reference_number, docstatus,workflow_state from `tabDelivery Note` where name IN ({}) """.format(dn),as_list=1)
+		for row in data:
+			if row[1]:
+				if row[1]!="" or row[2]!=1 or row[3]!="Siap Kirim":
+					frappe.throw("{} not valid".format(row[0]))
+	def on_submit(self):
+		done=[]
+		for item in self.result_table:
+			if item.delivery_note_number in done:
+				continue
+			frappe.db.sql("""UPDATE `tabDelivery Note` SET workflow_state = %(val)s
+						WHERE name = %(flag)s """, {"flag":item.delivery_note_number, "val":"Terkirim"})
+			done.append(item.delivery_note_number)
 	def on_update(self):
 		self.update_delivery_note()
 
 	def update_delivery_note(self):
+		frappe.db.sql("""update `tabDelivery Note` set combined_reference_number="" where combined_reference_number="{}" """.format(self.name),as_list=1)
 		tbl = self.result_table
 		for item in tbl:
-			dn_name = item.delivery_note_number
-			name = self.name
 			if dn_name:
 				frappe.db.sql("""UPDATE `tabDelivery Note` SET combined_reference_number = %(val)s
-						WHERE name = %(flag)s """, {"flag":dn_name, "val":name})
+						WHERE name = %(flag)s """, {"flag":item.delivery_note_number, "val":self.name})
 
-@frappe.whitelist()
-def get_delivery_note(data=None):
-	new_data = []
-	record_list = []
-	filtered_list= []
-	customer_list = []
-	territory_list = []
-	if not data:
-		return new_data
-	else:
-		data = json.loads(data)
-		customer_list = data['customer']
-		territory_list = data['territory']
-	customers = frappe.db.sql("""SELECT name from `tabDelivery Note` WHERE customer IN (%s) AND docstatus = 1""" \
-				%', '.join(['%s']*len(customer_list)),tuple([name for name in customer_list]), as_list = True)
+	def get_items(self):
+		packed_item={}
+		parent_list=[]
+		for row in result_table:
+			items = frappe.db.get_values("Delivery Note Item", filters = {"parent":row.delivery_note_number, "docstatus":1}, fieldname="*", as_dict =True)
+			packed = frappe.db.get_values("Packed Item", filters = {"parent":row.delivery_note_number, "docstatus":1}, fieldname="*", as_dict =True)
+			if packed:
+				for item in packed:
+					temp_item = {}
+					if item['qty'] < 0:
+						continue
+					if item['item_code'] in packed_item:
+						packed_item[item['item_code']]['qty']+=flt(item['qty'])
+					else:
+						packed_item[item['item_code']]={}
+						packed_item[item['item_code']]['item_name'] = item['item_name']
+						packed_item[item['item_code']]['qty'] = flt(item['qty'])
+						packed_item[item['item_code']]['item_code'] = item['item_code']
+					if not item['parent_item'] in parent_list:
+						parent_list.append(item['parent_item'])
+			if items:
+				for item in items:
+					if item['qty'] < 0:
+						continue
+					if not item['item_code'] in parent_list:
+						if item['item_code'] in packed_item:
+							packed_item[item['item_code']]['qty']+=flt(item['qty'])
+						else:
+							packed_item[item['item_code']]={}
+							packed_item[item['item_code']]['item_name'] = item['item_name']
+							packed_item[item['item_code']]['qty'] = flt(item['qty'])
+							packed_item[item['item_code']]['item_code'] = item['item_code']
+		self.item_wise_quantities=[]
+		for row in packed_item:
+			det_item = self.append("item_wise_quantities",{})
+			det_item.item_code=packed_item[row]['item_code']
+			det_item.qty=packed_item[row]['qty']
+			det_item.item_name=packed_item[row]['item_name']
 
-	territory = frappe.db.sql("""SELECT  name from `tabDelivery Note` WHERE  territory IN (%s) AND docstatus = 1""" \
-				%', '.join(['%s']*len(territory_list)), tuple([name for name in territory_list]), as_list = True)
-	new_data = customers + territory
-	for record in new_data:
-		for dn in record:
-			record_list.append(dn)
-	filtered_list = set(record_list)
-	filtered_list = list(filtered_list)
-	new_data = []
-	item_name_list = []
-	for item in filtered_list:
-		temp = get_items(item)
-		item_list = temp[1]
-		item_name_list = temp[0]
-		if temp:
-			if item_list:
-				for data in item_list:
-					new_data.append(data)
-	new_data.sort()
-	items = get_result_table_item(item_name_list, new_data)
-	data = {}
-	data["result_table"] = new_data
-	data['result_table_item_wise'] = items
-	return data
 
-def get_items(delivery_number):
-	records = []
-	item_list = []
-	item_name_list = []
-	if delivery_number:
-		items = frappe.db.get_values("Delivery Note Item", filters = {"parent":delivery_number, "docstatus":1}, fieldname="*", as_dict =True)
-		if items:
-			for item in items:
-				temp_item = {}
-				if item['qty'] < 0:
-					continue
-				temp_item['delivery_note_number'] = item['parent']
-				temp_item['item_name'] = item['item_name']
-				temp_item['qty_for_delivery'] = item['qty']
-				temp_item['item_code'] = item['item_code']
-				temp_item['price_list_rate'] = item['price_list_rate']
-				item_name_list.append(item['item_name'])
-				item_list.append(temp_item)
-	records.append(item_name_list)
-	records.append(item_list)
-	return records
-
-@frappe.whitelist()
-def make_return_deliveries(source_name_list, target_doc = None):
-	if "erpnext" in frappe.get_installed_apps():
-		from erpnext.controllers.sales_and_purchase_return import make_return_doc
-		import json
-		source_name_list = json.loads(source_name_list)
-		lst = set(source_name_list)
-		lst = list(lst)
-		if source_name_list:
-			for name in lst:
-				doc  = make_return_doc("Delivery Note", name, target_doc)
-				try:
-					doc.save()
-					frappe.db.commit()
-				except:
-					print frappe.get_traceback()
-
-def get_result_table_item(item_name_list, result_table_list):
-	temp_list = []
-	items = {}
-	item_temp = {}
-	if result_table_list:
-		temp_list = list(set(item_name_list))
-		for result in result_table_list:
-			flag = items.has_key(result['item_name'])
-			if flag:
-				items[result['item_code']] += flt(result['qty_for_delivery'])
-			if not flag:
-				items[result['item_code']] = flt(result['qty_for_delivery'])
-	items = [{"item_code":key, "qty_for_delivery":value} for key, value in items.iteritems()]
-	return items
