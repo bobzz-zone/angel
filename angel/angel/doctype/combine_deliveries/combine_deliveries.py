@@ -12,7 +12,7 @@ from frappe.model.document import Document
 class CombineDeliveries(Document):
 	def remove_dn(self):
 		lists=[]
-		for row in result_table:
+		for row in self.result_table:
 			if row.delivery_note_number!=self.delivery_note:
 				lists.append(row)
 		result_table=[]
@@ -27,10 +27,11 @@ class CombineDeliveries(Document):
 	def add_delivery_note(self):
 		if self.delivery_note:
 			found =0
-			for row in result_table:
-				if row.delivery_note_number == self.delivery_note:
-					found=1
-					break
+			#if self.result_table:
+			#	for row in self.result_table:
+			#		if row.delivery_note_number == self.delivery_note:
+			#			found=1
+			#			break
 			if found==1:
 				frappe.throw("Delivery Note Already exist.")
 			else:
@@ -83,7 +84,7 @@ class CombineDeliveries(Document):
 	def get_items(self):
 		packed_item={}
 		parent_list=[]
-		for row in result_table:
+		for row in self.result_table:
 			items = frappe.db.get_values("Delivery Note Item", filters = {"parent":row.delivery_note_number, "docstatus":1}, fieldname="*", as_dict =True)
 			packed = frappe.db.get_values("Packed Item", filters = {"parent":row.delivery_note_number, "docstatus":1}, fieldname="*", as_dict =True)
 			if packed:
