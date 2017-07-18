@@ -12,6 +12,17 @@ def overdue_invoice_check(doc,method):
 	for data in inv:
 		frappe.throw("Ada Invoice yang belum lunas dan telah Overdue {}".format(data[0]))
 
+
+@frappe.whitelist()
+def update_dn_on_update(doc,method):
+	valupdate="Tertagih"
+	if method=="on_cancel":
+		valupdate="Terkirim"
+	for item in doc.items:
+		if item.delivery_note:
+			frappe.db.sql("""UPDATE `tabDelivery Note` SET workflow_state = %(val)s
+						WHERE name = %(flag)s """, {"flag":item.delivery_note, "val":valupdate})
+
 @frappe.whitelist()
 def get_customer_outstanding(customer, company):
 	# Outstanding based on GL Entries

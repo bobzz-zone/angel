@@ -16,13 +16,13 @@ class CombineDeliveries(Document):
 			if row.delivery_note_number!=self.delivery_note:
 				lists.append(row)
 		self.result_table=[]
-		for row in lists:
+		for a in lists:
 			det_item = self.append("result_table",{})
-			det_item.delivery_note_number=self.delivery_note
-			det_item.item = row.item
-			det_item.item_name = row.item_name
-			det_item.qty = row.qty
-			det_item.rate = row.rate
+			det_item.delivery_note_number=a.delivery_note_number
+			det_item.item = a.item
+			det_item.item_name = a.item_name
+			det_item.qty = a.qty
+			det_item.rate = a.rate
 
 	def add_delivery_note(self):
 		if self.delivery_note:

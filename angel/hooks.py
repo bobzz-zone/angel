@@ -82,7 +82,10 @@ doc_events = {
 		"validate": "angel.angel.custom.overdue_invoice_check",
 # 		"on_cancel": "method",
 # 		"on_trash": "method"
-	}
+	},
+	"Sales Invoice":{
+		"on_submit":"angel.angel.custom.update_dn_on_update",
+		"on_cancel":"angel.angel.custom.update_dn_on_update"
 }
 #doc_events = {
 #        "*": {
