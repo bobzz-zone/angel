@@ -49,11 +49,11 @@ def get_delivery_items(delivery_note= None):
 	if not delivery_note:
 		return items_details
 	if isinstance(delivery_note, list):
-		items_details = frappe.db.sql("""SELECT item_code, item_name, qty, parent,price_list_rate from `tabDelivery Note Item` WHERE docstatus = 1 AND parent IN (%s) """%" ,".join(['%s']*len(delivery_note)), 
-					tuple(name for name in delivery_note), as_dict =True)
+		items_details = frappe.db.sql("""SELECT item_code, item_name, qty, parent,rate from `tabDelivery Note Item` WHERE docstatus = 1 AND parent IN (%s) """%" ,".join(['%s']*len(delivery_note)), 
+					tuple(name for name in delivery_note), as_dict =1)
 	
-
 	return items_details
+	#return json.dumps(items_details)
 
 
 

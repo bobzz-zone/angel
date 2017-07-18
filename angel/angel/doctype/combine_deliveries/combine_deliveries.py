@@ -15,11 +15,11 @@ class CombineDeliveries(Document):
 		for row in self.result_table:
 			if row.delivery_note_number!=self.delivery_note:
 				lists.append(row)
-		result_table=[]
+		self.result_table=[]
 		for row in lists:
 			det_item = self.append("result_table",{})
 			det_item.delivery_note_number=self.delivery_note
-			det_item.item = row.item_code
+			det_item.item = row.item
 			det_item.item_name = row.item_name
 			det_item.qty = row.qty
 			det_item.rate = row.rate
@@ -52,7 +52,7 @@ class CombineDeliveries(Document):
 			frappe.throw("Delivery Note cannot be empty.")
 	def validate(self):
 		dn=""
-		for row in result_table:
+		for row in self.result_table:
 			if dn=="":
 				dn = """ "{}" """.format(row.delivery_note_number)
 			elif not row.delivery_note_number in dn:
@@ -60,7 +60,7 @@ class CombineDeliveries(Document):
 		data = frappe.db.sql("""select name,combined_reference_number, docstatus,workflow_state from `tabDelivery Note` where name IN ({}) """.format(dn),as_list=1)
 		for row in data:
 			if row[1]:
-				if row[1]!="" or row[2]!=1 or row[3]!="Siap Kirim":
+				if row[2]!=1 or row[3]!="Siap Kirim":
 					frappe.throw("{} not valid".format(row[0]))
 	def on_submit(self):
 		done=[]
@@ -77,7 +77,7 @@ class CombineDeliveries(Document):
 		frappe.db.sql("""update `tabDelivery Note` set combined_reference_number="" where combined_reference_number="{}" """.format(self.name),as_list=1)
 		tbl = self.result_table
 		for item in tbl:
-			if dn_name:
+			if item.delivery_note_number:
 				frappe.db.sql("""UPDATE `tabDelivery Note` SET combined_reference_number = %(val)s
 						WHERE name = %(flag)s """, {"flag":item.delivery_note_number, "val":self.name})
 
