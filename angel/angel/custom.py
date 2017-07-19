@@ -19,7 +19,7 @@ def validate_dn_on_invoice(doc,method):
 	#	if item.delivery_note:
 	dn=""
 	for row in doc.items:
-		if item.delivery_note:
+		if row.delivery_note:
 			if dn=="":
 				dn = """ "{}" """.format(row.delivery_note)
 			elif not row.delivery_note in dn:
