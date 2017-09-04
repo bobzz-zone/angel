@@ -17,6 +17,8 @@ def overdue_invoice_check(doc,method):
 def validate_dn_on_invoice(doc,method):
 	#for item in doc.items:
 	#	if item.delivery_note:
+	if doc.is_return==1:
+		return
 	dn=""
 	for row in doc.items:
 		if row.delivery_note:
@@ -24,11 +26,13 @@ def validate_dn_on_invoice(doc,method):
 				dn = """ "{}" """.format(row.delivery_note)
 			elif not row.delivery_note in dn:
 				dn = """ {},"{}" """.format(dn, row.delivery_note)
+	if dn=="":
+		return
 	data = frappe.db.sql("""select name,combined_reference_number, docstatus,workflow_state from `tabDelivery Note` where name IN ({}) """.format(dn),as_list=1)
 	for row in data:
 		if row[1]:
-			if row[2]!=1 or row[3]!="Siap Kirim":
-				frappe.throw("{} not valid".format(row[0]))
+			if row[2]!=1 or row[3]=="Siap Kirim":
+				frappe.throw("{} not valid {} {}".format(row[0]))
 
 @frappe.whitelist()
 def update_dn_on_update(doc,method):

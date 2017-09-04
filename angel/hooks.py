@@ -87,6 +87,7 @@ doc_events = {
 		"on_submit":"angel.angel.custom.update_dn_on_update",
 		"on_cancel":"angel.angel.custom.update_dn_on_update",
 		"validate":"angel.angel.custom.validate_dn_on_invoice"
+	}
 }
 #doc_events = {
 #        "*": {
