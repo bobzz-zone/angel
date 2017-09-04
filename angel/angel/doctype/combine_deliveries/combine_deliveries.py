@@ -92,7 +92,10 @@ class CombineDeliveries(Document):
 	def get_items(self):
 		packed_item={}
 		parent_list=[]
+		dn_list=[]
 		for row in self.result_table:
+			if row.delivery_note_number in dn_list:
+				continue
 			items = frappe.db.get_values("Delivery Note Item", filters = {"parent":row.delivery_note_number, "docstatus":1}, fieldname="*", as_dict =True)
 			packed = frappe.db.get_values("Packed Item", filters = {"parent":row.delivery_note_number, "docstatus":1}, fieldname="*", as_dict =True)
 			if packed:
@@ -121,6 +124,7 @@ class CombineDeliveries(Document):
 							packed_item[item['item_code']]['item_name'] = item['item_name']
 							packed_item[item['item_code']]['qty'] = flt(item['qty'])
 							packed_item[item['item_code']]['item_code'] = item['item_code']
+			dn_list.append(row.delivery_note_number)
 		self.item_wise_quantities=[]
 		for row in packed_item:
 			det_item = self.append("item_wise_quantities",{})
