@@ -31,15 +31,14 @@ def validate_dn_on_invoice(doc,method):
 	data = frappe.db.sql("""select name,combined_reference_number, docstatus,workflow_state from `tabDelivery Note` where name IN ({}) """.format(dn),as_list=1)
 	for row in data:
 		if row[1]:
-			if row[2]!=1 or row[3]!="Siap Kirim":
-				pass
-				#frappe.throw("{} not valid".format(row[0]))
+			if row[2]!=1 or row[3]=="Siap Kirim":
+				frappe.throw("{} not valid {} {}".format(row[0]))
 
 @frappe.whitelist()
 def update_dn_on_update(doc,method):
 	valupdate="Tertagih"
 	if method=="on_cancel":
-		valupdate="Terkirim"
+		valupdate="Siap Kirim"
 	for item in doc.items:
 		if item.delivery_note:
 			frappe.db.sql("""UPDATE `tabDelivery Note` SET workflow_state = %(val)s

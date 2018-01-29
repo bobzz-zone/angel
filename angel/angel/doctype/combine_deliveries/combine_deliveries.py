@@ -64,22 +64,24 @@ class CombineDeliveries(Document):
 					frappe.throw("{} not valid".format(row[0]))
 	def on_submit(self):
 		done=[]
+		self.delivery_note=""
 		for item in self.result_table:
 			if item.delivery_note_number in done:
 				continue
 			frappe.db.sql("""UPDATE `tabDelivery Note` SET workflow_state = %(val)s
 						WHERE name = %(flag)s """, {"flag":item.delivery_note_number, "val":"Terkirim"})
 			done.append(item.delivery_note_number)
+		self.update_delivery_note()
 	def on_cancel(self):
 		done=[]
 		for item in self.result_table:
 			if item.delivery_note_number in done:
 				continue
-			frappe.db.sql("""UPDATE `tabDelivery Note` SET workflow_state = %(val)s
+			frappe.db.sql("""UPDATE `tabDelivery Note` SET workflow_state = %(val)s , combined_reference_number=""
 						WHERE name = %(flag)s """, {"flag":item.delivery_note_number, "val":"Siap Kirim"})
 			done.append(item.delivery_note_number)
-	def on_update(self):
-		self.update_delivery_note()
+#	def on_update(self):
+#		self.update_delivery_note()
 
 	def update_delivery_note(self):
 		frappe.db.sql("""update `tabDelivery Note` set combined_reference_number="" where combined_reference_number="{}" """.format(self.name),as_list=1)
