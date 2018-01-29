@@ -31,6 +31,9 @@ class TTDocument(Document):
 	def on_submit(self):
 		self.update_si()
 
+	def on_cancel(self):
+		frappe.db.sql(""" UPDATE `tabSales Invoice` SET tt_reference_number=""
+							WHERE tt_reference_number=%(tt_name)s""" , {"tt_name":self.name})
 	def update_si(self):
 		table = self.outstanding_invoices or []
 		for item in table:
