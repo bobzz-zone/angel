@@ -1,7 +1,8 @@
 from __future__ import unicode_literals,print_function
 import frappe
 def test():
-	print("Hallo")
+	sr = frappe.get_doc("Stock Reconciliation","SR/00298")
+	sr.submit()
 
 def copy_user_roles_to_has_roles():
 	if frappe.db.exists('DocType', 'UserRole') or 1==1:

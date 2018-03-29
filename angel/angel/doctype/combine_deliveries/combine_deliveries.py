@@ -68,8 +68,12 @@ class CombineDeliveries(Document):
 		for item in self.result_table:
 			if item.delivery_note_number in done:
 				continue
+			stat = "Terkirim"
+			dn = frappe.get_doc("Delivery Note",item.delivery_note_number)
+			if dn.per_billed and dn.per_billed>0:
+				stat="Tertagih"
 			frappe.db.sql("""UPDATE `tabDelivery Note` SET workflow_state = %(val)s
-						WHERE name = %(flag)s """, {"flag":item.delivery_note_number, "val":"Terkirim"})
+						WHERE name = %(flag)s """, {"flag":item.delivery_note_number, "val":stat})
 			done.append(item.delivery_note_number)
 		self.update_delivery_note()
 	def on_cancel(self):

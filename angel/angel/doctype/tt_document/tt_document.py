@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 from frappe import _, msgprint, throw
-
+from frappe.utils import  flt
 class TTDocument(Document):
 
 	
@@ -19,7 +19,7 @@ class TTDocument(Document):
 		for arr in tbl:
 			against_v = arr.against_voucher_no
 			val = frappe.db.get_value("Sales Invoice",{"name":against_v},"outstanding_amount")
-			grand_total += arr.total_amount
+			grand_total += flt(arr.total_amount)
 			arr.outstanding_amount = val
 			dest.append(arr)
 			om+=val
@@ -27,7 +27,19 @@ class TTDocument(Document):
 		self.set("grand_total", grand_total)
 		self.set("total_amount",om)
 	def validate(self):
-		pass
+		found=0
+		for row in self.outstanding_invoices:
+			invoice = frappe.get_doc("Sales Invoice", row.against_voucher_no)
+			row.invoice_due_date=invoice.due_date
+			row.invoice_date = invoice.posting_date
+			row.customer = invoice.customer
+			row.sales_person = invoice.sales_team[0].sales_person
+			if invoice.tt_reference_number and invoice.tt_reference_number!="":
+				frappe.throw("Invoice {} sudah ada di TT Document {}".format(row.against_voucher_no,invoice.tt_reference_number))
+			if self.sales_person!=row.sales_person:
+				found=1
+		if found==1:
+			frappe.throw("Sales Person Tidak Sama")
 	def on_submit(self):
 		self.update_si()
 
